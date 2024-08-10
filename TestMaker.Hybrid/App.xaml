@@ -3,6 +3,18 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TestMaker.Hybrid"
              x:Class="TestMaker.Hybrid.App">
+
+    <Application.MainPage>
+        <Shell>
+            <ShellContent>
+                <ShellContent.ContentTemplate>
+                    <DataTemplate>
+                        <local:MainPage/>
+                    </DataTemplate>
+                </ShellContent.ContentTemplate>
+            </ShellContent>
+        </Shell>
+    </Application.MainPage>
     <Application.Resources>
         <ResourceDictionary>
 

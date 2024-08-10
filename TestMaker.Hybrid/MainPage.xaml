@@ -5,6 +5,17 @@
              x:Class="TestMaker.Hybrid.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
 
+    <ContentPage.MenuBarItems>
+        <MenuBarItem Text="File">
+            <MenuFlyoutItem Text="New"></MenuFlyoutItem>
+        </MenuBarItem>
+        <MenuBarItem Text="View">
+            <MenuFlyoutItem Text="All"></MenuFlyoutItem>
+        </MenuBarItem>
+        <MenuBarItem Text="Help">
+            <MenuFlyoutItem Text="About"></MenuFlyoutItem>
+        </MenuBarItem>
+    </ContentPage.MenuBarItems>
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type local:Components.Routes}" />
