@@ -3,13 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMaker.Hybrid", "TestMaker.Hybrid.csproj", "{B6D3EF05-2A14-4D95-ACD9-980D7B958A78}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestMaker.Hybrid", "TestMaker.Hybrid.csproj", "{B6D3EF05-2A14-4D95-ACD9-980D7B958A78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMaker.Shared", "..\TestMaker.Shared\TestMaker.Shared.csproj", "{77A1432D-73A0-4EC3-BD98-E36E5ED7AC86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestMaker.Shared", "..\TestMaker.Shared\TestMaker.Shared.csproj", "{77A1432D-73A0-4EC3-BD98-E36E5ED7AC86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMaker.Web", "..\TestMaker.Web\TestMaker.Web\TestMaker.Web.csproj", "{C1ADD3D1-02EE-48CF-8D24-DA436BF0A25B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestMaker.Web", "..\TestMaker.Web\TestMaker.Web\TestMaker.Web.csproj", "{C1ADD3D1-02EE-48CF-8D24-DA436BF0A25B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMaker.Web.Client", "..\TestMaker.Web\TestMaker.Web.Client\TestMaker.Web.Client.csproj", "{51CE2E36-8B46-4938-BEAB-97D84BA111C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestMaker.Web.Client", "..\TestMaker.Web\TestMaker.Web.Client\TestMaker.Web.Client.csproj", "{51CE2E36-8B46-4938-BEAB-97D84BA111C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestMaker.Data", "..\TestMaker.Data\TestMaker.Data.csproj", "{0C1712B7-2EE7-49DF-BBAF-21A835FC83DF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,10 @@ Global
 		{51CE2E36-8B46-4938-BEAB-97D84BA111C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{51CE2E36-8B46-4938-BEAB-97D84BA111C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{51CE2E36-8B46-4938-BEAB-97D84BA111C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C1712B7-2EE7-49DF-BBAF-21A835FC83DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C1712B7-2EE7-49DF-BBAF-21A835FC83DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C1712B7-2EE7-49DF-BBAF-21A835FC83DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C1712B7-2EE7-49DF-BBAF-21A835FC83DF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

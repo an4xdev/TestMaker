@@ -64,4 +64,9 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\TestMaker.Data\TestMaker.Data.csproj" />
+      <ProjectReference Include="..\TestMaker.Shared\TestMaker.Shared.csproj" />
+    </ItemGroup>
+
 </Project>
