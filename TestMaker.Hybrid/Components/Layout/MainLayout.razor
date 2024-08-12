@@ -1,9 +1,47 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <main>
-        <article class="content py-4">
-            @Body
-        </article>
-    </main>
-</div>
+<MudLayout>
+    <MudMainContent Class="py-1 px-1">
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+<MudThemeProvider @ref="@mudThemeProvider" @bind-IsDarkMode="@isDarkMode" />
+<MudPopoverProvider />
+
+<MudDialogProvider />
+
+<MudSnackbarProvider />
+
+@code 
+{
+    private bool isDarkMode;
+    private MudThemeProvider mudThemeProvider;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            isDarkMode = await mudThemeProvider.GetSystemPreference();
+            StateHasChanged();
+            WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, async (r, message) =>
+           {
+               isDarkMode = message.Theme switch
+               {
+                   Theme.White => false,
+                   Theme.Dark => true,
+                   Theme.System => await mudThemeProvider.GetSystemPreference(),
+                   _ => true,
+               };
+
+               await InvokeAsync(StateHasChanged);
+           });
+        }
+    }
+
+
+    public void Dispose()
+    {
+        WeakReferenceMessenger.Default.Unregister<ThemeChangedMessage>(this);
+    }
+}

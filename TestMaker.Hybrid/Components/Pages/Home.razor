@@ -1,16 +1,16 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
-
-@if (!string.IsNullOrEmpty(selectedOption))
-{
-    <div>Clicked option in menu: @selectedOption</div>
-}
+<MudPaper Class="py-4 px-4" Elevation="3">
+    <h1>Hello, world!</h1>
+    @if (!string.IsNullOrEmpty(selectedOption))
+    {
+        <div>Clicked option in menu: @selectedOption</div>
+    }
+</MudPaper>
 
 @code {
+    private Project Project { get; set; } = new();
+
     private string selectedOption;
 
     protected override void OnInitialized()

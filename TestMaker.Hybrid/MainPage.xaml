@@ -10,12 +10,37 @@
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="New" Clicked="OnMenuItemClicked"/>
+            <MenuFlyoutItem Text="Open" Clicked="OnMenuItemClicked"/>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Save" Clicked="OnMenuItemClicked"/>
+            <MenuFlyoutSeparator/>
+            <MenuFlyoutItem Text="Exit" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>
         <MenuBarItem Text="View">
             <MenuFlyoutItem Text="All" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>
         <MenuBarItem Text="Help">
             <MenuFlyoutItem Text="About" Clicked="OnMenuItemClicked"/>
+        </MenuBarItem>
+        <MenuBarItem Text="Theme">
+            <MenuFlyoutItem Text="White" Clicked="OnThemeItemClicked">
+                <MenuFlyoutItem.IconImageSource>
+                    <FontImageSource Glyph="&#x2600;"
+                                 FontFamily="Arial" />
+                </MenuFlyoutItem.IconImageSource>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="Dark" Clicked="OnThemeItemClicked">
+                <MenuFlyoutItem.IconImageSource>
+                    <FontImageSource Glyph="&#x263C;"
+                 FontFamily="Arial" />
+                </MenuFlyoutItem.IconImageSource>
+            </MenuFlyoutItem>
+            <MenuFlyoutItem Text="System" Clicked="OnThemeItemClicked">
+                <MenuFlyoutItem.IconImageSource>
+                    <FontImageSource Glyph="&#x2699;"
+ FontFamily="Arial" />
+                </MenuFlyoutItem.IconImageSource>
+            </MenuFlyoutItem>
         </MenuBarItem>
     </ContentPage.MenuBarItems>
     
