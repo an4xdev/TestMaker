@@ -2,24 +2,27 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TestMaker.Hybrid"
+             xmlns:pages="clr-namespace:TestMaker.Hybrid.Components.Pages"
              x:Class="TestMaker.Hybrid.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
 
+
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
-            <MenuFlyoutItem Text="New"></MenuFlyoutItem>
+            <MenuFlyoutItem Text="New" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>
         <MenuBarItem Text="View">
-            <MenuFlyoutItem Text="All"></MenuFlyoutItem>
+            <MenuFlyoutItem Text="All" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>
         <MenuBarItem Text="Help">
-            <MenuFlyoutItem Text="About"></MenuFlyoutItem>
+            <MenuFlyoutItem Text="About" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>
     </ContentPage.MenuBarItems>
+    
+    
     <BlazorWebView x:Name="blazorWebView" HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type local:Components.Routes}" />
         </BlazorWebView.RootComponents>
     </BlazorWebView>
-
 </ContentPage>

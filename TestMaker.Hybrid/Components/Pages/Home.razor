@@ -3,3 +3,27 @@
 <h1>Hello, world!</h1>
 
 Welcome to your new app.
+
+
+@if (!string.IsNullOrEmpty(selectedOption))
+{
+    <div>Clicked option in menu: @selectedOption</div>
+}
+
+@code {
+    private string selectedOption;
+
+    protected override void OnInitialized()
+    {
+        WeakReferenceMessenger.Default.Register<MenuItemClickedMessage>(this, (r, message) =>
+        {
+            selectedOption = message.SelectedOption;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+
+    public void Dispose()
+    {
+        WeakReferenceMessenger.Default.Unregister<MenuItemClickedMessage>(this);
+    }
+}
