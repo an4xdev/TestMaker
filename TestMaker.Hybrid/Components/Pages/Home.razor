@@ -1,7 +1,65 @@
 ﻿@page "/"
 
 <MudPaper Class="py-4 px-4" Elevation="3">
-    <h1>Hello, world!</h1>
+    <MudPaper Class="d-flex flex-row flex-grow-1 px-1 py-1" Elevation="2">
+        <MudPaper Class="flex-grow-1 px-1 py-1" Elevation="1">
+            <MudText Typo="Typo.h2">Project: @Project.Name</MudText>
+        </MudPaper>
+        <MudPaper Class="flex-grow-1 px-1 py-1" Elevation="1">
+            <MudText Typo="Typo.h3">Question count: @Project.Questions.Count</MudText>
+        </MudPaper>
+    </MudPaper>
+    <MudPaper Class="d-flex flex-row flex-grow-1 px-1 py-1" Elevation="2">
+        <MudPaper Class="flex-grow-1 px-1 py-1 d-flex flex-column justify-content-between" Elevation="1">
+            <MudPaper Class="px-1 py-1">
+                <MudText>Question: @SelectedQuestion.QuestionText</MudText>
+                @switch (SelectedQuestion)
+                {
+                    case TestOneQuestion:
+                        @foreach (var answer in ((TestOneQuestion)SelectedQuestion).Questions)
+                        {
+                            <MudPaper>
+                                <MudRadio Value="@answer">@answer</MudRadio>
+                            </MudPaper>
+                        }
+                        break;
+                    case TestMultiQuestion:
+                        @foreach (var answer in ((TestMultiQuestion)SelectedQuestion).Questions)
+                        {
+                            <MudCheckBox T="bool" Label="@answer"></MudCheckBox>
+                        }
+                        break;
+                    case OpenQuestion:
+                        <MudText>
+                            @(((OpenQuestion)SelectedQuestion).Answer)
+                        </MudText>
+                        break;
+                    default:
+                        <MudText>Unknown</MudText>
+                        break;
+                }
+            </MudPaper>
+            <MudPaper>
+                <MudButton Color="Color.Error">Cancel</MudButton>
+                <MudButton Color="Color.Success">Save</MudButton>
+            </MudPaper>
+        </MudPaper>
+        <MudPaper Class="flex-grow-1 px-1 py-1" Elevation="1">
+            @foreach(var question in Project.Questions)
+            {
+                <MudPaper Elevation="0" Class="d-flex flex-row justify-content-between">
+                    <MudPaper Class="px-1 py-1">
+                        <MudText>@question.QuestionText</MudText>
+                    </MudPaper>
+                    <MudPaper Class="px-1 py-1">
+                        <MudButton Color="Color.Primary">View</MudButton>
+                        <MudButton Color="Color.Warning">Edit</MudButton>
+                        <MudButton Color="Color.Error">Delete</MudButton>
+                    </MudPaper>
+                </MudPaper>
+            }
+        </MudPaper>
+    </MudPaper>
     @if (!string.IsNullOrEmpty(selectedOption))
     {
         <div>Clicked option in menu: @selectedOption</div>
@@ -10,6 +68,7 @@
 
 @code {
     private Project Project { get; set; } = new();
+    private Question SelectedQuestion;
 
     private string selectedOption;
 
@@ -20,6 +79,60 @@
             selectedOption = message.SelectedOption;
             InvokeAsync(StateHasChanged);
         });
+
+        Project.Name = "TEST";
+
+        Random random = new Random();
+
+        for (int i = 0; i < 10; i++)
+        {
+            if(i < 4)
+            {
+                Project.Questions.Add(new TestOneQuestion
+                    {
+                        ID = new Guid(),
+                        QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
+                        Questions = ["Duis in dictum leo.", "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", "Vestibulum sit amet pulvinar velit, ut ultricies eros", "Fusce vel velit commodo, maximus eros quis, faucibus nulla."],
+                        CorrentAnswer = (CorrentAnswer)random.Next(4),
+                    });
+            }
+            else if(i < 7)
+            {
+
+                int rand = random.Next(4);
+
+                if(rand == 0)
+                {
+                    rand++;
+                }
+
+                List<CorrentAnswer> answers = new List<CorrentAnswer>(rand);
+
+                for (int j = 0; j < rand; j++)
+                {
+                    answers.Add((CorrentAnswer)j);
+                }
+
+                Project.Questions.Add(new TestMultiQuestion
+                {
+                    ID = new Guid(),
+                    QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
+                    Questions = ["Duis in dictum leo.", "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", "Vestibulum sit amet pulvinar velit, ut ultricies eros", "Fusce vel velit commodo, maximus eros quis, faucibus nulla."],
+                    CorrentAnswers = answers
+                });
+            }
+            else
+            {
+                Project.Questions.Add(new OpenQuestion
+                {
+                    ID = new Guid(),
+                    QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
+                    Answer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis in dictum leo. Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo. Vestibulum sit amet pulvinar velit, ut ultricies eros. Ut blandit quam arcu, aliquet condimentum orci condimentum quis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sed ipsum nec nulla mollis ullamcorper sit amet eu lorem. Nullam in maximus quam, a cursus purus. Fusce vel velit commodo, maximus eros quis, faucibus nulla."
+                });
+            }
+        }
+
+        SelectedQuestion = Project.Questions[0];
     }
 
     public void Dispose()
