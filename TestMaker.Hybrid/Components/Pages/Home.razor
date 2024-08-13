@@ -1,5 +1,4 @@
 ﻿@page "/"
-
 <MudPaper Class="py-4 px-4" Elevation="3">
     <MudPaper Class="d-flex flex-row flex-grow-1 px-1 py-1" Elevation="2">
         <MudPaper Class="flex-grow-1 px-1 py-1" Elevation="1">
@@ -16,17 +15,23 @@
                 @switch (SelectedQuestion)
                 {
                     case TestOneQuestion:
-                        @foreach (var answer in ((TestOneQuestion)SelectedQuestion).Questions)
+                        TestOneQuestion question = (TestOneQuestion)SelectedQuestion;
+                        <MudText>Ans: @question.CorrentAnswer</MudText>
+                        <MudForm>
+                            <MudRadioGroup @bind-Value="question.CorrentAnswer" T="CorrentAnswer">
+                        @foreach(var answer in question.Answers)
                         {
                             <MudPaper>
-                                <MudRadio Value="@answer">@answer</MudRadio>
+                                <MudRadio Value="@(answer.AnswerValue)">@answer.Answer -> @answer.AnswerValue</MudRadio>
                             </MudPaper>
                         }
+                        </MudRadioGroup>
+                        </MudForm>
                         break;
                     case TestMultiQuestion:
-                        @foreach (var answer in ((TestMultiQuestion)SelectedQuestion).Questions)
+                        @foreach (var answer in ((TestMultiQuestion)SelectedQuestion).Answers)
                         {
-                            <MudCheckBox T="bool" Label="@answer"></MudCheckBox>
+                            <MudCheckBox T="bool" Label="@answer.Answer"></MudCheckBox>
                         }
                         break;
                     case OpenQuestion:
@@ -92,7 +97,8 @@
                     {
                         ID = new Guid(),
                         QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
-                        Questions = ["Duis in dictum leo.", "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", "Vestibulum sit amet pulvinar velit, ut ultricies eros", "Fusce vel velit commodo, maximus eros quis, faucibus nulla."],
+                        // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2}, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
+                        Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = CorrentAnswer.A }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = CorrentAnswer.B }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = CorrentAnswer.C }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = CorrentAnswer.D }],
                         CorrentAnswer = (CorrentAnswer)random.Next(4),
                     });
             }
@@ -117,7 +123,8 @@
                 {
                     ID = new Guid(),
                     QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
-                    Questions = ["Duis in dictum leo.", "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", "Vestibulum sit amet pulvinar velit, ut ultricies eros", "Fusce vel velit commodo, maximus eros quis, faucibus nulla."],
+                    // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2 }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
+                    Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = CorrentAnswer.A }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = CorrentAnswer.B }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = CorrentAnswer.C }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = CorrentAnswer.D }],
                     CorrentAnswers = answers
                 });
             }

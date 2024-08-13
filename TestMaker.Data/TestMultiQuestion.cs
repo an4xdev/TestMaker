@@ -2,6 +2,6 @@
 
 public class TestMultiQuestion : Question
 {
-    public string[] Questions { get; set; } = ["", "", "", ""];
+    public List<TestAnswer> Answers { get; set; } = [];
     public List<CorrentAnswer> CorrentAnswers { get; set; } = [];
 }
