@@ -15,11 +15,11 @@
                 @switch (SelectedQuestion)
                 {
                     case TestOneQuestion:
-                        TestOneQuestion question = (TestOneQuestion)SelectedQuestion;
-                        <MudText>Ans: @question.CorrentAnswer</MudText>
+                        TestOneQuestion t1question = (TestOneQuestion)SelectedQuestion;
+                        <MudText>Ans: @t1question.CorrentAnswer</MudText>
                         <MudForm>
-                            <MudRadioGroup @bind-Value="question.CorrentAnswer" T="CorrentAnswer">
-                        @foreach(var answer in question.Answers)
+                            <MudRadioGroup @bind-Value="t1question.CorrentAnswer" T="CorrentAnswer">
+                        @foreach(var answer in t1question.Answers)
                         {
                             <MudPaper>
                                 <MudRadio Value="@(answer.AnswerValue)">@answer.Answer -> @answer.AnswerValue</MudRadio>
@@ -29,9 +29,10 @@
                         </MudForm>
                         break;
                     case TestMultiQuestion:
-                        @foreach (var answer in ((TestMultiQuestion)SelectedQuestion).Answers)
+                        TestMultiQuestion tmquestion = (TestMultiQuestion)SelectedQuestion;
+                        @foreach (var answer in tmquestion.Answers)
                         {
-                            <MudCheckBox T="bool" Label="@answer.Answer"></MudCheckBox>
+                            <MudCheckBox T="bool" Label="@answer.Answer" Value="@(tmquestion.CorrentAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
                         }
                         break;
                     case OpenQuestion:
@@ -139,7 +140,24 @@
             }
         }
 
-        SelectedQuestion = Project.Questions[0];
+        SelectedQuestion = Project.Questions[5];
+    }
+
+    private void CheckBoxChanged(CorrentAnswer value)
+    {
+        if (SelectedQuestion is TestMultiQuestion)
+        {
+            var question = (TestMultiQuestion)SelectedQuestion;
+
+            if (question.CorrentAnswers.Contains(value))
+            {
+                question.CorrentAnswers.Remove(value);
+            }
+            else
+            {
+                question.CorrentAnswers.Add(value);
+            }
+        }
     }
 
     public void Dispose()
