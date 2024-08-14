@@ -10,8 +10,8 @@ public interface IProjectService
     public List<Question> GetQuestions(Project project);
     public Question? GetQuestionByID(Project project, Guid ID);
     public Question? GetRandomQuestion(Project project, QuestionType type);
-    public TaskDone EditQuestion(Project project, Guid originalID, Question edited);
-    public TaskDone DeleteQuestion(Project project, Question question);
-    public TaskDone CreateNew();
-    public TaskDone SaveProject(Project project);
+    public ServiceResponse EditQuestion(Project project, Guid originalID, Question edited);
+    public ServiceResponse DeleteQuestion(Project project, Guid ID);
+    public ServiceResponse CreateNew();
+    public ServiceResponse SaveProject(Project project);
 }

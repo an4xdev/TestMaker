@@ -1,6 +1,6 @@
 ﻿namespace TestMaker.Data.Services.ServiceModels;
 
-public class TaskDone
+public class ServiceResponse
 {
     public bool IsSuccess { get; set; }
 

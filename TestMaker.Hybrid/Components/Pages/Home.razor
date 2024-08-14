@@ -3,10 +3,10 @@
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     <div class="d-flex flex-column px-1 py-1" style="width:50%;">
         <MudPaper Class="px-1 py-1" Elevation="3">
-            <MudText Typo="Typo.h2"><MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@Project.Name</MudText>
+            <MudText Typo="Typo.h3"><MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@Project.Name</MudText>
         </MudPaper>
         <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3" >
-            <div class="px-1 py-1">
+            <div class="px-1 py-1 h-100">
                 @if(SelectedQuestion != null)
                 {
                     <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline>Question: </MudText>@SelectedQuestion.QuestionText</MudText>
@@ -69,11 +69,24 @@
                             break;
                     }
                 }
+                else
+                {   <div class="d-flex justify-content-center align-items-center h-100 flex-column">
+                        <div>
+                            <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do something with question</MudText>
+                        </div>
+                        <div class="py-2">
+                            <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add">Add new</MudButton>
+                        </div>
+                    </div>
+                }
             </div>
-            <div class="d-flex justify-content-end">
-                <MudButton Color="Color.Success">Save</MudButton>
-                <MudButton Color="Color.Error">Cancel</MudButton>
-            </div>
+            @if(SelectedQuestion != null)
+            {
+                <div class="d-flex justify-content-end">
+                    <MudButton Color="Color.Success">Save</MudButton>
+                    <MudButton Color="Color.Error">Cancel</MudButton>
+                </div>
+            }
         </MudPaper>
     </div>
     <div class="px-1 py-1 w-50">
@@ -92,7 +105,7 @@
                             <MudButton Color="Color.Warning" OnClick="(() => Editquestion(question.ID))">Edit</MudButton>
                         </div>
                         <div>
-                            <MudButton Color="Color.Error">Delete</MudButton>
+                            <MudButton Color="Color.Error" OnClick="(() => DeleteQuestion(question.ID))">Delete</MudButton>
                         </div>
                     </div>
                 </div>
@@ -108,6 +121,7 @@
 @code {
 
     [Inject] IProjectService ProjectService { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; }
 
     private Project Project { get; set; } = new();
     private Question? SelectedQuestion;
@@ -126,8 +140,8 @@
 
         ProjectService.MockData(Project);
 
-        SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
-        Editing = true;
+        // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
+        // Editing = true;
     }
 
     private void Editquestion(Guid ID)
@@ -142,6 +156,20 @@
         SelectedQuestion = ProjectService.GetQuestionByID(Project, ID);
         // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
         // StateHasChanged();
+    }
+
+    private void DeleteQuestion(Guid ID)
+    {
+        var response = ProjectService.DeleteQuestion(Project, ID);
+        if(!response.IsSuccess)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+
+        if(SelectedQuestion != null && SelectedQuestion.ID == ID)
+        {
+            SelectedQuestion = null;
+        }
     }
 
     private void CheckBoxChanged(CorrentAnswer value)

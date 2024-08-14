@@ -11,28 +11,28 @@ public class ProjectService : IProjectService
         project.Questions.Add(question);
     }
 
-    public TaskDone CreateNew()
+    public ServiceResponse CreateNew()
     {
         throw new NotImplementedException();
     }
 
-    public TaskDone DeleteQuestion(Project project, Question question)
+    public ServiceResponse DeleteQuestion(Project project, Guid ID)
     {
-        TaskDone result = new()
+        ServiceResponse result = new()
         {
-            IsSuccess = project.Questions.Remove(question)
+            IsSuccess = project.Questions.RemoveAll(x => x.ID == ID) == 1,
         };
 
         if (!result.IsSuccess)
         {
-            result.Message = $"Unknown question: {question.QuestionText} to delete.";
+            result.Message = "Unknown question to delete.";
         }
         return result;
     }
 
-    public TaskDone EditQuestion(Project project, Guid originalID, Question edited)
+    public ServiceResponse EditQuestion(Project project, Guid originalID, Question edited)
     {
-        TaskDone taskDone = new();
+        ServiceResponse taskDone = new();
 
         var questionInList = project.Questions.Find(q => q.ID == originalID);
 
@@ -104,7 +104,6 @@ public class ProjectService : IProjectService
 
         return string.Join(" ", list);
     }
-
     public void MockData(Project project)
     {
         const int questionFactor = 25;
@@ -167,7 +166,7 @@ public class ProjectService : IProjectService
         }
     }
 
-    public TaskDone SaveProject(Project project)
+    public ServiceResponse SaveProject(Project project)
     {
         throw new NotImplementedException();
     }
