@@ -1,15 +1,15 @@
 ﻿@page "/"
-@inject IJSRuntime JSRuntime
+@*@inject IJSRuntime JSRuntime*@
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     <div class="d-flex flex-column px-1 py-1" style="width:50%;">
         <MudPaper Class="px-1 py-1" Elevation="3">
-            <MudText Typo="Typo.h2"><MudText Color="Color.Primary" Typo="Typo.h2" Inline="true">Project: </MudText>@Project.Name</MudText>
+            <MudText Typo="Typo.h2"><MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@Project.Name</MudText>
         </MudPaper>
         <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3" >
             <div class="px-1 py-1">
                 @if(SelectedQuestion != null)
                 {
-                    <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline="true">Question: </MudText>@SelectedQuestion.QuestionText</MudText>
+                    <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline>Question: </MudText>@SelectedQuestion.QuestionText</MudText>
                     @switch (SelectedQuestion)
                     {
                         case TestOneQuestion:
@@ -18,8 +18,19 @@
                             <MudRadioGroup @bind-Value="t1question.CorrentAnswer" T="CorrentAnswer">
                                 @foreach (var answer in t1question.Answers)
                                 {
-                                    <div>
-                                        <MudRadio Value="@(answer.AnswerValue)">@answer.Answer</MudRadio>
+                                    <div class="d-flex my-2">
+                                        <div>
+                                            <MudRadio Value="@(answer.AnswerValue)">
+                                                @if(!Editing)
+                                                {
+                                                    @answer.Answer
+                                                }
+                                            </MudRadio>
+                                        </div>
+                                        @if(Editing)
+                                        {
+                                            <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth />
+                                        }
                                     </div>
                                 }
                             </MudRadioGroup>
@@ -29,13 +40,29 @@
                             <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
                             @foreach (var answer in tmquestion.Answers)
                             {
-                                <MudCheckBox T="bool" Label="@answer.Answer" Value="@(tmquestion.CorrentAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                                <div class="d-flex my-2">
+                                    <div>
+                                        <MudCheckBox T="bool" Label="@(!Editing? answer.Answer : "")" Value="@(tmquestion.CorrentAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                                    </div>
+                                    @if (Editing)
+                                    {
+                                        <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth />
+                                    }
+                                </div>
+                                
                             }
                             break;
                         case OpenQuestion:
                             <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
                             OpenQuestion openQuestion = (OpenQuestion)SelectedQuestion;
-                            <MudText>@openQuestion.Answer</MudText>
+                            @if(!Editing)
+                            {
+                                <MudText>@openQuestion.Answer</MudText>
+                            }
+                            else
+                            {
+                                <MudTextField Text="@openQuestion.Answer" T="string" AutoGrow MaxLines="35"/>
+                            }
                             break;
                         default:
                             <MudText>Unknown</MudText>
@@ -62,7 +89,7 @@
                             <MudButton Color="Color.Primary" OnClick="(() => ViewQuestion(question.ID))">View</MudButton>
                         </div>
                         <div>
-                            <MudButton Color="Color.Warning">Edit</MudButton>
+                            <MudButton Color="Color.Warning" OnClick="(() => Editquestion(question.ID))">Edit</MudButton>
                         </div>
                         <div>
                             <MudButton Color="Color.Error">Delete</MudButton>
@@ -87,6 +114,8 @@
 
     private string menuOption;
 
+    private bool Editing = false;
+
     protected override void OnInitialized()
     {
         WeakReferenceMessenger.Default.Register<MenuItemClickedMessage>(this, (r, message) =>
@@ -98,13 +127,21 @@
         ProjectService.MockData(Project);
 
         SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
+        Editing = true;
+    }
+
+    private void Editquestion(Guid ID)
+    {
+        Editing = true;
+        SelectedQuestion = ProjectService.GetQuestionByID(Project, ID);
     }
 
     private void ViewQuestion(Guid ID)
     {
+        Editing = false;
         SelectedQuestion = ProjectService.GetQuestionByID(Project, ID);
-        _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
-        StateHasChanged();
+        // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
+        // StateHasChanged();
     }
 
     private void CheckBoxChanged(CorrentAnswer value)
