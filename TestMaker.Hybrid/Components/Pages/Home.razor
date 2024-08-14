@@ -1,17 +1,13 @@
 ﻿@page "/"
-<MudPaper Class="py-4 px-4" Elevation="3">
-    <MudPaper Class="d-flex flex-row flex-grow-1 px-1 py-1" Elevation="2">
-        <MudPaper Class="flex-grow-1 px-1 py-1" Elevation="1">
-            <MudText Typo="Typo.h2">Project: @Project.Name</MudText>
+<MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
+    <div class="d-flex flex-column px-1 py-1" style="width:50%;">
+        <MudPaper Class="px-1 py-1" Elevation="3">
+            <MudText Typo="Typo.h2"><MudText Color="Color.Primary" Typo="Typo.h2" Inline="true">Project: </MudText>@Project.Name</MudText>
         </MudPaper>
-        <MudPaper Class="flex-grow-1 px-1 py-1" Elevation="1">
-            <MudText Typo="Typo.h3">Question count: @Project.Questions.Count</MudText>
-        </MudPaper>
-    </MudPaper>
-    <MudPaper Class="d-flex flex-row flex-grow-1 px-1 py-1" Elevation="2">
-        <MudPaper Class="flex-grow-1 px-1 py-1 d-flex flex-column justify-content-between" Elevation="1">
-            <MudPaper Class="px-1 py-1">
-                <MudText>Question: @SelectedQuestion.QuestionText</MudText>
+        <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3" >
+            <div class="px-1 py-1">
+                <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline="true">Question: </MudText>@SelectedQuestion.QuestionText</MudText>
+                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
                 @switch (SelectedQuestion)
                 {
                     case TestOneQuestion:
@@ -19,13 +15,13 @@
                         <MudText>Ans: @t1question.CorrentAnswer</MudText>
                         <MudForm>
                             <MudRadioGroup @bind-Value="t1question.CorrentAnswer" T="CorrentAnswer">
-                        @foreach(var answer in t1question.Answers)
-                        {
-                            <MudPaper>
-                                <MudRadio Value="@(answer.AnswerValue)">@answer.Answer -> @answer.AnswerValue</MudRadio>
-                            </MudPaper>
-                        }
-                        </MudRadioGroup>
+                                @foreach (var answer in t1question.Answers)
+                                {
+                                    <div>
+                                        <MudRadio Value="@(answer.AnswerValue)">@answer.Answer -> @answer.AnswerValue</MudRadio>
+                                    </div>
+                                }
+                            </MudRadioGroup>
                         </MudForm>
                         break;
                     case TestMultiQuestion:
@@ -43,28 +39,30 @@
                         <MudText>Unknown</MudText>
                         break;
                 }
-            </MudPaper>
-            <MudPaper>
-                <MudButton Color="Color.Error">Cancel</MudButton>
+            </div>
+            <div class="d-flex justify-content-end">
                 <MudButton Color="Color.Success">Save</MudButton>
-            </MudPaper>
+                <MudButton Color="Color.Error">Cancel</MudButton>
+            </div>
         </MudPaper>
-        <MudPaper Class="flex-grow-1 px-1 py-1" Elevation="1">
+    </div>
+    <div class="px-1 py-1 w-50">
+        <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="height:94vh;">
             @foreach(var question in Project.Questions)
             {
-                <MudPaper Elevation="0" Class="d-flex flex-row justify-content-between">
-                    <MudPaper Class="px-1 py-1">
+                <div class="d-flex flex-row justify-content-between">
+                    <div class="px-1 py-1">
                         <MudText>@question.QuestionText</MudText>
-                    </MudPaper>
-                    <MudPaper Class="px-1 py-1">
+                    </div>
+                    <div class="px-1 py-1">
                         <MudButton Color="Color.Primary">View</MudButton>
                         <MudButton Color="Color.Warning">Edit</MudButton>
                         <MudButton Color="Color.Error">Delete</MudButton>
-                    </MudPaper>
-                </MudPaper>
+                    </div>
+                </div>
             }
         </MudPaper>
-    </MudPaper>
+    </div>
     @if (!string.IsNullOrEmpty(selectedOption))
     {
         <div>Clicked option in menu: @selectedOption</div>
@@ -89,7 +87,7 @@
 
         Random random = new Random();
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 25; i++)
         {
             if(i < 4)
             {
