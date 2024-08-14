@@ -1,4 +1,4 @@
-﻿namespace TestMaker.Data;
+﻿namespace TestMaker.Data.Models;
 
 public class TestOneQuestion : Question
 {

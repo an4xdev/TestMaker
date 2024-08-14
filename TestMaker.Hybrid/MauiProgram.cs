@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor.Services;
+using TestMaker.Data.Services;
+using TestMaker.Hybrid.Services;
 
 
 namespace TestMaker.Hybrid
@@ -19,6 +21,7 @@ namespace TestMaker.Hybrid
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices();
+            builder.Services.AddSingleton<IProjectService, ProjectService>();
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
@@ -41,8 +44,8 @@ namespace TestMaker.Hybrid
                         //p.IsResizable = false;
                         //p.IsMaximizable = false;
                         //p.IsMinimizable = false;
-                        }
-                    });
+                    }
+                });
                 });
             });
 #endif

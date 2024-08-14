@@ -1,4 +1,5 @@
 ﻿@page "/"
+@inject IJSRuntime JSRuntime
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     <div class="d-flex flex-column px-1 py-1" style="width:50%;">
         <MudPaper Class="px-1 py-1" Elevation="3">
@@ -6,38 +7,40 @@
         </MudPaper>
         <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3" >
             <div class="px-1 py-1">
-                <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline="true">Question: </MudText>@SelectedQuestion.QuestionText</MudText>
-                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
-                @switch (SelectedQuestion)
+                @if(SelectedQuestion != null)
                 {
-                    case TestOneQuestion:
-                        TestOneQuestion t1question = (TestOneQuestion)SelectedQuestion;
-                        <MudText>Ans: @t1question.CorrentAnswer</MudText>
-                        <MudForm>
+                    <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline="true">Question: </MudText>@SelectedQuestion.QuestionText</MudText>
+                    @switch (SelectedQuestion)
+                    {
+                        case TestOneQuestion:
+                            TestOneQuestion t1question = (TestOneQuestion)SelectedQuestion;
+                            <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
                             <MudRadioGroup @bind-Value="t1question.CorrentAnswer" T="CorrentAnswer">
                                 @foreach (var answer in t1question.Answers)
                                 {
                                     <div>
-                                        <MudRadio Value="@(answer.AnswerValue)">@answer.Answer -> @answer.AnswerValue</MudRadio>
+                                        <MudRadio Value="@(answer.AnswerValue)">@answer.Answer</MudRadio>
                                     </div>
                                 }
                             </MudRadioGroup>
-                        </MudForm>
-                        break;
-                    case TestMultiQuestion:
-                        TestMultiQuestion tmquestion = (TestMultiQuestion)SelectedQuestion;
-                        @foreach (var answer in tmquestion.Answers)
-                        {
-                            <MudCheckBox T="bool" Label="@answer.Answer" Value="@(tmquestion.CorrentAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
-                        }
-                        break;
-                    case OpenQuestion:
-                        OpenQuestion openQuestion = (OpenQuestion)SelectedQuestion;
-                        <MudText>@openQuestion.Answer</MudText>
-                        break;
-                    default:
-                        <MudText>Unknown</MudText>
-                        break;
+                            break;
+                        case TestMultiQuestion:
+                            TestMultiQuestion tmquestion = (TestMultiQuestion)SelectedQuestion;
+                            <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
+                            @foreach (var answer in tmquestion.Answers)
+                            {
+                                <MudCheckBox T="bool" Label="@answer.Answer" Value="@(tmquestion.CorrentAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                            }
+                            break;
+                        case OpenQuestion:
+                            <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
+                            OpenQuestion openQuestion = (OpenQuestion)SelectedQuestion;
+                            <MudText>@openQuestion.Answer</MudText>
+                            break;
+                        default:
+                            <MudText>Unknown</MudText>
+                            break;
+                    }
                 }
             </div>
             <div class="d-flex justify-content-end">
@@ -48,96 +51,60 @@
     </div>
     <div class="px-1 py-1 w-50">
         <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="height:94vh;">
-            @foreach(var question in Project.Questions)
+            @foreach(var question in ProjectService.GetQuestions(Project))
             {
                 <div class="d-flex flex-row justify-content-between">
                     <div class="px-1 py-1">
                         <MudText>@question.QuestionText</MudText>
                     </div>
-                    <div class="px-1 py-1">
-                        <MudButton Color="Color.Primary">View</MudButton>
-                        <MudButton Color="Color.Warning">Edit</MudButton>
-                        <MudButton Color="Color.Error">Delete</MudButton>
+                    <div class="px-1 py-1 d-flex">
+                        <div>
+                            <MudButton Color="Color.Primary" OnClick="(() => ViewQuestion(question.ID))">View</MudButton>
+                        </div>
+                        <div>
+                            <MudButton Color="Color.Warning">Edit</MudButton>
+                        </div>
+                        <div>
+                            <MudButton Color="Color.Error">Delete</MudButton>
+                        </div>
                     </div>
                 </div>
             }
         </MudPaper>
     </div>
-    @if (!string.IsNullOrEmpty(selectedOption))
+    @if (!string.IsNullOrEmpty(menuOption))
     {
-        <div>Clicked option in menu: @selectedOption</div>
+        <div>Clicked option in menu: @menuOption</div>
     }
 </MudPaper>
 
 @code {
-    private Project Project { get; set; } = new();
-    private Question SelectedQuestion;
 
-    private string selectedOption;
+    [Inject] IProjectService ProjectService { get; set; }
+
+    private Project Project { get; set; } = new();
+    private Question? SelectedQuestion;
+
+    private string menuOption;
 
     protected override void OnInitialized()
     {
         WeakReferenceMessenger.Default.Register<MenuItemClickedMessage>(this, (r, message) =>
         {
-            selectedOption = message.SelectedOption;
+            menuOption = message.SelectedOption;
             InvokeAsync(StateHasChanged);
         });
 
-        Project.Name = "TEST";
+        ProjectService.MockData(Project);
 
-        Random random = new Random();
+        SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
+    }
 
-        for (int i = 0; i < 25; i++)
-        {
-            if(i < 4)
-            {
-                Project.Questions.Add(new TestOneQuestion
-                    {
-                        ID = new Guid(),
-                        QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
-                        // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2}, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                        Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = CorrentAnswer.A }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = CorrentAnswer.B }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = CorrentAnswer.C }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = CorrentAnswer.D }],
-                        CorrentAnswer = (CorrentAnswer)random.Next(4),
-                    });
-            }
-            else if(i < 7)
-            {
-
-                int rand = random.Next(4);
-
-                if(rand == 0)
-                {
-                    rand++;
-                }
-
-                List<CorrentAnswer> answers = new List<CorrentAnswer>(rand);
-
-                for (int j = 0; j < rand; j++)
-                {
-                    answers.Add((CorrentAnswer)j);
-                }
-
-                Project.Questions.Add(new TestMultiQuestion
-                {
-                    ID = new Guid(),
-                    QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
-                    // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2 }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                    Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = CorrentAnswer.A }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = CorrentAnswer.B }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = CorrentAnswer.C }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = CorrentAnswer.D }],
-                    CorrentAnswers = answers
-                });
-            }
-            else
-            {
-                Project.Questions.Add(new OpenQuestion
-                {
-                    ID = new Guid(),
-                    QuestionText = "Lorem ipsum dolor sit amet, consectetur adipiscing elit?",
-                    Answer = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis in dictum leo. Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo. Vestibulum sit amet pulvinar velit, ut ultricies eros. Ut blandit quam arcu, aliquet condimentum orci condimentum quis. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam sed ipsum nec nulla mollis ullamcorper sit amet eu lorem. Nullam in maximus quam, a cursus purus. Fusce vel velit commodo, maximus eros quis, faucibus nulla."
-                });
-            }
-        }
-
-        SelectedQuestion = Project.Questions[9];
+    private void ViewQuestion(Guid ID)
+    {
+        SelectedQuestion = ProjectService.GetQuestionByID(Project, ID);
+        _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
+        StateHasChanged();
     }
 
     private void CheckBoxChanged(CorrentAnswer value)
