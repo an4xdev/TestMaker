@@ -36,9 +36,8 @@
                         }
                         break;
                     case OpenQuestion:
-                        <MudText>
-                            @(((OpenQuestion)SelectedQuestion).Answer)
-                        </MudText>
+                        OpenQuestion openQuestion = (OpenQuestion)SelectedQuestion;
+                        <MudText>@openQuestion.Answer</MudText>
                         break;
                     default:
                         <MudText>Unknown</MudText>
@@ -140,7 +139,7 @@
             }
         }
 
-        SelectedQuestion = Project.Questions[5];
+        SelectedQuestion = Project.Questions[9];
     }
 
     private void CheckBoxChanged(CorrentAnswer value)
