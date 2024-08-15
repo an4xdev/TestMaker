@@ -12,7 +12,6 @@
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Save" Clicked="SaveFile"/>
             <!-- <MenuFlyoutItem Text="Save" Clicked="OnMenuItemClicked"/> -->
-            <MenuFlyoutItem Text="Save" Clicked="OnMenuItemClicked"/>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Exit" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>

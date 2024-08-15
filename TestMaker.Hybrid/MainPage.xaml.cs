@@ -1,7 +1,10 @@
 ﻿using System.Text;
+using System.Text.Json;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.AspNetCore.Components.WebView;
+using TestMaker.Data.Models;
 using TestMaker.Hybrid.Messages;
 
 namespace TestMaker.Hybrid;
@@ -13,6 +16,10 @@ public partial class MainPage : ContentPage
     {
         InitializeComponent();
         _fileSaver = saver;
+        WeakReferenceMessenger.Default.Register<Project>(this, async (r, message) =>
+        {
+            await SaveProjectToFile(message);
+        });
     }
 
     private void OnMenuItemClicked(object sender, EventArgs e)
@@ -32,12 +39,16 @@ public partial class MainPage : ContentPage
         }
     }
 
-    public async void SaveFile(object sender, EventArgs e)
+    private void SaveFile(object sender, EventArgs e)
     {
-        using var stream = new MemoryStream(Encoding.Default.GetBytes("Hello from the Community Toolkit!"));
+        WeakReferenceMessenger.Default.Send(new SaveFileClickedMessage());
+    }
+
+    private async Task SaveProjectToFile(Project project)
+    {
+        using var stream = new MemoryStream(Encoding.Default.GetBytes($"Saved project: {project.Name}"));
         var fileSaverResult = await _fileSaver.SaveAsync("test.txt", stream);
         fileSaverResult.EnsureSuccess();
         await Toast.Make($"File is saved: {fileSaverResult.FilePath}").Show();
     }
-
 }

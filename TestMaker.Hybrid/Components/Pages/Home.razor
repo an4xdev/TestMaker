@@ -1,5 +1,6 @@
 ﻿@page "/"
-@*@inject IJSRuntime JSRuntime*@
+@using System.Text.Json
+@inject IJSRuntime JSRuntime
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     <div class="d-flex flex-column px-1 py-1" style="width:50%;">
         <MudPaper Class="px-1 py-1" Elevation="3">
@@ -134,6 +135,11 @@
             menuOption = message.SelectedOption;
             InvokeAsync(StateHasChanged);
         });
+        
+        WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (r, message) =>
+        {
+            WeakReferenceMessenger.Default.Send(Project);
+        });
 
         ProjectService.MockData(Project);
 
@@ -184,6 +190,7 @@
 
     public void Dispose()
     {
-        WeakReferenceMessenger.Default.Unregister<MenuItemClickedMessage>(this);
+        WeakReferenceMessenger.Default.UnregisterAll(this);
     }
+    
 }
