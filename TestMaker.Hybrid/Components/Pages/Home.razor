@@ -12,11 +12,10 @@
                     <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline>Question: </MudText>@SelectedQuestion.QuestionText</MudText>
                     @switch (SelectedQuestion)
                     {
-                        case TestOneQuestion:
-                            TestOneQuestion t1question = (TestOneQuestion)SelectedQuestion;
+                        case TestOneQuestion t1Question:
                             <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
-                            <MudRadioGroup @bind-Value="t1question.CorrentAnswer" T="CorrentAnswer">
-                                @foreach (var answer in t1question.Answers)
+                            <MudRadioGroup @bind-Value="t1Question.CorrectAnswer" T="CorrectAnswer">
+                                @foreach (var answer in t1Question.Answers)
                                 {
                                     <div class="d-flex my-2">
                                         <div>
@@ -35,14 +34,13 @@
                                 }
                             </MudRadioGroup>
                             break;
-                        case TestMultiQuestion:
-                            TestMultiQuestion tmquestion = (TestMultiQuestion)SelectedQuestion;
+                        case TestMultiQuestion tmquestion:
                             <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
                             @foreach (var answer in tmquestion.Answers)
                             {
                                 <div class="d-flex my-2">
                                     <div>
-                                        <MudCheckBox T="bool" Label="@(!Editing? answer.Answer : "")" Value="@(tmquestion.CorrentAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                                        <MudCheckBox T="bool" Label="@(!Editing? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
                                     </div>
                                     @if (Editing)
                                     {
@@ -52,9 +50,8 @@
                                 
                             }
                             break;
-                        case OpenQuestion:
+                        case OpenQuestion openQuestion:
                             <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
-                            OpenQuestion openQuestion = (OpenQuestion)SelectedQuestion;
                             @if(!Editing)
                             {
                                 <MudText>@openQuestion.Answer</MudText>
@@ -102,7 +99,7 @@
                             <MudButton Color="Color.Primary" OnClick="(() => ViewQuestion(question.ID))">View</MudButton>
                         </div>
                         <div>
-                            <MudButton Color="Color.Warning" OnClick="(() => Editquestion(question.ID))">Edit</MudButton>
+                            <MudButton Color="Color.Warning" OnClick="(() => EditQuestion(question.ID))">Edit</MudButton>
                         </div>
                         <div>
                             <MudButton Color="Color.Error" OnClick="(() => DeleteQuestion(question.ID))">Delete</MudButton>
@@ -144,7 +141,7 @@
         // Editing = true;
     }
 
-    private void Editquestion(Guid ID)
+    private void EditQuestion(Guid ID)
     {
         Editing = true;
         SelectedQuestion = ProjectService.GetQuestionByID(Project, ID);
@@ -172,20 +169,16 @@
         }
     }
 
-    private void CheckBoxChanged(CorrentAnswer value)
+    private void CheckBoxChanged(CorrectAnswer value)
     {
-        if (SelectedQuestion is TestMultiQuestion)
+        if (SelectedQuestion is not TestMultiQuestion question) return;
+        if (question.CorrectAnswers.Contains(value))
         {
-            var question = (TestMultiQuestion)SelectedQuestion;
-
-            if (question.CorrentAnswers.Contains(value))
-            {
-                question.CorrentAnswers.Remove(value);
-            }
-            else
-            {
-                question.CorrentAnswers.Add(value);
-            }
+            question.CorrectAnswers.Remove(value);
+        }
+        else
+        {
+            question.CorrectAnswers.Add(value);
         }
     }
 

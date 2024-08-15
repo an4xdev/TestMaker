@@ -1,10 +1,15 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using System;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Maui.Controls.Hosting;
+using Microsoft.Maui.Hosting;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor;
 using MudBlazor.Services;
 using TestMaker.Data.Services;
 using TestMaker.Hybrid.Services;
-
+using CommunityToolkit.Maui;
+using CommunityToolkit.Maui.Storage;
 
 namespace TestMaker.Hybrid
 {
@@ -18,7 +23,7 @@ namespace TestMaker.Hybrid
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
-                });
+                }).UseMauiCommunityToolkit();
 
             builder.Services.AddMauiBlazorWebView();
             builder.Services.AddMudServices(config =>
@@ -33,7 +38,8 @@ namespace TestMaker.Hybrid
                 config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
             });
             builder.Services.AddSingleton<IProjectService, ProjectService>();
-
+            builder.Services.AddSingleton(FileSaver.Default);
+            // builder.Services.AddTransient<MainPage>();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();

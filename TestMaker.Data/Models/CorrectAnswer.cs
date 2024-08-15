@@ -1,6 +1,6 @@
 ﻿namespace TestMaker.Data.Models;
 
-public enum CorrentAnswer
+public enum CorrectAnswer
 {
     A,
     B,

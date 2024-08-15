@@ -124,8 +124,8 @@ public class ProjectService : IProjectService
                     ID = Guid.NewGuid(),
                     QuestionText = GetRandomString(questionFactor),
                     // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2}, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                    Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.D }],
-                    CorrentAnswer = (CorrentAnswer)random.Next(4),
+                    Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
+                    CorrectAnswer = (CorrectAnswer)random.Next(4),
                 });
             }
             else if (i < (N / 3) * 2)
@@ -138,11 +138,11 @@ public class ProjectService : IProjectService
                     rand++;
                 }
 
-                List<CorrentAnswer> answers = new(rand);
+                List<CorrectAnswer> answers = new(rand);
 
                 for (int j = 0; j < rand; j++)
                 {
-                    answers.Add((CorrentAnswer)j);
+                    answers.Add((CorrectAnswer)j);
                 }
 
                 project.Questions.Add(new TestMultiQuestion
@@ -150,8 +150,8 @@ public class ProjectService : IProjectService
                     ID = Guid.NewGuid(),
                     QuestionText = GetRandomString(questionFactor),
                     // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2 }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                    Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrentAnswer.D }],
-                    CorrentAnswers = answers
+                    Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
+                    CorrectAnswers = answers
                 });
             }
             else

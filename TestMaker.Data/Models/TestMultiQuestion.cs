@@ -3,5 +3,5 @@
 public class TestMultiQuestion : Question
 {
     public List<TestAnswer> Answers { get; set; } = [];
-    public List<CorrentAnswer> CorrentAnswers { get; set; } = [];
+    public List<CorrectAnswer> CorrectAnswers { get; set; } = [];
 }
