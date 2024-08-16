@@ -8,10 +8,9 @@
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="New" Clicked="OnMenuItemClicked"/>
-            <MenuFlyoutItem Text="Open" Clicked="OnMenuItemClicked"/>
+            <MenuFlyoutItem Text="Open" Clicked="OpenFileItemClicked"/>
             <MenuFlyoutSeparator/>
-            <MenuFlyoutItem Text="Save" Clicked="SaveFile"/>
-            <!-- <MenuFlyoutItem Text="Save" Clicked="OnMenuItemClicked"/> -->
+            <MenuFlyoutItem Text="Save" Clicked="SaveFileItemClicked"/>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Exit" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>

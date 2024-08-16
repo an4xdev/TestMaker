@@ -138,10 +138,19 @@
         
         WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (r, message) =>
         {
-            WeakReferenceMessenger.Default.Send(Project);
+            WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
+            {
+                Project = Project
+            });
+        });
+        
+        WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (r, message) =>
+        {
+            Project = message.Project;
+            InvokeAsync(StateHasChanged);
         });
 
-        ProjectService.MockData(Project);
+        // ProjectService.MockData(Project);
 
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;

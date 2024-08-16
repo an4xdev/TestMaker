@@ -3,7 +3,6 @@ using System.Text.Json;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.AspNetCore.Components.WebView;
 using TestMaker.Data.Models;
 using TestMaker.Hybrid.Messages;
 
@@ -12,13 +11,29 @@ namespace TestMaker.Hybrid;
 public partial class MainPage : ContentPage
 {
     private readonly IFileSaver _fileSaver;
+    private readonly JsonSerializerOptions _jsonSerializerOptions;
+    private readonly PickOptions _pickOptions;
     public MainPage(IFileSaver saver)
     {
         InitializeComponent();
         _fileSaver = saver;
-        WeakReferenceMessenger.Default.Register<Project>(this, async (r, message) =>
+        _jsonSerializerOptions = new JsonSerializerOptions()
         {
-            await SaveProjectToFile(message);
+            WriteIndented = true
+        };
+        var filePickerFileType = new FilePickerFileType(
+            new Dictionary<DevicePlatform, IEnumerable<string>>
+            {
+                { DevicePlatform.WinUI, new[] { ".tmps" } }, // file extension
+            });
+        _pickOptions =  new PickOptions
+        {
+            PickerTitle = "Please select project file.",
+            FileTypes = filePickerFileType,
+        };
+        WeakReferenceMessenger.Default.Register<SaveFileClickedMessageResponse>(this, async (r, message) =>
+        {
+            await SaveProjectToFile(message.Project);
         });
     }
 
@@ -39,16 +54,56 @@ public partial class MainPage : ContentPage
         }
     }
 
-    private void SaveFile(object sender, EventArgs e)
+    private void SaveFileItemClicked(object sender, EventArgs e)
     {
         WeakReferenceMessenger.Default.Send(new SaveFileClickedMessage());
     }
 
     private async Task SaveProjectToFile(Project project)
     {
-        using var stream = new MemoryStream(Encoding.Default.GetBytes($"Saved project: {project.Name}"));
-        var fileSaverResult = await _fileSaver.SaveAsync("test.txt", stream);
-        fileSaverResult.EnsureSuccess();
-        await Toast.Make($"File is saved: {fileSaverResult.FilePath}").Show();
+        try
+        {
+            var jsonString = JsonSerializer.Serialize(project, _jsonSerializerOptions);
+            using var stream = new MemoryStream(Encoding.Default.GetBytes(jsonString));
+            var fileSaverResult = await _fileSaver.SaveAsync($"{project.Name}.tmps", stream);
+            fileSaverResult.EnsureSuccess();
+            await Toast.Make($"File is saved: {fileSaverResult.FilePath}").Show();
+        }
+        catch (Exception e)
+        {
+            await Toast.Make(e.Message).Show();
+        }
+       
+    }
+
+    private async void OpenFileItemClicked(object sender, EventArgs e)
+    {
+        await LoadFromFile();
+    }
+
+    private async Task<FileResult?> LoadFromFile()
+    {
+        try
+        {
+            var result = await FilePicker.Default.PickAsync(_pickOptions);
+            if (result == null) return result;
+            if (!result.FileName.EndsWith(".tmps", StringComparison.OrdinalIgnoreCase)) return result;
+            await using var stream = await result.OpenReadAsync();
+            var project = JsonSerializer.Deserialize<Project>(stream, _jsonSerializerOptions) ?? throw new InvalidOperationException();
+            await Toast.Make($"Opened: {project.Name}").Show();
+            WeakReferenceMessenger.Default.Send(new LoadProjectFromFileMessage
+            {
+                Project = project
+            });
+
+            return result;
+
+        }
+        catch (Exception ex)
+        {
+            await Toast.Make(ex.Message).Show();
+        }
+
+        return null;
     }
 }

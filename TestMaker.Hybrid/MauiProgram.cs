@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Maui.Controls.Hosting;
-using Microsoft.Maui.Hosting;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor;
 using MudBlazor.Services;
@@ -39,7 +35,6 @@ namespace TestMaker.Hybrid
             });
             builder.Services.AddSingleton<IProjectService, ProjectService>();
             builder.Services.AddSingleton(FileSaver.Default);
-            // builder.Services.AddTransient<MainPage>();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
