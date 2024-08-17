@@ -1,3 +1,3 @@
 ﻿namespace TestMaker.Hybrid.Messages;
 
-public class SaveFileClickedMessage;
+public class NewProjectClickedMessage;

@@ -7,7 +7,7 @@
              BackgroundColor="{DynamicResource PageBackgroundColor}">
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
-            <MenuFlyoutItem Text="New" Clicked="OnMenuItemClicked"/>
+            <MenuFlyoutItem Text="New" Clicked="NewProjectClicked"/>
             <MenuFlyoutItem Text="Open" Clicked="OpenFileItemClicked"/>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Save" Clicked="SaveFileItemClicked"/>

@@ -1,11 +1,11 @@
 ﻿@page "/"
 @* @inject IJSRuntime JSRuntime *@
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
-    @if (Project.Name != string.Empty)
+    @if (ProjectValue.Name != string.Empty)
     {
         <div class="d-flex flex-column px-1 py-1" style="width:50%;">
             <MudPaper Class="px-1 py-1" Elevation="3">
-                <MudText Typo="Typo.h3"><MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@Project.Name</MudText>
+                <MudText Typo="Typo.h3"><MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name</MudText>
             </MudPaper>
             <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
                 <div class="px-1 py-1 h-100">
@@ -93,7 +93,7 @@
         </div>
         <div class="px-1 py-1 w-50">
             <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="height:94vh;">
-                @foreach (var question in ProjectService.GetQuestions(Project))
+                @foreach (var question in ProjectService.GetQuestions(ProjectValue))
                 {
                     <div class="d-flex flex-row justify-content-between">
                         <div class="px-1 py-1">
@@ -158,17 +158,82 @@
     }
 </MudPaper>
 
-@code {
+<MudDialog @bind-Visible="_visible">
+    <TitleContent>
+        Add new project
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="ProjectName" T="string" Label="Project name"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="(() => Submit(NewProjectEnum.Closed))">New</MudButton>
+        <MudButton Color="Color.Primary" OnClick="(() => Submit(NewProjectEnum.ClosedAndSave))">New and Save</MudButton>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
 
+<MudDialog>
+    <TitleContent>
+        Save project
+    </TitleContent>
+    <DialogContent>
+        <MudText>Do you want to save the project?</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Success" 
+                   @* OnClick="Yes" *@
+                   >Yes</MudButton>
+        <MudButton Color="Color.Error" 
+                   @* OnClick="No" *@
+                   >No</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string ProjectName { get; set; } = string.Empty;
+    private bool _visible = false;
+    // private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
     [Inject] IProjectService ProjectService { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] IDialogService DialogService { get; set; }
 
-    private Project Project { get; set; } = new();
+    private Project ProjectValue { get; set; } = new();
     private Question? SelectedQuestion;
 
     private string menuOption;
 
     private bool Editing = false;
+    
+    private void Submit(NewProjectEnum newProjectEnum)
+    {
+        if (ProjectName == string.Empty)
+        {
+            Snackbar.Add("Project name cannot be empty!", Severity.Error);
+            return;
+        }
+
+        ProjectValue.Name = ProjectName;
+
+        if (newProjectEnum == NewProjectEnum.ClosedAndSave)
+        {
+            WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
+            {
+                Project = ProjectValue
+            });
+        }
+
+        _visible = false;
+    }
+
+    private void Cancel()
+    {
+        _visible = false;
+    } 
+
+    private void Show()
+    {
+        _visible = true;
+    }
 
     protected override void OnInitialized()
     {
@@ -182,13 +247,19 @@
         {
             WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
             {
-                Project = Project
+                Project = ProjectValue
             });
         });
 
         WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (r, message) =>
         {
-            Project = message.Project;
+            ProjectValue = message.Project;
+            InvokeAsync(StateHasChanged);
+        });
+
+        WeakReferenceMessenger.Default.Register<NewProjectClickedMessage>(this, (recipient, message) =>
+        {
+            Show();
             InvokeAsync(StateHasChanged);
         });
 
@@ -197,24 +268,24 @@
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
     }
-
+    
     private void EditQuestion(Guid ID)
     {
         Editing = true;
-        SelectedQuestion = ProjectService.GetQuestionByID(Project, ID);
+        SelectedQuestion = ProjectService.GetQuestionByID(ProjectValue, ID);
     }
 
     private void ViewQuestion(Guid ID)
     {
         Editing = false;
-        SelectedQuestion = ProjectService.GetQuestionByID(Project, ID);
+        SelectedQuestion = ProjectService.GetQuestionByID(ProjectValue, ID);
         // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
         // StateHasChanged();
     }
 
     private void DeleteQuestion(Guid ID)
     {
-        var response = ProjectService.DeleteQuestion(Project, ID);
+        var response = ProjectService.DeleteQuestion(ProjectValue, ID);
         if (!response.IsSuccess)
         {
             Snackbar.Add(response.Message, Severity.Error);

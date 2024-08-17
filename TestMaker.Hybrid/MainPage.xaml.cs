@@ -81,13 +81,13 @@ public partial class MainPage : ContentPage
         await LoadFromFile();
     }
 
-    private async Task<FileResult?> LoadFromFile()
+    private async Task LoadFromFile()
     {
         try
         {
             var result = await FilePicker.Default.PickAsync(_pickOptions);
-            if (result == null) return result;
-            if (!result.FileName.EndsWith(".tmps", StringComparison.OrdinalIgnoreCase)) return result;
+            if (result == null) return;
+            if (!result.FileName.EndsWith(".tmps", StringComparison.OrdinalIgnoreCase)) return;
             await using var stream = await result.OpenReadAsync();
             var project = JsonSerializer.Deserialize<Project>(stream, _jsonSerializerOptions) ?? throw new InvalidOperationException();
             await Toast.Make($"Opened: {project.Name}").Show();
@@ -95,15 +95,15 @@ public partial class MainPage : ContentPage
             {
                 Project = project
             });
-
-            return result;
-
         }
         catch (Exception ex)
         {
             await Toast.Make(ex.Message).Show();
         }
+    }
 
-        return null;
+    private void NewProjectClicked(object sender, EventArgs e)
+    {
+        WeakReferenceMessenger.Default.Send(new NewProjectClickedMessage());
     }
 }
