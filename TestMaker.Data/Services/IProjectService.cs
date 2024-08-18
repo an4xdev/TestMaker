@@ -12,6 +12,7 @@ public interface IProjectService
     public Question? GetRandomQuestion(Project project, QuestionType type);
     public ServiceResponse EditQuestion(Project project, Guid originalID, Question edited);
     public ServiceResponse DeleteQuestion(Project project, Guid ID);
+    // TODO: remove method?
     public ServiceResponse CreateNew();
     public ServiceResponse SaveProject(Project project);
 }

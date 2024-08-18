@@ -1,5 +1,6 @@
 ﻿@page "/"
-@* @inject IJSRuntime JSRuntime *@
+@implements IDisposable
+@inject IJSRuntime JSRuntime
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     @if (ProjectValue.Name != string.Empty)
     {
@@ -9,10 +10,18 @@
             </MudPaper>
             <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
                 <div class="px-1 py-1 h-100">
-                    @if (SelectedQuestion != null)
+                    @if (_selectedQuestion != null)
                     {
-                        <MudText Typo="Typo.h5"><MudText Typo="Typo.h5" Color="Color.Secondary" Inline>Question: </MudText>@SelectedQuestion.QuestionText</MudText>
-                        @switch (SelectedQuestion)
+                        <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
+                        @if (_editing)
+                        {
+                            <MudTextField @bind-Value="_selectedQuestion.QuestionText"></MudTextField>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
+                        }
+                        @switch (_selectedQuestion)
                         {
                             case TestOneQuestion t1Question:
                                 <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
@@ -22,13 +31,13 @@
                                         <div class="d-flex my-2">
                                             <div>
                                                 <MudRadio Value="@(answer.AnswerValue)">
-                                                    @if (!Editing)
+                                                    @if (!_editing)
                                                     {
                                                         @answer.Answer
                                                     }
                                                 </MudRadio>
                                             </div>
-                                            @if (Editing)
+                                            @if (_editing)
                                             {
                                                 <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
                                             }
@@ -42,9 +51,9 @@
                                 {
                                     <div class="d-flex my-2">
                                         <div>
-                                            <MudCheckBox T="bool" Label="@(!Editing ? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                                            <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
                                         </div>
-                                        @if (Editing)
+                                        @if (_editing)
                                         {
                                             <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
                                         }
@@ -55,7 +64,7 @@
                                 break;
                             case OpenQuestion openQuestion:
                                 <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
-                                @if (!Editing)
+                                @if (!_editing)
                                 {
                                     <MudText>@openQuestion.Answer</MudText>
                                 }
@@ -77,16 +86,16 @@
                                 <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do something with question</MudText>
                             </div>
                             <div class="py-2">
-                                <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add">Add new</MudButton>
+                                <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add" OnClick="ShowNewQuestionModal">Add new</MudButton>
                             </div>
                         </div>
                     }
                 </div>
-                @if (SelectedQuestion != null)
+                @if (_selectedQuestion != null)
                 {
                     <div class="d-flex justify-content-end">
-                        <MudButton Color="Color.Success">Save</MudButton>
-                        <MudButton Color="Color.Error">Cancel</MudButton>
+                        <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save</MudButton>
+                        <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
                     </div>
                 }
             </MudPaper>
@@ -122,7 +131,7 @@
                 <div>
                     <MudPaper Elevation="3" Class="p-3 mb-3">
                         <div>
-                            <MudText Typo="Typo.h3">Create new project with:</MudText>
+                            <MudText Typo="Typo.h4">Create new project with:</MudText>
                         </div>
                         <div>
                             <MudTreeView T="string" ReadOnly>
@@ -136,7 +145,7 @@
                 <div>
                     <MudPaper Elevation="3" Class="p-3">
                         <div>
-                            <MudText Typo="Typo.h3">or open existing project with:</MudText>
+                            <MudText Typo="Typo.h4">or open existing project with:</MudText>
                         </div>
                         <div>
                             <MudTreeView T="string" ReadOnly>
@@ -152,13 +161,13 @@
         </div>
     }
     
-    @if (!string.IsNullOrEmpty(menuOption))
+    @if (!string.IsNullOrEmpty(_menuOption))
     {
-        <div>Clicked option in menu: @menuOption</div>
+        <div>Clicked option in menu: @_menuOption</div>
     }
 </MudPaper>
 
-<MudDialog @bind-Visible="_visible">
+<MudDialog @bind-Visible="_newProjectVisible">
     <TitleContent>
         Add new project
     </TitleContent>
@@ -166,13 +175,13 @@
         <MudTextField @bind-Value="ProjectName" T="string" Label="Project name"/>
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => Submit(NewProjectEnum.Closed))">New</MudButton>
-        <MudButton Color="Color.Primary" OnClick="(() => Submit(NewProjectEnum.ClosedAndSave))">New and Save</MudButton>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.Closed))">New</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.ClosedAndSave))">New and Save</MudButton>
+        <MudButton Color="Color.Error" OnClick="CancelNewProjectModal">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
-<MudDialog>
+<MudDialog @bind-Visible="_saveProjectVisible">
     <TitleContent>
         Save project
     </TitleContent>
@@ -180,31 +189,83 @@
         <MudText>Do you want to save the project?</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Success" 
-                   @* OnClick="Yes" *@
-                   >Yes</MudButton>
-        <MudButton Color="Color.Error" 
-                   @* OnClick="No" *@
-                   >No</MudButton>
+        <MudButton Color="Color.Success" OnClick="(() => SaveProject(true))">Yes</MudButton>
+        <MudButton Color="Color.Error" OnClick="(() => SaveProject(false))">No</MudButton>
+    </DialogActions>
+</MudDialog>
+
+<MudDialog @bind-Visible="_newQuestionVisible">
+    <TitleContent>
+        Type of question
+    </TitleContent>
+    <DialogContent>
+        <MudSelect T="int" Label="Type of question" @bind-Value="NewQuestionType">
+            <MudSelectItem Value="@(0)">Test question with 1 answer</MudSelectItem>
+            <MudSelectItem Value="@(1)">Test question with multiple answers</MudSelectItem>
+            <MudSelectItem Value="@(2)">Open question</MudSelectItem>
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Success" OnClick="AddNewQuestion">Add</MudButton>
+        <MudButton Color="Color.Error" OnClick="CloseNewQuestionModal">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
-    private string ProjectName { get; set; } = string.Empty;
-    private bool _visible = false;
-    // private readonly DialogOptions _dialogOptions = new() { FullWidth = true };
     [Inject] IProjectService ProjectService { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
-    [Inject] IDialogService DialogService { get; set; }
+    // [Inject] IDialogService DialogService { get; set; }
 
     private Project ProjectValue { get; set; } = new();
-    private Question? SelectedQuestion;
+    private Question? _selectedQuestion;
+    private bool _editing;
 
-    private string menuOption;
+    private bool _newProjectVisible;
+    private string ProjectName { get; set; } = string.Empty;
 
-    private bool Editing = false;
+    private bool _saveProjectVisible;
     
-    private void Submit(NewProjectEnum newProjectEnum)
+    private int NewQuestionType { get; set; }
+
+    private bool _newQuestionVisible;
+    
+    private string? _menuOption;
+    
+    protected override void OnInitialized()
+    {
+        WeakReferenceMessenger.Default.Register<MenuItemClickedMessage>(this, (_, message) =>
+        {
+            _menuOption = message.SelectedOption;
+            InvokeAsync(StateHasChanged);
+        });
+
+        WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (_, _) =>
+        {
+            WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
+            {
+                Project = ProjectValue
+            });
+        });
+
+        WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (_, message) =>
+        {
+            ProjectValue = message.Project;
+            InvokeAsync(StateHasChanged);
+        });
+
+        WeakReferenceMessenger.Default.Register<NewProjectClickedMessage>(this, (_, _) =>
+        {
+            ShowNewProjectModal();
+            InvokeAsync(StateHasChanged);
+        });
+
+        ProjectService.MockData(ProjectValue);
+
+        // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
+        // Editing = true;
+    }
+    
+    private void SubmitNewProjectModal(NewProjectEnum newProjectEnum)
     {
         if (ProjectName == string.Empty)
         {
@@ -222,84 +283,116 @@
             });
         }
 
-        _visible = false;
+        _newProjectVisible = false;
     }
 
-    private void Cancel()
+    private void CancelNewProjectModal()
     {
-        _visible = false;
+        _newProjectVisible = false;
     } 
 
-    private void Show()
+    private void ShowNewProjectModal()
     {
-        _visible = true;
+        if (ProjectValue.Name != string.Empty || ProjectValue.Questions.Count > 0)
+        {
+            _saveProjectVisible = true;
+        }
+        _newProjectVisible = true;
     }
 
-    protected override void OnInitialized()
+    private void SaveProject(bool save)
     {
-        WeakReferenceMessenger.Default.Register<MenuItemClickedMessage>(this, (r, message) =>
-        {
-            menuOption = message.SelectedOption;
-            InvokeAsync(StateHasChanged);
-        });
-
-        WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (r, message) =>
+        // TODO: move to service
+        if (save)
         {
             WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
             {
                 Project = ProjectValue
             });
-        });
+        }
+        _saveProjectVisible = false;
+    }
 
-        WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (r, message) =>
+    private void ShowNewQuestionModal()
+    {
+        NewQuestionType = 0;
+        _newQuestionVisible = true;
+    }
+
+    private void AddNewQuestion()
+    {
+        _newQuestionVisible = false;
+        if (NewQuestionType is < 0 or > 2)
         {
-            ProjectValue = message.Project;
-            InvokeAsync(StateHasChanged);
-        });
+            Snackbar.Add("Unknown question type.", Severity.Error);
+            return;
+        }
 
-        WeakReferenceMessenger.Default.Register<NewProjectClickedMessage>(this, (recipient, message) =>
+        _selectedQuestion = NewQuestionType switch
         {
-            Show();
-            InvokeAsync(StateHasChanged);
-        });
+            0 => new TestOneQuestion(),
+            1 => new TestMultiQuestion(),
+            2 => new OpenQuestion(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
 
-        // ProjectService.MockData(Project);
-
-        // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
-        // Editing = true;
+        _editing = true;
     }
     
-    private void EditQuestion(Guid ID)
+    private void CloseNewQuestionModal()
     {
-        Editing = true;
-        SelectedQuestion = ProjectService.GetQuestionByID(ProjectValue, ID);
+        _newQuestionVisible = false;
     }
 
-    private void ViewQuestion(Guid ID)
+    private void SaveQuestion()
     {
-        Editing = false;
-        SelectedQuestion = ProjectService.GetQuestionByID(ProjectValue, ID);
+        // TODO: think about editing and adding new via service
+        if (_selectedQuestion != null)
+        {
+            var response = ProjectService.EditQuestion(ProjectValue, _selectedQuestion.ID, _selectedQuestion);
+            Snackbar.Add(response.Message, response.IsSuccess? Severity.Success : Severity.Error);
+        }
+        _selectedQuestion = null;
+        // StateHasChanged();
+    }
+
+    private void CancelQuestion()
+    {
+        _selectedQuestion = null;
+    }
+    
+    private void EditQuestion(Guid id)
+    {
+        _editing = true;
+        var q = ProjectService.GetQuestionByID(ProjectValue, id);
+        _selectedQuestion = (Question)q?.Clone()!;
+    }
+
+    private void ViewQuestion(Guid id)
+    {
+        _editing = false;
+        _selectedQuestion = ProjectService.GetQuestionByID(ProjectValue, id);
         // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
         // StateHasChanged();
     }
 
-    private void DeleteQuestion(Guid ID)
+    private void DeleteQuestion(Guid id)
     {
-        var response = ProjectService.DeleteQuestion(ProjectValue, ID);
+        var response = ProjectService.DeleteQuestion(ProjectValue, id);
         if (!response.IsSuccess)
         {
             Snackbar.Add(response.Message, Severity.Error);
         }
 
-        if (SelectedQuestion != null && SelectedQuestion.ID == ID)
+        if (_selectedQuestion != null && _selectedQuestion.ID == id)
         {
-            SelectedQuestion = null;
+            _selectedQuestion = null;
         }
     }
 
     private void CheckBoxChanged(CorrectAnswer value)
     {
-        if (SelectedQuestion is not TestMultiQuestion question) return;
+        if (_selectedQuestion is not TestMultiQuestion question) return;
         if (question.CorrectAnswers.Contains(value))
         {
             question.CorrectAnswers.Remove(value);
@@ -309,7 +402,7 @@
             question.CorrectAnswers.Add(value);
         }
     }
-
+    
     public void Dispose()
     {
         WeakReferenceMessenger.Default.UnregisterAll(this);

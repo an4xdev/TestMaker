@@ -1,4 +1,5 @@
 ﻿@inherits LayoutComponentBase
+@implements IDisposable
 <MudLayout>
     <MudMainContent Class="py-1 px-1">
         @Body
@@ -8,7 +9,7 @@
 <MudThemeProvider @ref="@mudThemeProvider" @bind-IsDarkMode="@isDarkMode" />
 <MudPopoverProvider />
 
-<MudDialogProvider CloseButton="true" Position="DialogPosition.Center"/>
+<MudDialogProvider CloseButton="true" Position="DialogPosition.Center" BackdropClick = "false" FullWidth="true"/>
 
 <MudSnackbarProvider />
 
@@ -24,21 +25,21 @@
             isDarkMode = await mudThemeProvider.GetSystemPreference();
             StateHasChanged();
             WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, async (r, message) =>
-           {
-               isDarkMode = message.Theme switch
                {
-                   Theme.White => false,
-                   Theme.Dark => true,
-                   Theme.System => await mudThemeProvider.GetSystemPreference(),
-                   _ => true,
-               };
+                   isDarkMode = message.Theme switch
+                   {
+                       Theme.White => false,
+                       Theme.Dark => true,
+                       Theme.System => await mudThemeProvider.GetSystemPreference(),
+                       _ => true,
+                   };
 
-               await InvokeAsync(StateHasChanged);
-           });
+                   await InvokeAsync(StateHasChanged);
+               }
+            );
         }
     }
-
-
+    
     public void Dispose()
     {
         WeakReferenceMessenger.Default.Unregister<ThemeChangedMessage>(this);

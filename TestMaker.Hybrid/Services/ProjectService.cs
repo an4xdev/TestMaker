@@ -16,41 +16,45 @@ public class ProjectService : IProjectService
         throw new NotImplementedException();
     }
 
-    public ServiceResponse DeleteQuestion(Project project, Guid ID)
+    public ServiceResponse DeleteQuestion(Project project, Guid id)
     {
-        ServiceResponse result = new()
+        ServiceResponse response = new()
         {
-            IsSuccess = project.Questions.RemoveAll(x => x.ID == ID) == 1,
+            IsSuccess = project.Questions.RemoveAll(x => x.ID == id) == 1,
         };
 
-        if (!result.IsSuccess)
+        if (!response.IsSuccess)
         {
-            result.Message = "Unknown question to delete.";
-        }
-        return result;
-    }
-
-    public ServiceResponse EditQuestion(Project project, Guid originalID, Question edited)
-    {
-        ServiceResponse taskDone = new();
-
-        var questionInList = project.Questions.Find(q => q.ID == originalID);
-
-        if (questionInList == null)
-        {
-            taskDone.IsSuccess = false;
-            taskDone.Message = "Uknown question to edit.";
-            return taskDone;
+            response.Message = "Unknown question to delete.";
         }
 
-        questionInList = edited;
-        taskDone.IsSuccess = true;
-        return taskDone;
+        response.Message = "Question successfully updated.";
+        return response;
     }
 
-    public Question? GetQuestionByID(Project project, Guid ID)
+    public ServiceResponse EditQuestion(Project project, Guid originalId, Question edited)
     {
-        return project.Questions.Find(q => q.ID == ID);
+        ServiceResponse response = new();
+
+        var index = project.Questions.FindIndex(q => q.ID == originalId);
+
+        if (index == -1)
+        {
+            response.IsSuccess = false;
+            response.Message = "Unknown question to edit.";
+            return response;
+        }
+
+        project.Questions[index] = edited;
+
+        response.Message = "Question successfully updated.";
+        response.IsSuccess = true;
+        return response;
+    }
+
+    public Question? GetQuestionByID(Project project, Guid id)
+    {
+        return project.Questions.Find(q => q.ID == id);
     }
 
     public List<Question> GetQuestions(Project project)
@@ -64,42 +68,36 @@ public class ProjectService : IProjectService
 
         foreach (var question in project.Questions)
         {
-            if (type == QuestionType.TestOne && question is TestOneQuestion)
+            switch (type)
             {
-                temp.Add(question);
-            }
-            else if (type == QuestionType.TestMulti && question is TestMultiQuestion)
-            {
-                temp.Add(question);
-            }
-            else if (type == QuestionType.Open && question is OpenQuestion)
-            {
-                temp.Add(question);
+                case QuestionType.TestOne when question is TestOneQuestion:
+                case QuestionType.TestMulti when question is TestMultiQuestion:
+                case QuestionType.Open when question is OpenQuestion:
+                    temp.Add(question);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(type), type, null);
             }
         }
 
         Random random = new();
 
-        if (temp.Count == 0)
-        {
-            return null;
-        }
-
-        return temp[random.Next(temp.Count)];
+        return temp.Count == 0 ? null : temp[random.Next(temp.Count)];
     }
 
-    private readonly string[] Lorem = { "Lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit.", "Integer", "nibh", "lectus,", "placerat", "placerat", "erat", "sed,", "semper", "laoreet", "urna.", "Fusce", "vestibulum,", "ex", "mollis", "vulputate", "commodo,", "massa", "erat", "rutrum", "nisl,", "finibus", "vehicula", "augue", "nulla", "ac", "ipsum.", "Sed", "aliquet", "maximus", "ex", "porta", "condimentum.", "Duis", "pulvinar", "imperdiet", "pellentesque.", "Nunc", "gravida", "euismod", "tincidunt.", "Mauris", "ac", "neque", "nunc.", "Curabitur", "ornare", "quam", "et", "quam", "posuere", "euismod", "ac", "in", "neque.", "Vestibulum", "eleifend", "semper", "pretium.", "Donec", "mi", "est,", "aliquet", "quis", "finibus", "vitae,", "tincidunt", "vitae", "ligula.", "Nulla", "quis", "sodales", "augue,", "a", "placerat", "erat.", "Aliquam", "lacinia,", "leo", "in", "accumsan", "lacinia,", "turpis", "mi", "bibendum", "metus,", "non", "tincidunt", "ante", "augue", "in", "nisi.", "Quisque", "placerat", "turpis", "ut", "mauris", "varius", "ultrices.", "Vestibulum", "sit", "amet", "rutrum", "metus,", "id", "efficitur", "dui.", "Mauris", "commodo", "magna", "nulla,", "rhoncus", "aliquet", "metus", "faucibus", "at.", "Cras", "posuere,", "nunc", "a", "facilisis", "suscipit,", "ipsum", "tortor", "fermentum", "erat,", "sit", "amet", "consectetur", "lorem", "nulla", "sit", "amet", "elit.", "Morbi", "et", "aliquet", "velit." };
+    private readonly string[] _lorem = ["Lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit.", "Integer", "nibh", "lectus,", "placerat", "placerat", "erat", "sed,", "semper", "laoreet", "urna.", "Fusce", "vestibulum,", "ex", "mollis", "vulputate", "commodo,", "massa", "erat", "rutrum", "nisl,", "finibus", "vehicula", "augue", "nulla", "ac", "ipsum.", "Sed", "aliquet", "maximus", "ex", "porta", "condimentum.", "Duis", "pulvinar", "imperdiet", "pellentesque.", "Nunc", "gravida", "euismod", "tincidunt.", "Mauris", "ac", "neque", "nunc.", "Curabitur", "ornare", "quam", "et", "quam", "posuere", "euismod", "ac", "in", "neque.", "Vestibulum", "eleifend", "semper", "pretium.", "Donec", "mi", "est,", "aliquet", "quis", "finibus", "vitae,", "tincidunt", "vitae", "ligula.", "Nulla", "quis", "sodales", "augue,", "a", "placerat", "erat.", "Aliquam", "lacinia,", "leo", "in", "accumsan", "lacinia,", "turpis", "mi", "bibendum", "metus,", "non", "tincidunt", "ante", "augue", "in", "nisi.", "Quisque", "placerat", "turpis", "ut", "mauris", "varius", "ultrices.", "Vestibulum", "sit", "amet", "rutrum", "metus,", "id", "efficitur", "dui.", "Mauris", "commodo", "magna", "nulla,", "rhoncus", "aliquet", "metus", "faucibus", "at.", "Cras", "posuere,", "nunc", "a", "facilisis", "suscipit,", "ipsum", "tortor", "fermentum", "erat,", "sit", "amet", "consectetur", "lorem", "nulla", "sit", "amet", "elit.", "Morbi", "et", "aliquet", "velit."
+    ];
 
     private string GetRandomString(int factor)
     {
         Random random = new();
         List<string> list = [];
 
-        int count = random.Next(Lorem.Length / factor, Lorem.Length / factor * 3);
+        var count = random.Next(_lorem.Length / factor, _lorem.Length / factor * 3);
 
-        for (int i = 0; i < count; i++)
+        for (var i = 0; i < count; i++)
         {
-            list.Add(Lorem[random.Next(Lorem.Length)]);
+            list.Add(_lorem[random.Next(_lorem.Length)]);
         }
 
         return string.Join(" ", list);
@@ -113,55 +111,56 @@ public class ProjectService : IProjectService
 
         Random random = new();
 
-        const int N = 25;
+        const int n = 25;
 
-        for (int i = 0; i < N; i++)
+        for (var i = 0; i < n; i++)
         {
-            if (i < N / 3)
+            switch (i)
             {
-                project.Questions.Add(new TestOneQuestion
+                case < n / 3:
+                    project.Questions.Add(new TestOneQuestion
+                    {
+                        ID = Guid.NewGuid(),
+                        QuestionText = GetRandomString(questionFactor),
+                        // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2}, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
+                        Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
+                        CorrectAnswer = (CorrectAnswer)random.Next(4),
+                    });
+                    break;
+                case < (n / 3) * 2:
                 {
-                    ID = Guid.NewGuid(),
-                    QuestionText = GetRandomString(questionFactor),
-                    // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2}, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                    Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
-                    CorrectAnswer = (CorrectAnswer)random.Next(4),
-                });
-            }
-            else if (i < (N / 3) * 2)
-            {
+                    var rand = random.Next(4);
 
-                int rand = random.Next(4);
+                    if (rand == 0)
+                    {
+                        rand++;
+                    }
 
-                if (rand == 0)
-                {
-                    rand++;
+                    List<CorrectAnswer> answers = new(rand);
+
+                    for (var j = 0; j < rand; j++)
+                    {
+                        answers.Add((CorrectAnswer)j);
+                    }
+
+                    project.Questions.Add(new TestMultiQuestion
+                    {
+                        ID = Guid.NewGuid(),
+                        QuestionText = GetRandomString(questionFactor),
+                        // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2 }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
+                        Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
+                        CorrectAnswers = answers
+                    });
+                    break;
                 }
-
-                List<CorrectAnswer> answers = new(rand);
-
-                for (int j = 0; j < rand; j++)
-                {
-                    answers.Add((CorrectAnswer)j);
-                }
-
-                project.Questions.Add(new TestMultiQuestion
-                {
-                    ID = Guid.NewGuid(),
-                    QuestionText = GetRandomString(questionFactor),
-                    // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2 }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                    Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
-                    CorrectAnswers = answers
-                });
-            }
-            else
-            {
-                project.Questions.Add(new OpenQuestion
-                {
-                    ID = Guid.NewGuid(),
-                    QuestionText = GetRandomString(questionFactor),
-                    Answer = string.Join(" ", Lorem)
-                });
+                default:
+                    project.Questions.Add(new OpenQuestion
+                    {
+                        ID = Guid.NewGuid(),
+                        QuestionText = GetRandomString(questionFactor),
+                        Answer = string.Join(" ", _lorem)
+                    });
+                    break;
             }
         }
     }
