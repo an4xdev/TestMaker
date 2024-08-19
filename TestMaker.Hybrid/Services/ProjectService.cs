@@ -1,6 +1,8 @@
-﻿using TestMaker.Data.Models;
+﻿using CommunityToolkit.Mvvm.Messaging;
+using TestMaker.Data.Models;
 using TestMaker.Data.Services;
 using TestMaker.Data.Services.ServiceModels;
+using TestMaker.Hybrid.Messages;
 
 namespace TestMaker.Hybrid.Services;
 
@@ -10,12 +12,6 @@ public class ProjectService : IProjectService
     {
         project.Questions.Add(question);
     }
-
-    public ServiceResponse CreateNew()
-    {
-        throw new NotImplementedException();
-    }
-
     public ServiceResponse DeleteQuestion(Project project, Guid id)
     {
         ServiceResponse response = new()
@@ -52,7 +48,7 @@ public class ProjectService : IProjectService
         return response;
     }
 
-    public Question? GetQuestionByID(Project project, Guid id)
+    public Question? GetQuestionById(Project project, Guid id)
     {
         return project.Questions.Find(q => q.ID == id);
     }
@@ -165,8 +161,16 @@ public class ProjectService : IProjectService
         }
     }
 
-    public ServiceResponse SaveProject(Project project)
+    public void SaveProject(Project project)
     {
-        throw new NotImplementedException();
+        WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
+        {
+            Project = project
+        });
+    }
+
+    public bool QuestionExists(Project project, Guid id)
+    {
+        return project.Questions.Any(q => q.ID == id);
     }
 }

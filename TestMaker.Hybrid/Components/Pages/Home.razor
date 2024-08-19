@@ -241,10 +241,7 @@
 
         WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (_, _) =>
         {
-            WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
-            {
-                Project = ProjectValue
-            });
+            ProjectService.SaveProject(ProjectValue);
         });
 
         WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (_, message) =>
@@ -259,7 +256,7 @@
             InvokeAsync(StateHasChanged);
         });
 
-        ProjectService.MockData(ProjectValue);
+        // ProjectService.MockData(ProjectValue);
 
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
@@ -277,10 +274,7 @@
 
         if (newProjectEnum == NewProjectEnum.ClosedAndSave)
         {
-            WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
-            {
-                Project = ProjectValue
-            });
+            ProjectService.SaveProject(ProjectValue);
         }
 
         _newProjectVisible = false;
@@ -302,13 +296,9 @@
 
     private void SaveProject(bool save)
     {
-        // TODO: move to service
         if (save)
         {
-            WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
-            {
-                Project = ProjectValue
-            });
+           ProjectService.SaveProject(ProjectValue);
         }
         _saveProjectVisible = false;
     }
@@ -346,11 +336,17 @@
 
     private void SaveQuestion()
     {
-        // TODO: think about editing and adding new via service
         if (_selectedQuestion != null)
         {
-            var response = ProjectService.EditQuestion(ProjectValue, _selectedQuestion.ID, _selectedQuestion);
-            Snackbar.Add(response.Message, response.IsSuccess? Severity.Success : Severity.Error);
+            if (ProjectService.QuestionExists(ProjectValue, _selectedQuestion.ID))
+            {
+                var response = ProjectService.EditQuestion(ProjectValue, _selectedQuestion.ID, _selectedQuestion);
+                Snackbar.Add(response.Message, response.IsSuccess? Severity.Success : Severity.Error);
+            }
+            else
+            {
+                ProjectService.AddQuestion(ProjectValue, _selectedQuestion);
+            }
         }
         _selectedQuestion = null;
         // StateHasChanged();
@@ -364,14 +360,14 @@
     private void EditQuestion(Guid id)
     {
         _editing = true;
-        var q = ProjectService.GetQuestionByID(ProjectValue, id);
+        var q = ProjectService.GetQuestionById(ProjectValue, id);
         _selectedQuestion = (Question)q?.Clone()!;
     }
 
     private void ViewQuestion(Guid id)
     {
         _editing = false;
-        _selectedQuestion = ProjectService.GetQuestionByID(ProjectValue, id);
+        _selectedQuestion = ProjectService.GetQuestionById(ProjectValue, id);
         // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
         // StateHasChanged();
     }

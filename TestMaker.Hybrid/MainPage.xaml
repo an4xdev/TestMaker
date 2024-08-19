@@ -9,6 +9,7 @@
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="New" Clicked="NewProjectClicked"/>
             <MenuFlyoutItem Text="Open" Clicked="OpenFileItemClicked"/>
+            <MenuFlyoutItem Text="Load from Markdown" Clicked="LoadProjectFromMarkdownClicked"/>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Save" Clicked="SaveFileItemClicked"/>
             <MenuFlyoutSeparator/>
