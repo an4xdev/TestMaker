@@ -129,7 +129,7 @@ public partial class MainPage : ContentPage
         await LoadProjectFromMarkdown();
     }
 
-    private static async Task<Question?> ProcessQuestion(List<string> data)
+    private async Task<Question?> ProcessQuestion(List<string> data)
     {
         var boldCounter = data.Count(s => s.Contains("**"));
         switch (boldCounter)
@@ -144,10 +144,6 @@ public partial class MainPage : ContentPage
             case 0 when data.Count != 2:
                 await Toast.Make("According to the data read, this should be an open question. Unfortunately, an error was encountered.").Show();
                 return null;
-        }
-
-        switch (boldCounter)
-        {
             case 1 when data.Count == 5:
             {
                 var question = new TestOneQuestion
@@ -173,10 +169,6 @@ public partial class MainPage : ContentPage
             case 1 when data.Count != 5:
                 await Toast.Make("According to the data read, this should be an test question with one answer. Unfortunately, an error was encountered.").Show();
                 return null;
-        }
-
-        switch (boldCounter)
-        {
             case > 1 and <= 4 when data.Count == 5:
             {
                 var question = new TestMultiQuestion()
@@ -206,7 +198,7 @@ public partial class MainPage : ContentPage
                 await Toast.Make("According to the data read, this should be an test question with multiple answers. Unfortunately, an error was encountered.").Show();
                 return null;
         }
-
+        
         return null;
     }
 
@@ -285,6 +277,11 @@ public partial class MainPage : ContentPage
                 await Toast.Make("An error occurred while processing the question from the file.").Show();
                 return;
             }
+        }
+        else
+        {
+            await Toast.Make("An error occurred while processing the question from the file.").Show();
+            return;
         }
         
         WeakReferenceMessenger.Default.Send(new LoadProjectFromFileMessage
