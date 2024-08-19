@@ -242,18 +242,13 @@ public partial class MainPage : ContentPage
             
             if (!projectName)
             {
-                if (line.StartsWith($"#"))
+                if (!line.StartsWith($"##"))
                 {
                     project.Name = line.Split("#")[1];
                 }
                 else
                 {
                     project.Name = result.FileName.Split('.')[0];
-                    if (!line.StartsWith("##"))
-                    {
-                        await Toast.Make($"Expected question name which started with `##` got: {line}").Show();
-                        return;
-                    }
                     data.Add(line);
                 }
                 projectName = true;
