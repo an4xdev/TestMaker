@@ -255,8 +255,21 @@
             ShowNewProjectModal();
             InvokeAsync(StateHasChanged);
         });
+        
+        WeakReferenceMessenger.Default.Register<GeneratePageClickedMessage>(this, (_, _) =>
+        {
+            var response = new GeneratePageClickedMessageResponse
+            {
+                Language = "pl",
+                PageContent = new PageContent(Languages.Polish),
+                ProjectName = ProjectValue.Name,
+                Questions = ProjectValue.Questions,
+                ShowOpenQuestionText = "Pokaż odpowiedź"
+            };
+            WeakReferenceMessenger.Default.Send(response);
+        });
 
-        // ProjectService.MockData(ProjectValue);
+        ProjectService.MockData(ProjectValue);
 
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;

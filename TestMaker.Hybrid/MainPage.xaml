@@ -12,6 +12,7 @@
             <MenuFlyoutItem Text="Load from Markdown" Clicked="LoadProjectFromMarkdownClicked"/>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Save" Clicked="SaveFileItemClicked"/>
+            <MenuFlyoutItem Text="Generate page" Clicked="GeneratePageClicked"/>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Exit" Clicked="OnMenuItemClicked"/>
         </MenuBarItem>

@@ -4,6 +4,7 @@ using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.Messaging;
 using TestMaker.Data.Models;
+using TestMaker.Data.Services;
 using TestMaker.Hybrid.Messages;
 
 namespace TestMaker.Hybrid;
@@ -52,6 +53,11 @@ public partial class MainPage : ContentPage
         {
             await SaveProjectToFile(message.Project);
         });
+        
+        WeakReferenceMessenger.Default.Register<GeneratePageClickedMessageResponse>(this, async (r, message) =>
+        {
+            await GeneratePage(message);
+        } );
     }
 
     private void OnMenuItemClicked(object sender, EventArgs e)
@@ -288,5 +294,31 @@ public partial class MainPage : ContentPage
         {
             Project = project
         });
+    }
+    
+    private void GeneratePageClicked(object sender, EventArgs e)
+    {
+        WeakReferenceMessenger.Default.Send(new GeneratePageClickedMessage());
+    }
+
+    private async Task GeneratePage(GeneratePageClickedMessageResponse response)
+    {
+        HtmlBuilderService htmlBuilderService = new HtmlBuilderService();
+        htmlBuilderService = htmlBuilderService.AdddHead(response.Language, response.ProjectName)
+            .AddBody(response.ProjectName, response.PageContent)
+            .AddScript(response.ShowOpenQuestionText)
+            .AddQuestions(response.Questions);
+        try
+        {
+            var jsonString = htmlBuilderService.Collect();
+            using var stream = new MemoryStream(Encoding.Default.GetBytes(jsonString));
+            var fileSaverResult = await _fileSaver.SaveAsync($"{response.ProjectName}.html", stream);
+            fileSaverResult.EnsureSuccess();
+            await Toast.Make($"File is saved: {fileSaverResult.FilePath}").Show();
+        }
+        catch (Exception e)
+        {
+            await Toast.Make(e.Message).Show();
+        }
     }
 }
