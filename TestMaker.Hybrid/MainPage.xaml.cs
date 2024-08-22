@@ -304,7 +304,7 @@ public partial class MainPage : ContentPage
     private async Task GeneratePage(GeneratePageClickedMessageResponse response)
     {
         HtmlBuilderService htmlBuilderService = new HtmlBuilderService();
-        htmlBuilderService = htmlBuilderService.AdddHead(response.Language, response.ProjectName)
+        htmlBuilderService = htmlBuilderService.AddHead(response.Language, response.ProjectName)
             .AddBody(response.ProjectName, response.PageContent)
             .AddScript(response.ShowOpenQuestionText)
             .AddQuestions(response.Questions);
