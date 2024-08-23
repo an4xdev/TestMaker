@@ -6,7 +6,9 @@
     {
         <div class="d-flex flex-column px-1 py-1" style="width:50%;">
             <MudPaper Class="px-1 py-1" Elevation="3">
-                <MudText Typo="Typo.h3"><MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name</MudText>
+                <MudText Typo="Typo.h3">
+                    <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name
+                </MudText>
             </MudPaper>
             <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
                 <div class="px-1 py-1 h-100">
@@ -21,6 +23,7 @@
                         {
                             <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
                         }
+
                         @switch (_selectedQuestion)
                         {
                             case TestOneQuestion t1Question:
@@ -58,7 +61,6 @@
                                             <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
                                         }
                                     </div>
-
                                 }
 
                                 break;
@@ -156,11 +158,11 @@
                         </div>
                     </MudPaper>
                 </div>
-                
+
             </div>
         </div>
     }
-    
+
     @if (!string.IsNullOrEmpty(_menuOption))
     {
         <div>Clicked option in menu: @_menuOption</div>
@@ -211,6 +213,61 @@
     </DialogActions>
 </MudDialog>
 
+<MudDialog @bind-Visible="_generatePageVisible">
+    <TitleContent>
+        Configure quest page
+    </TitleContent>
+    <DialogContent>
+        <MudSelect T="string" Label="Select language" @bind-Value="_languageCode">
+            @foreach (var country in _countries)
+            {
+                <MudSelectItem Value="@country.Code">@country.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <div class="my-6">
+            <MudText>Choose previously prepared or set yours labels on buttons</MudText>
+            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.English))">English</MudButton>
+            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.Polish))">Polish</MudButton>
+            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.None))">Custom</MudButton>
+        </div>
+        <div class="my-6">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.ShowAnswer"/>
+            </div>
+            <div class="w-50">
+                <MudExpansionPanel Text="@_pageContent.ShowAnswer">
+                    Open question answer
+                </MudExpansionPanel>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudText>Labels:</MudText>
+                <MudTextField @bind-Value="_pageContent.Button1" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button2" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button3" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button4" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button5" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button6" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudText>Preview:</MudText>
+                <MudButton Color="Color.Primary">@_pageContent.Button1</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button2</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button3</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button4</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button5</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button6</MudButton>
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Success" OnClick="SubmitGeneratePageModal">Generate</MudButton>
+        <MudButton Color="Color.Error" OnClick="CancelGeneratePageModal">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+
 @code {
     [Inject] IProjectService ProjectService { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
@@ -224,12 +281,20 @@
     private string ProjectName { get; set; } = string.Empty;
 
     private bool _saveProjectVisible;
-    
+
     private int NewQuestionType { get; set; }
 
     private bool _newQuestionVisible;
-    
+
+    private bool _generatePageVisible;
+
     private string? _menuOption;
+
+    private List<Language> _countries = [];
+
+    private string _languageCode = string.Empty;
+
+    private PageContent _pageContent = new(Languages.None);
     
     protected override void OnInitialized()
     {
@@ -239,10 +304,7 @@
             InvokeAsync(StateHasChanged);
         });
 
-        WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (_, _) =>
-        {
-            ProjectService.SaveProject(ProjectValue);
-        });
+        WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (_, _) => { ProjectService.SaveProject(ProjectValue); });
 
         WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (_, message) =>
         {
@@ -255,18 +317,11 @@
             ShowNewProjectModal();
             InvokeAsync(StateHasChanged);
         });
-        
+
         WeakReferenceMessenger.Default.Register<GeneratePageClickedMessage>(this, (_, _) =>
         {
-            var response = new GeneratePageClickedMessageResponse
-            {
-                Language = "pl",
-                PageContent = new PageContent(Languages.Polish),
-                ProjectName = ProjectValue.Name,
-                Questions = ProjectValue.Questions,
-                ShowOpenQuestionText = "Pokaż odpowiedź"
-            };
-            WeakReferenceMessenger.Default.Send(response);
+            ShowConfigurePageModal();
+            InvokeAsync(StateHasChanged);
         });
 
         ProjectService.MockData(ProjectValue);
@@ -274,7 +329,55 @@
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
     }
-    
+
+    private void ShowConfigurePageModal()
+    {
+        if (_countries.Count == 0)
+        {
+            _countries = LanguageService.GetAllCountries();
+        }
+
+        _generatePageVisible = true;
+    }
+
+    private void ChangePageContentLanguage(Languages lang)
+    {
+        _pageContent = new PageContent(lang);
+    }
+
+    private void CancelGeneratePageModal()
+    {
+        _generatePageVisible = false;
+    }
+
+    private void SubmitGeneratePageModal()
+    {
+        if (_languageCode == string.Empty)
+        {
+            Snackbar.Add("You needs to select language.", Severity.Error);
+            return;
+        }
+
+        if (_pageContent.IsEmpty)
+        {
+            Snackbar.Add("Fill in all fields or use previously prepared set.", Severity.Error);
+            return;
+        }
+        
+        var response = new GeneratePageClickedMessageResponse
+        {
+            Language = _languageCode,
+            PageContent = _pageContent,
+            ProjectName = ProjectValue.Name,
+            Questions = ProjectValue.Questions,
+            ShowOpenQuestionText = _pageContent.ShowAnswer
+        };
+        
+        WeakReferenceMessenger.Default.Send(response);
+        
+        _generatePageVisible = false;
+    }
+
     private void SubmitNewProjectModal(NewProjectEnum newProjectEnum)
     {
         if (ProjectName == string.Empty)
@@ -296,7 +399,7 @@
     private void CancelNewProjectModal()
     {
         _newProjectVisible = false;
-    } 
+    }
 
     private void ShowNewProjectModal()
     {
@@ -304,6 +407,7 @@
         {
             _saveProjectVisible = true;
         }
+
         _newProjectVisible = true;
     }
 
@@ -311,8 +415,9 @@
     {
         if (save)
         {
-           ProjectService.SaveProject(ProjectValue);
+            ProjectService.SaveProject(ProjectValue);
         }
+
         _saveProjectVisible = false;
     }
 
@@ -341,7 +446,7 @@
 
         _editing = true;
     }
-    
+
     private void CloseNewQuestionModal()
     {
         _newQuestionVisible = false;
@@ -354,13 +459,14 @@
             if (ProjectService.QuestionExists(ProjectValue, _selectedQuestion.ID))
             {
                 var response = ProjectService.EditQuestion(ProjectValue, _selectedQuestion.ID, _selectedQuestion);
-                Snackbar.Add(response.Message, response.IsSuccess? Severity.Success : Severity.Error);
+                Snackbar.Add(response.Message, response.IsSuccess ? Severity.Success : Severity.Error);
             }
             else
             {
                 ProjectService.AddQuestion(ProjectValue, _selectedQuestion);
             }
         }
+
         _selectedQuestion = null;
         // StateHasChanged();
     }
@@ -369,7 +475,7 @@
     {
         _selectedQuestion = null;
     }
-    
+
     private void EditQuestion(Guid id)
     {
         _editing = true;
@@ -411,7 +517,7 @@
             question.CorrectAnswers.Add(value);
         }
     }
-    
+
     public void Dispose()
     {
         WeakReferenceMessenger.Default.UnregisterAll(this);
