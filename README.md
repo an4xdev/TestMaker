@@ -38,7 +38,7 @@ Application now can parse md files like:
 
 ## Test question
 
-- **A answer**
+- **Correct A answer**
 - B answer
 - C answer
 - D answer
