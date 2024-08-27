@@ -1,0 +1,26 @@
+﻿@* <MudDialog @bind-Visible="_saveProjectVisible"> *@
+<MudDialog>
+    <TitleContent>
+        Save project
+    </TitleContent>
+    <DialogContent>
+        <MudText>Do you want to save the project?</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Success" OnClick="(() => CloseModal(true))">Yes</MudButton>
+        <MudButton Color="Color.Error" OnClick="(() => CloseModal(false))">No</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Action<bool> SaveProject { get; set; }
+
+    private void CloseModal(bool param)
+    {
+        MudDialog.Close();
+        SaveProject(param);
+    }
+}

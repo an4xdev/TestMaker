@@ -1,0 +1,29 @@
+﻿@* <MudDialog @bind-Visible="NewProjectVisible"> *@
+<MudDialog>
+    <TitleContent>
+        Add new project
+    </TitleContent>
+    <DialogContent>
+        <MudTextField @bind-Value="ProjectName" T="string" Label="Project name"/>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.Closed,ProjectName))">New</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.ClosedAndSave,ProjectName))">New and Save</MudButton>
+        <MudButton Color="Color.Error" OnClick="CloseModal">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    [CascadingParameter]
+    private MudDialogInstance MudDialog { get; set; }
+    // [Parameter] public bool NewProjectVisible { get; set; }
+    [Parameter] public Action<NewProjectEnum,string> SubmitNewProjectModal { get; set; }
+    // [Parameter] public Action CancelNewProjectModal { get; set; }
+    public string ProjectName { get; set; } = string.Empty;
+
+    private void CloseModal()
+    {
+        MudDialog.Close();
+    }
+}
