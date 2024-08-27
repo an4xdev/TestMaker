@@ -34,11 +34,11 @@ Application now can parse md files like:
 ```md
 # Project name (optional, if none project name is file name)
 
-<!-- Test with one and multiple answers must now have exactly 4 answers -->
+<!-- Question with one and multiple answers must now have exactly 4 answers -->
 
 ## Test question
 
-- **A answer**
+- **Correct A answer**
 - B answer
 - C answer
 - D answer
