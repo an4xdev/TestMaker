@@ -20,7 +20,6 @@ Run *.Hybrid project in IDE, which will also compile *.Data project.
 
 - [ ] Full functionality in .NET Maui project
 - [ ] Move shared blazor components
-- [ ] Make comunication between menu and page abstract
 
 ## Plans
 
