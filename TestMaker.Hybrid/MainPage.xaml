@@ -2,25 +2,24 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:TestMaker.Hybrid"
-             xmlns:pages="clr-namespace:TestMaker.Hybrid.Components.Pages"
              x:Class="TestMaker.Hybrid.MainPage"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
+    
     <ContentPage.MenuBarItems>
         <MenuBarItem Text="File">
             <MenuFlyoutItem Text="New" Clicked="NewProjectClicked"/>
             <MenuFlyoutItem Text="Open" Clicked="OpenFileItemClicked"/>
-            <MenuFlyoutItem Text="Load from Markdown" Clicked="LoadProjectFromMarkdownClicked"/>
             <MenuFlyoutSeparator/>
             <MenuFlyoutItem Text="Save" Clicked="SaveFileItemClicked"/>
-            <MenuFlyoutItem Text="Generate page" Clicked="GeneratePageClicked"/>
             <MenuFlyoutSeparator/>
-            <MenuFlyoutItem Text="Exit" Clicked="OnMenuItemClicked"/>
+            <MenuFlyoutItem Text="Exit" Clicked="CloseApplication"/>
         </MenuBarItem>
-        <MenuBarItem Text="View">
-            <MenuFlyoutItem Text="All" Clicked="OnMenuItemClicked"/>
+        <MenuBarItem Text="Project">
+            <MenuFlyoutItem Text="Load from Markdown" Clicked="LoadProjectFromMarkdownClicked"/>
+            <MenuFlyoutItem Text="Generate page" Clicked="GeneratePageClicked"/>
         </MenuBarItem>
         <MenuBarItem Text="Help">
-            <MenuFlyoutItem Text="About" Clicked="OnMenuItemClicked"/>
+            <MenuFlyoutItem Text="About" Clicked="OpenInfo"/>
         </MenuBarItem>
         <MenuBarItem Text="Theme">
             <MenuFlyoutItem Text="White" Clicked="OnThemeItemClicked">
@@ -44,7 +43,7 @@
         </MenuBarItem>
     </ContentPage.MenuBarItems>
     
-    <BlazorWebView x:Name="BlazorWebView" HostPage="wwwroot/index.html">
+    <BlazorWebView HostPage="wwwroot/index.html">
         <BlazorWebView.RootComponents>
             <RootComponent Selector="#app" ComponentType="{x:Type local:Components.Routes}" />
         </BlazorWebView.RootComponents>

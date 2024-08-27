@@ -162,11 +162,6 @@
             </div>
         </div>
     }
-
-    @if (!string.IsNullOrEmpty(_menuOption))
-    {
-        <div>Clicked option in menu: @_menuOption</div>
-    }
 </MudPaper>
 
 @code {
@@ -178,18 +173,10 @@
     private Question? _selectedQuestion;
     private bool _editing;
 
-    private string? _menuOption;
-
     private List<Language> _countries = [];
     
     protected override void OnInitialized()
     {
-        WeakReferenceMessenger.Default.Register<MenuItemClickedMessage>(this, (_, message) =>
-        {
-            _menuOption = message.SelectedOption;
-            InvokeAsync(StateHasChanged);
-        });
-        
         WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (_, _) => { ProjectService.SaveProject(ProjectValue); });
 
         WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (_, message) =>
@@ -209,11 +196,22 @@
             ShowConfigurePageModal();
             InvokeAsync(StateHasChanged);
         });
+        
+        WeakReferenceMessenger.Default.Register<OpenInfo>(this, (_, _) =>
+        {
+            ShowInfoModal();
+            InvokeAsync(StateHasChanged);
+        });
 
         ProjectService.MockData(ProjectValue);
 
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
+    }
+
+    private void ShowInfoModal()
+    {
+        DialogService.Show<InfoModal>();
     }
     
     private void ShowConfigurePageModal()
@@ -296,7 +294,7 @@
             Snackbar.Add("Unknown question type.", Severity.Error);
             return;
         }
-
+        // TODO: new list of answers in object
         _selectedQuestion = newQuestionType switch
         {
             0 => new TestOneQuestion(),

@@ -59,14 +59,6 @@ public partial class MainPage : ContentPage
             await GeneratePage(message);
         } );
     }
-
-    private void OnMenuItemClicked(object sender, EventArgs e)
-    {
-        if (sender is not MenuFlyoutItem menuItem) return;
-        var selectedOption = menuItem.Text;
-        WeakReferenceMessenger.Default.Send(new MenuItemClickedMessage(selectedOption));
-    }
-
     private void OnThemeItemClicked(object sender, EventArgs e)
     {
         if (sender is not MenuFlyoutItem menuItem) return;
@@ -303,7 +295,7 @@ public partial class MainPage : ContentPage
 
     private async Task GeneratePage(GeneratePageClickedMessageResponse response)
     {
-        HtmlBuilderService htmlBuilderService = new HtmlBuilderService();
+        var htmlBuilderService = new HtmlBuilderService();
         htmlBuilderService = htmlBuilderService.AddHead(response.Language, response.ProjectName)
             .AddBody(response.ProjectName, response.PageContent)
             .AddScript(response.ShowOpenQuestionText)
@@ -320,5 +312,15 @@ public partial class MainPage : ContentPage
         {
             await Toast.Make(e.Message).Show();
         }
+    }
+
+    private void CloseApplication(object sender, EventArgs e)
+    {
+        Application.Current?.CloseWindow(Application.Current.MainPage.Window);
+    }
+    
+    private void OpenInfo(object sender, EventArgs e)
+    {
+        WeakReferenceMessenger.Default.Send(new OpenInfo());
     }
 }
