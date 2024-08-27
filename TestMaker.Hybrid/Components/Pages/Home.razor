@@ -169,33 +169,6 @@
     }
 </MudPaper>
 
-<MudDialog @bind-Visible="_newProjectVisible">
-    <TitleContent>
-        Add new project
-    </TitleContent>
-    <DialogContent>
-        <MudTextField @bind-Value="ProjectName" T="string" Label="Project name"/>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.Closed))">New</MudButton>
-        <MudButton Color="Color.Secondary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.ClosedAndSave))">New and Save</MudButton>
-        <MudButton Color="Color.Error" OnClick="CancelNewProjectModal">Cancel</MudButton>
-    </DialogActions>
-</MudDialog>
-
-<MudDialog @bind-Visible="_saveProjectVisible">
-    <TitleContent>
-        Save project
-    </TitleContent>
-    <DialogContent>
-        <MudText>Do you want to save the project?</MudText>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Success" OnClick="(() => SaveProject(true))">Yes</MudButton>
-        <MudButton Color="Color.Error" OnClick="(() => SaveProject(false))">No</MudButton>
-    </DialogActions>
-</MudDialog>
-
 <MudDialog @bind-Visible="_newQuestionVisible">
     <TitleContent>
         Type of question
@@ -271,17 +244,12 @@
 @code {
     [Inject] IProjectService ProjectService { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
-    // [Inject] IDialogService DialogService { get; set; }
+    [Inject] IDialogService DialogService { get; set; }
 
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
     private bool _editing;
-
-    private bool _newProjectVisible;
-    private string ProjectName { get; set; } = string.Empty;
-
-    private bool _saveProjectVisible;
-
+    
     private int NewQuestionType { get; set; }
 
     private bool _newQuestionVisible;
@@ -303,7 +271,7 @@
             _menuOption = message.SelectedOption;
             InvokeAsync(StateHasChanged);
         });
-
+        
         WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (_, _) => { ProjectService.SaveProject(ProjectValue); });
 
         WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (_, message) =>
@@ -329,7 +297,7 @@
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
     }
-
+    
     private void ShowConfigurePageModal()
     {
         if (_countries.Count == 0)
@@ -378,37 +346,39 @@
         _generatePageVisible = false;
     }
 
-    private void SubmitNewProjectModal(NewProjectEnum newProjectEnum)
+    private void SubmitNewProjectModal(NewProjectEnum newProjectEnum, string projectName)
     {
-        if (ProjectName == string.Empty)
+        if (projectName == string.Empty)
         {
             Snackbar.Add("Project name cannot be empty!", Severity.Error);
             return;
         }
 
-        ProjectValue.Name = ProjectName;
+        ProjectValue.Name = projectName;
 
         if (newProjectEnum == NewProjectEnum.ClosedAndSave)
         {
             ProjectService.SaveProject(ProjectValue);
         }
-
-        _newProjectVisible = false;
     }
-
-    private void CancelNewProjectModal()
-    {
-        _newProjectVisible = false;
-    }
-
+    
     private void ShowNewProjectModal()
     {
-        if (ProjectValue.Name != string.Empty || ProjectValue.Questions.Count > 0)
+        
+        var parameters = new DialogParameters<NewProjectModal>
         {
-            _saveProjectVisible = true;
-        }
+            { x => x.SubmitNewProjectModal, SubmitNewProjectModal },
+        };
 
-        _newProjectVisible = true;
+        DialogService.Show<NewProjectModal>(null,parameters);
+
+        if (ProjectValue is { Name: "", Questions.Count: <= 0 }) return;
+        
+        var parametersSave = new DialogParameters<SaveProjectModal>()
+        {
+            { x => x.SaveProject, SaveProject }
+        };
+        DialogService.Show<SaveProjectModal>(null, parametersSave);
     }
 
     private void SaveProject(bool save)
@@ -417,8 +387,6 @@
         {
             ProjectService.SaveProject(ProjectValue);
         }
-
-        _saveProjectVisible = false;
     }
 
     private void ShowNewQuestionModal()
@@ -468,7 +436,6 @@
         }
 
         _selectedQuestion = null;
-        // StateHasChanged();
     }
 
     private void CancelQuestion()
@@ -488,7 +455,6 @@
         _editing = false;
         _selectedQuestion = ProjectService.GetQuestionById(ProjectValue, id);
         // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
-        // StateHasChanged();
     }
 
     private void DeleteQuestion(Guid id)
