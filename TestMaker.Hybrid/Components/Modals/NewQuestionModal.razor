@@ -1,0 +1,30 @@
+﻿<MudDialog>
+    <TitleContent>
+        Type of question
+    </TitleContent>
+    <DialogContent>
+        <MudSelect T="int" Label="Type of question" @bind-Value="NewQuestionType">
+            <MudSelectItem Value="@(0)">Test question with 1 answer</MudSelectItem>
+            <MudSelectItem Value="@(1)">Test question with multiple answers</MudSelectItem>
+            <MudSelectItem Value="@(2)">Open question</MudSelectItem>
+        </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Success" OnClick="Submit">Add</MudButton>
+        <MudButton Color="Color.Error" OnClick="() => MudDialog.Close()">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Action<int> AddNewQuestion { get; set; }
+    public int NewQuestionType { get; set; }
+
+    private void Submit()
+    {
+        MudDialog.Close();
+        AddNewQuestion(NewQuestionType);
+    }
+    
+}

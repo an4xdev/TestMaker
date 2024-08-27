@@ -1,0 +1,99 @@
+﻿<MudDialog>
+    <TitleContent>
+        Configure quest page
+    </TitleContent>
+    <DialogContent>
+        <MudSelect T="string" Label="Select language" @bind-Value="_languageCode">
+            @foreach (var country in Countries)
+            {
+                <MudSelectItem Value="@country.Code">@country.Name</MudSelectItem>
+            }
+        </MudSelect>
+        <div class="my-6">
+            <MudText>Choose previously prepared or set yours labels on buttons</MudText>
+            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.English))">English</MudButton>
+            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.Polish))">Polish</MudButton>
+            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.None))">Custom</MudButton>
+        </div>
+        <div class="my-6">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.ShowAnswer"/>
+            </div>
+            <div class="w-50">
+                <MudExpansionPanel Text="@_pageContent.ShowAnswer">
+                    Open question answer
+                </MudExpansionPanel>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudText>Labels:</MudText>
+                <MudTextField @bind-Value="_pageContent.Button1" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button2" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button3" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button4" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button5" Clearable/>
+                <MudTextField @bind-Value="_pageContent.Button6" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudText>Preview:</MudText>
+                <MudButton Color="Color.Primary">@_pageContent.Button1</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button2</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button3</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button4</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button5</MudButton>
+                <MudButton Color="Color.Primary">@_pageContent.Button6</MudButton>
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Success" OnClick="Submit">Generate</MudButton>
+        <MudButton Color="Color.Error" OnClick="() => MudDialog.Close()">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    [Inject] ISnackbar Snackbar { get; set; }
+    
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    
+    [Parameter] public Action<GeneratePageClickedMessageResponse> SubmitGeneratePageModal { get; set; }
+    [Parameter] public List<Language> Countries { get; set; }
+    
+    private string _languageCode = string.Empty;
+    private PageContent _pageContent = new(Languages.None);
+    
+    private void ChangePageContentLanguage(Languages lang)
+    {
+        _pageContent = new PageContent(lang);
+    }
+
+    private void Submit()
+    {
+        if (_languageCode == string.Empty)
+        {
+            Snackbar.Add("You needs to select language.", Severity.Error);
+            return;
+        }
+
+        if (_pageContent.IsEmpty)
+        {
+            Snackbar.Add("Fill in all fields or use previously prepared set.", Severity.Error);
+            return;
+        }
+        
+        var response = new GeneratePageClickedMessageResponse
+        {
+            Language = _languageCode,
+            PageContent = _pageContent,
+            ProjectName = string.Empty,
+            Questions = [],
+            ShowOpenQuestionText = _pageContent.ShowAnswer
+        };
+        
+        MudDialog.Close();
+        
+        SubmitGeneratePageModal(response);
+    }
+}

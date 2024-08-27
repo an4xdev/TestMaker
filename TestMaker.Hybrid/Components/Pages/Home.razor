@@ -169,78 +169,6 @@
     }
 </MudPaper>
 
-<MudDialog @bind-Visible="_newQuestionVisible">
-    <TitleContent>
-        Type of question
-    </TitleContent>
-    <DialogContent>
-        <MudSelect T="int" Label="Type of question" @bind-Value="NewQuestionType">
-            <MudSelectItem Value="@(0)">Test question with 1 answer</MudSelectItem>
-            <MudSelectItem Value="@(1)">Test question with multiple answers</MudSelectItem>
-            <MudSelectItem Value="@(2)">Open question</MudSelectItem>
-        </MudSelect>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Success" OnClick="AddNewQuestion">Add</MudButton>
-        <MudButton Color="Color.Error" OnClick="CloseNewQuestionModal">Cancel</MudButton>
-    </DialogActions>
-</MudDialog>
-
-<MudDialog @bind-Visible="_generatePageVisible">
-    <TitleContent>
-        Configure quest page
-    </TitleContent>
-    <DialogContent>
-        <MudSelect T="string" Label="Select language" @bind-Value="_languageCode">
-            @foreach (var country in _countries)
-            {
-                <MudSelectItem Value="@country.Code">@country.Name</MudSelectItem>
-            }
-        </MudSelect>
-        <div class="my-6">
-            <MudText>Choose previously prepared or set yours labels on buttons</MudText>
-            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.English))">English</MudButton>
-            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.Polish))">Polish</MudButton>
-            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.None))">Custom</MudButton>
-        </div>
-        <div class="my-6">
-            <div class="w-50 me-6">
-                <MudTextField @bind-Value="_pageContent.ShowAnswer"/>
-            </div>
-            <div class="w-50">
-                <MudExpansionPanel Text="@_pageContent.ShowAnswer">
-                    Open question answer
-                </MudExpansionPanel>
-            </div>
-        </div>
-        <div class="d-flex">
-            <div class="w-50 me-6">
-                <MudText>Labels:</MudText>
-                <MudTextField @bind-Value="_pageContent.Button1" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button2" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button3" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button4" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button5" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button6" Clearable/>
-            </div>
-            <div class="w-50">
-                <MudText>Preview:</MudText>
-                <MudButton Color="Color.Primary">@_pageContent.Button1</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button2</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button3</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button4</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button5</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button6</MudButton>
-            </div>
-        </div>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Color="Color.Success" OnClick="SubmitGeneratePageModal">Generate</MudButton>
-        <MudButton Color="Color.Error" OnClick="CancelGeneratePageModal">Cancel</MudButton>
-    </DialogActions>
-</MudDialog>
-
-
 @code {
     [Inject] IProjectService ProjectService { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
@@ -249,20 +177,10 @@
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
     private bool _editing;
-    
-    private int NewQuestionType { get; set; }
-
-    private bool _newQuestionVisible;
-
-    private bool _generatePageVisible;
 
     private string? _menuOption;
 
     private List<Language> _countries = [];
-
-    private string _languageCode = string.Empty;
-
-    private PageContent _pageContent = new(Languages.None);
     
     protected override void OnInitialized()
     {
@@ -304,46 +222,19 @@
         {
             _countries = LanguageService.GetAllCountries();
         }
-
-        _generatePageVisible = true;
-    }
-
-    private void ChangePageContentLanguage(Languages lang)
-    {
-        _pageContent = new PageContent(lang);
-    }
-
-    private void CancelGeneratePageModal()
-    {
-        _generatePageVisible = false;
-    }
-
-    private void SubmitGeneratePageModal()
-    {
-        if (_languageCode == string.Empty)
+        var parameters = new DialogParameters<GeneratePageModal>
         {
-            Snackbar.Add("You needs to select language.", Severity.Error);
-            return;
-        }
-
-        if (_pageContent.IsEmpty)
-        {
-            Snackbar.Add("Fill in all fields or use previously prepared set.", Severity.Error);
-            return;
-        }
-        
-        var response = new GeneratePageClickedMessageResponse
-        {
-            Language = _languageCode,
-            PageContent = _pageContent,
-            ProjectName = ProjectValue.Name,
-            Questions = ProjectValue.Questions,
-            ShowOpenQuestionText = _pageContent.ShowAnswer
+            {x => x.SubmitGeneratePageModal, SubmitGeneratePageModal},
+            {x =>x.Countries,_countries }
         };
-        
+        DialogService.Show<GeneratePageModal>(null, parameters);
+    }
+
+    private void SubmitGeneratePageModal(GeneratePageClickedMessageResponse response)
+    {
+        response.ProjectName = ProjectValue.Name;
+        response.Questions = ProjectValue.Questions;
         WeakReferenceMessenger.Default.Send(response);
-        
-        _generatePageVisible = false;
     }
 
     private void SubmitNewProjectModal(NewProjectEnum newProjectEnum, string projectName)
@@ -353,9 +244,9 @@
             Snackbar.Add("Project name cannot be empty!", Severity.Error);
             return;
         }
-
+    
         ProjectValue.Name = projectName;
-
+    
         if (newProjectEnum == NewProjectEnum.ClosedAndSave)
         {
             ProjectService.SaveProject(ProjectValue);
@@ -374,7 +265,7 @@
 
         if (ProjectValue is { Name: "", Questions.Count: <= 0 }) return;
         
-        var parametersSave = new DialogParameters<SaveProjectModal>()
+        var parametersSave = new DialogParameters<SaveProjectModal>
         {
             { x => x.SaveProject, SaveProject }
         };
@@ -391,20 +282,22 @@
 
     private void ShowNewQuestionModal()
     {
-        NewQuestionType = 0;
-        _newQuestionVisible = true;
+        var parameters = new DialogParameters<NewQuestionModal>
+        {
+            { x => x.AddNewQuestion, AddNewQuestion }
+        };
+        DialogService.Show<NewQuestionModal>(null, parameters);
     }
 
-    private void AddNewQuestion()
+    private void AddNewQuestion(int newQuestionType)
     {
-        _newQuestionVisible = false;
-        if (NewQuestionType is < 0 or > 2)
+        if (newQuestionType is < 0 or > 2)
         {
             Snackbar.Add("Unknown question type.", Severity.Error);
             return;
         }
 
-        _selectedQuestion = NewQuestionType switch
+        _selectedQuestion = newQuestionType switch
         {
             0 => new TestOneQuestion(),
             1 => new TestMultiQuestion(),
@@ -413,11 +306,8 @@
         };
 
         _editing = true;
-    }
 
-    private void CloseNewQuestionModal()
-    {
-        _newQuestionVisible = false;
+        InvokeAsync(StateHasChanged);
     }
 
     private void SaveQuestion()
