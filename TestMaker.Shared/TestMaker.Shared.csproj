@@ -16,4 +16,17 @@
     <PackageReference Include="MudBlazor" Version="7.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\TestMaker.Data\TestMaker.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="wwwroot\background.png" />
+    <_ContentIncludedByDefault Remove="wwwroot\exampleJsInterop.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\" />
+  </ItemGroup>
+
 </Project>

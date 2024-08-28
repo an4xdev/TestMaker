@@ -1,10 +1,12 @@
 ﻿@using MudBlazor
 <MudDialog>
     <TitleContent>
-        TEST
+        Info Panel
     </TitleContent>
     <DialogContent>
-        <MudText Typo="Typo.h4">Test modal</MudText>
+        <MudText Typo="Typo.h4">Test maker by Michał Żuk © @(DateTime.Now.Year)</MudText>
+        <MudText>You can load project from markdown file with Project > Load from Markdown</MudText>
+        <MudText>You can generate html page with test with Project > Generate page</MudText>
     </DialogContent>
     <DialogActions>
         <MudButton Color="Color.Primary" OnClick="() => MudDialog.Close()">Ok</MudButton>

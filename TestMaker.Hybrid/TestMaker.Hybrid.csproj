@@ -72,4 +72,8 @@
       <ProjectReference Include="..\TestMaker.Shared\TestMaker.Shared.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Components\Modals\" />
+    </ItemGroup>
+
 </Project>

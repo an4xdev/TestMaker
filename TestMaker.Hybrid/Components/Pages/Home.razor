@@ -1,6 +1,6 @@
 ﻿@page "/"
 @implements IDisposable
-@inject IJSRuntime JSRuntime
+@* @inject IJSRuntime JSRuntime *@
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     @if (ProjectValue.Name != string.Empty)
     {
@@ -268,9 +268,9 @@
             { x => x.SubmitNewProjectModal, SubmitNewProjectModal },
         };
 
-        var foo = DialogService.Show<NewProjectModal>(null,parameters);
+        DialogService.Show<NewProjectModal>(null,parameters);
         
-        if (ProjectValue.Name == string.Empty && ProjectValue.Questions.Count <= 0) return;
+        if (ProjectValue is { Name: "", Questions.Count: <= 0 }) return;
         
         var parametersSave = new DialogParameters<SaveProjectModal>
         {
