@@ -17,7 +17,9 @@
                         <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
                         @if (_editing)
                         {
-                            <MudTextField @bind-Value="_selectedQuestion.QuestionText"></MudTextField>
+                            <MudFocusTrap  DefaultFocus="DefaultFocus.FirstChild">
+                                <MudTextField @bind-Value="_selectedQuestion.QuestionText"/>
+                            </MudFocusTrap>
                         }
                         else
                         {
@@ -268,7 +270,6 @@
 
         var foo = DialogService.Show<NewProjectModal>(null,parameters);
         
-
         if (ProjectValue.Name == string.Empty && ProjectValue.Questions.Count <= 0) return;
         
         var parametersSave = new DialogParameters<SaveProjectModal>
@@ -303,7 +304,6 @@
             Snackbar.Add("Unknown question type.", Severity.Error);
             return;
         }
-        // TODO: new list of answers in object
         _selectedQuestion = newQuestionType switch
         {
             0 => new TestOneQuestion(),

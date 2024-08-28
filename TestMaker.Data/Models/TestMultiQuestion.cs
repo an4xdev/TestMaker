@@ -2,6 +2,32 @@
 
 public class TestMultiQuestion : Question
 {
+    public TestMultiQuestion()
+    {
+        Answers =
+        [
+            new TestAnswer
+            {
+                Answer = string.Empty,
+                AnswerValue = CorrectAnswer.A
+            },
+            new TestAnswer
+            {
+                Answer = string.Empty,
+                AnswerValue = CorrectAnswer.B
+            },
+            new TestAnswer
+            {
+                Answer = string.Empty,
+                AnswerValue = CorrectAnswer.C
+            },
+            new TestAnswer
+            {
+                Answer = string.Empty,
+                AnswerValue = CorrectAnswer.D
+            }
+        ];
+    }
     public List<TestAnswer> Answers { get; set; } = [];
     public List<CorrectAnswer> CorrectAnswers { get; set; } = [];
     public override object Clone()
