@@ -1,0 +1,17 @@
+﻿@using MudBlazor
+<MudDialog>
+    <TitleContent>
+        TEST
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.h4">Test modal</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="() => MudDialog.Close()">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+}

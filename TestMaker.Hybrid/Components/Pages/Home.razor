@@ -168,6 +168,7 @@
     [Inject] IProjectService ProjectService { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
     [Inject] IDialogService DialogService { get; set; }
+    [Inject] IMessenger Messenger { get; set; }
 
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
@@ -177,27 +178,30 @@
     
     protected override void OnInitialized()
     {
-        WeakReferenceMessenger.Default.Register<SaveFileClickedMessage>(this, (_, _) => { ProjectService.SaveProject(ProjectValue); });
+        Messenger.Register<SaveFileClickedMessage>(this, (_, _) =>
+        {
+            ProjectService.SaveProject(ProjectValue);
+        });
 
-        WeakReferenceMessenger.Default.Register<LoadProjectFromFileMessage>(this, (_, message) =>
+        Messenger.Register<LoadProjectFromFileMessage>(this, (_, message) =>
         {
             ProjectValue = message.Project;
             InvokeAsync(StateHasChanged);
         });
 
-        WeakReferenceMessenger.Default.Register<NewProjectClickedMessage>(this, (_, _) =>
+        Messenger.Register<NewProjectClickedMessage>(this, (_, _) =>
         {
             ShowNewProjectModal();
             InvokeAsync(StateHasChanged);
         });
 
-        WeakReferenceMessenger.Default.Register<GeneratePageClickedMessage>(this, (_, _) =>
+        Messenger.Register<GeneratePageClickedMessage>(this, (_, _) =>
         {
             ShowConfigurePageModal();
             InvokeAsync(StateHasChanged);
         });
         
-        WeakReferenceMessenger.Default.Register<OpenInfo>(this, (_, _) =>
+        Messenger.Register<OpenInfo>(this, (_, _) =>
         {
             ShowInfoModal();
             InvokeAsync(StateHasChanged);
@@ -232,7 +236,7 @@
     {
         response.ProjectName = ProjectValue.Name;
         response.Questions = ProjectValue.Questions;
-        WeakReferenceMessenger.Default.Send(response);
+        Messenger.Send(response);
     }
 
     private void SubmitNewProjectModal(NewProjectEnum newProjectEnum, string projectName)
@@ -244,6 +248,10 @@
         }
     
         ProjectValue.Name = projectName;
+
+        ProjectValue.Questions = [];
+        
+        StateHasChanged();
     
         if (newProjectEnum == NewProjectEnum.ClosedAndSave)
         {
@@ -253,21 +261,22 @@
     
     private void ShowNewProjectModal()
     {
-        
         var parameters = new DialogParameters<NewProjectModal>
         {
             { x => x.SubmitNewProjectModal, SubmitNewProjectModal },
         };
 
-        DialogService.Show<NewProjectModal>(null,parameters);
+        var foo = DialogService.Show<NewProjectModal>(null,parameters);
+        
 
-        if (ProjectValue is { Name: "", Questions.Count: <= 0 }) return;
+        if (ProjectValue.Name == string.Empty && ProjectValue.Questions.Count <= 0) return;
         
         var parametersSave = new DialogParameters<SaveProjectModal>
         {
             { x => x.SaveProject, SaveProject }
         };
         DialogService.Show<SaveProjectModal>(null, parametersSave);
+        
     }
 
     private void SaveProject(bool save)
@@ -374,7 +383,7 @@
 
     public void Dispose()
     {
-        WeakReferenceMessenger.Default.UnregisterAll(this);
+        Messenger.UnregisterAll(this);
     }
 
 }

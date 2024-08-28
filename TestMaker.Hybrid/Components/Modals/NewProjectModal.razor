@@ -6,8 +6,8 @@
         <MudTextField @bind-Value="ProjectName" T="string" Label="Project name"/>
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.Closed,ProjectName))">New</MudButton>
-        <MudButton Color="Color.Secondary" OnClick="(() => SubmitNewProjectModal(NewProjectEnum.ClosedAndSave,ProjectName))">New and Save</MudButton>
+        <MudButton Color="Color.Primary" OnClick="(() => Submit(NewProjectEnum.Closed))">New</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="(() => Submit(NewProjectEnum.ClosedAndSave))">New and Save</MudButton>
         <MudButton Color="Color.Error" OnClick="CloseModal">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
@@ -17,6 +17,12 @@
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Parameter] public Action<NewProjectEnum,string> SubmitNewProjectModal { get; set; }
     public string ProjectName { get; set; } = string.Empty;
+
+    private void Submit(NewProjectEnum enumValue)
+    {
+        MudDialog.Close();
+        SubmitNewProjectModal(enumValue, ProjectName);
+    }
 
     private void CloseModal()
     {

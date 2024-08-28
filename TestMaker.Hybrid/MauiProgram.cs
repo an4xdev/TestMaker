@@ -6,6 +6,7 @@ using TestMaker.Data.Services;
 using TestMaker.Hybrid.Services;
 using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Storage;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace TestMaker.Hybrid
 {
@@ -35,6 +36,7 @@ namespace TestMaker.Hybrid
             });
             builder.Services.AddSingleton<IProjectService, ProjectService>();
             builder.Services.AddSingleton(FileSaver.Default);
+            builder.Services.AddSingleton<IMessenger, WeakReferenceMessenger>();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();

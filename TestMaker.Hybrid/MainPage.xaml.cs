@@ -15,10 +15,12 @@ public partial class MainPage : ContentPage
     private readonly JsonSerializerOptions _jsonSerializerOptions;
     private readonly PickOptions _pickOptionsProject;
     private readonly PickOptions _pickOptionsMarkdown;
-    public MainPage(IFileSaver saver)
+    private readonly IMessenger _messenger;
+    public MainPage(IFileSaver saver, IMessenger messenger)
     {
         InitializeComponent();
         _fileSaver = saver;
+        _messenger = messenger;
         _jsonSerializerOptions = new JsonSerializerOptions()
         {
             WriteIndented = true
@@ -49,12 +51,12 @@ public partial class MainPage : ContentPage
         };
         
         // response from blazor on save project menu 
-        WeakReferenceMessenger.Default.Register<SaveFileClickedMessageResponse>(this, async (r, message) =>
+        _messenger.Register<SaveFileClickedMessageResponse>(this, async (r, message) =>
         {
             await SaveProjectToFile(message.Project);
         });
         
-        WeakReferenceMessenger.Default.Register<GeneratePageClickedMessageResponse>(this, async (r, message) =>
+        _messenger.Register<GeneratePageClickedMessageResponse>(this, async (r, message) =>
         {
             await GeneratePage(message);
         } );
@@ -65,13 +67,13 @@ public partial class MainPage : ContentPage
         var selectedOption = menuItem.Text;
         if (Enum.TryParse(selectedOption, out Theme theme))
         {
-            WeakReferenceMessenger.Default.Send(new ThemeChangedMessage { Theme = theme });
+            _messenger.Send(new ThemeChangedMessage { Theme = theme });
         }
     }
 
     private void SaveFileItemClicked(object sender, EventArgs e)
     {
-        WeakReferenceMessenger.Default.Send(new SaveFileClickedMessage());
+        _messenger.Send(new SaveFileClickedMessage());
     }
 
     private async Task SaveProjectToFile(Project project)
@@ -106,7 +108,7 @@ public partial class MainPage : ContentPage
             await using var stream = await result.OpenReadAsync();
             var project = JsonSerializer.Deserialize<Project>(stream, _jsonSerializerOptions) ?? throw new InvalidOperationException();
             await Toast.Make($"Opened: {project.Name}").Show();
-            WeakReferenceMessenger.Default.Send(new LoadProjectFromFileMessage
+            _messenger.Send(new LoadProjectFromFileMessage
             {
                 Project = project
             });
@@ -119,7 +121,7 @@ public partial class MainPage : ContentPage
 
     private void NewProjectClicked(object sender, EventArgs e)
     {
-        WeakReferenceMessenger.Default.Send(new NewProjectClickedMessage());
+        _messenger.Send(new NewProjectClickedMessage());
     }
 
     private async void LoadProjectFromMarkdownClicked(object sender, EventArgs e)
@@ -282,7 +284,7 @@ public partial class MainPage : ContentPage
             return;
         }
         
-        WeakReferenceMessenger.Default.Send(new LoadProjectFromFileMessage
+        _messenger.Send(new LoadProjectFromFileMessage
         {
             Project = project
         });
@@ -290,7 +292,7 @@ public partial class MainPage : ContentPage
     
     private void GeneratePageClicked(object sender, EventArgs e)
     {
-        WeakReferenceMessenger.Default.Send(new GeneratePageClickedMessage());
+        _messenger.Send(new GeneratePageClickedMessage());
     }
 
     private async Task GeneratePage(GeneratePageClickedMessageResponse response)
@@ -321,6 +323,6 @@ public partial class MainPage : ContentPage
     
     private void OpenInfo(object sender, EventArgs e)
     {
-        WeakReferenceMessenger.Default.Send(new OpenInfo());
+        _messenger.Send(new OpenInfo());
     }
 }

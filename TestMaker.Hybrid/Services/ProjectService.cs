@@ -6,7 +6,7 @@ using TestMaker.Hybrid.Messages;
 
 namespace TestMaker.Hybrid.Services;
 
-public class ProjectService : IProjectService
+public class ProjectService(IMessenger messenger) : IProjectService
 {
     public void AddQuestion(Project project, Question question)
     {
@@ -163,7 +163,7 @@ public class ProjectService : IProjectService
 
     public void SaveProject(Project project)
     {
-        WeakReferenceMessenger.Default.Send(new SaveFileClickedMessageResponse()
+        messenger.Send(new SaveFileClickedMessageResponse
         {
             Project = project
         });

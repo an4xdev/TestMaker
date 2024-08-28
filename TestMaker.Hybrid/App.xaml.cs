@@ -1,13 +1,14 @@
 ﻿using CommunityToolkit.Maui.Storage;
+using CommunityToolkit.Mvvm.Messaging;
 
 namespace TestMaker.Hybrid
 {
     public partial class App : Application
     {
-        public App(IFileSaver saver)
+        public App(IFileSaver saver, IMessenger messenger)
         {
             InitializeComponent();
-            MainPage = new NavigationPage(new MainPage(saver));
+            MainPage = new NavigationPage(new MainPage(saver, messenger));
         }
         
         // https://github.com/dotnet/maui/issues/11263#issuecomment-1384487707
