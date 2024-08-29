@@ -1,23 +1,45 @@
-﻿@inherits LayoutComponentBase
+﻿@using MudBlazor
+@inherits LayoutComponentBase
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<MudLayout>
+    @* <div class="sidebar"> *@
+    @*     <NavMenu/> *@
+    @* </div> *@
+    <MudMainContent Class="py-1 px-1">
+        @Body
+    </MudMainContent>
+</MudLayout>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
+@* <MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" /> *@
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" @rendermode="InteractiveAuto"/>
+<MudPopoverProvider @rendermode="InteractiveAuto"/>
 
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+<MudDialogProvider CloseButton="true" Position="DialogPosition.Center" BackdropClick = "false" FullWidth="true" @rendermode="InteractiveAuto"/>
+
+<MudSnackbarProvider @rendermode="InteractiveAuto"/>
+
+@* <div class="page"> *@
+@*     <div class="sidebar"> *@
+@*         <NavMenu/> *@
+@*     </div> *@
+@*     <main> *@
+@*         <div class="top-row px-4"> *@
+@*             <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a> *@
+@*         </div> *@
+@* *@
+@*         <article class="content px-4"> *@
+@*             @Body *@
+@*         </article> *@
+@*     </main> *@
+@* </div> *@
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>
+
+@code 
+{
+    private bool _isDarkMode = true;
+}

@@ -4,7 +4,7 @@ using TestMaker.Data.Services;
 using TestMaker.Data.Services.ServiceModels;
 using TestMaker.Hybrid.Messages;
 
-namespace TestMaker.Hybrid.Services;
+namespace TestMaker.Data.Services;
 
 public class ProjectService(IMessenger messenger) : IProjectService
 {

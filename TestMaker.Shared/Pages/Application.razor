@@ -1,0 +1,396 @@
+﻿@using CommunityToolkit.Mvvm.Messaging
+@using MudBlazor
+@using TestMaker.Data.Models
+@using TestMaker.Data.Services
+@using TestMaker.Data.Services.ServiceModels
+@using TestMaker.Hybrid.Messages
+@using TestMaker.Hybrid.Models
+@using TestMaker.Shared.Modals
+@implements IDisposable
+@* @inject IJSRuntime JSRuntime *@
+<MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
+    @if (ProjectValue.Name != string.Empty)
+    {
+        <div class="d-flex flex-column px-1 py-1" style="width:50%;">
+            <MudPaper Class="px-1 py-1" Elevation="3">
+                <MudText Typo="Typo.h3">
+                    <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name
+                </MudText>
+            </MudPaper>
+            <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
+                <div class="px-1 py-1 h-100">
+                    @if (_selectedQuestion != null)
+                    {
+                        <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
+                        @if (_editing)
+                        {
+                            <MudFocusTrap  DefaultFocus="DefaultFocus.FirstChild">
+                                <MudTextField @bind-Value="_selectedQuestion.QuestionText"/>
+                            </MudFocusTrap>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
+                        }
+
+                        @switch (_selectedQuestion)
+                        {
+                            case TestOneQuestion t1Question:
+                                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
+                                <MudRadioGroup @bind-Value="t1Question.CorrectAnswer" T="CorrectAnswer">
+                                    @foreach (var answer in t1Question.Answers)
+                                    {
+                                        <div class="d-flex my-2">
+                                            <div>
+                                                <MudRadio Value="@(answer.AnswerValue)">
+                                                    @if (!_editing)
+                                                    {
+                                                        @answer.Answer
+                                                    }
+                                                </MudRadio>
+                                            </div>
+                                            @if (_editing)
+                                            {
+                                                <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
+                                            }
+                                        </div>
+                                    }
+                                </MudRadioGroup>
+                                break;
+                            case TestMultiQuestion tmquestion:
+                                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
+                                @foreach (var answer in tmquestion.Answers)
+                                {
+                                    <div class="d-flex my-2">
+                                        <div>
+                                            <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                                        </div>
+                                        @if (_editing)
+                                        {
+                                            <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
+                                        }
+                                    </div>
+                                }
+
+                                break;
+                            case OpenQuestion openQuestion:
+                                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
+                                @if (!_editing)
+                                {
+                                    <MudText>@openQuestion.Answer</MudText>
+                                }
+                                else
+                                {
+                                    <MudTextField Text="@openQuestion.Answer" T="string" AutoGrow MaxLines="35"/>
+                                }
+
+                                break;
+                            default:
+                                <MudText>Unknown</MudText>
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        <div class="d-flex justify-content-center align-items-center h-100 flex-column">
+                            <div>
+                                <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do something with question</MudText>
+                            </div>
+                            <div class="py-2">
+                                <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add" OnClick="ShowNewQuestionModal">Add new</MudButton>
+                            </div>
+                        </div>
+                    }
+                </div>
+                @if (_selectedQuestion != null)
+                {
+                    <div class="d-flex justify-content-end">
+                        <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save</MudButton>
+                        <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
+                    </div>
+                }
+            </MudPaper>
+        </div>
+        <div class="px-1 py-1 w-50">
+            <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="height:94vh;">
+                @foreach (var question in ProjectService.GetQuestions(ProjectValue))
+                {
+                    <div class="d-flex flex-row justify-content-between">
+                        <div class="px-1 py-1">
+                            <MudText>@question.QuestionText</MudText>
+                        </div>
+                        <div class="px-1 py-1 d-flex">
+                            <div>
+                                <MudButton Color="Color.Primary" OnClick="(() => ViewQuestion(question.ID))">View</MudButton>
+                            </div>
+                            <div>
+                                <MudButton Color="Color.Warning" OnClick="(() => EditQuestion(question.ID))">Edit</MudButton>
+                            </div>
+                            <div>
+                                <MudButton Color="Color.Error" OnClick="(() => DeleteQuestion(question.ID))">Delete</MudButton>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </MudPaper>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-center w-100">
+            <div class="d-flex justify-content-center flex-column">
+                <div>
+                    <MudPaper Elevation="3" Class="p-3 mb-3">
+                        <div>
+                            <MudText Typo="Typo.h4">Create new project with:</MudText>
+                        </div>
+                        <div>
+                            <MudTreeView T="string" ReadOnly>
+                                <MudTreeViewItem Text="File" Expanded="true">
+                                    <MudTreeViewItem Text="New"/>
+                                </MudTreeViewItem>
+                            </MudTreeView>
+                        </div>
+                    </MudPaper>
+                </div>
+                <div>
+                    <MudPaper Elevation="3" Class="p-3">
+                        <div>
+                            <MudText Typo="Typo.h4">or open existing project with:</MudText>
+                        </div>
+                        <div>
+                            <MudTreeView T="string" ReadOnly>
+                                <MudTreeViewItem Text="File" Expanded="true">
+                                    <MudTreeViewItem Text="Open"/>
+                                </MudTreeViewItem>
+                            </MudTreeView>
+                        </div>
+                    </MudPaper>
+                </div>
+
+            </div>
+        </div>
+    }
+</MudPaper>
+
+@code {
+    [Inject] IProjectService ProjectService { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] IDialogService DialogService { get; set; }
+    [Inject] IMessenger Messenger { get; set; }
+
+    private Project ProjectValue { get; set; } = new();
+    private Question? _selectedQuestion;
+    private bool _editing;
+
+    private List<Language> _countries = [];
+    
+    protected override void OnInitialized()
+    {
+        Messenger.Register<SaveFileClickedMessage>(this, (_, _) =>
+        {
+            ProjectService.SaveProject(ProjectValue);
+        });
+
+        Messenger.Register<LoadProjectFromFileMessage>(this, (_, message) =>
+        {
+            ProjectValue = message.Project;
+            InvokeAsync(StateHasChanged);
+        });
+
+        Messenger.Register<NewProjectClickedMessage>(this, (_, _) =>
+        {
+            ShowNewProjectModal();
+            InvokeAsync(StateHasChanged);
+        });
+
+        Messenger.Register<GeneratePageClickedMessage>(this, (_, _) =>
+        {
+            ShowConfigurePageModal();
+            InvokeAsync(StateHasChanged);
+        });
+        
+        Messenger.Register<OpenInfo>(this, (_, _) =>
+        {
+            ShowInfoModal();
+            InvokeAsync(StateHasChanged);
+        });
+
+        ProjectService.MockData(ProjectValue);
+
+        // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
+        // Editing = true;
+    }
+
+    private void ShowInfoModal()
+    {
+        DialogService.Show<InfoModal>();
+    }
+    
+    private void ShowConfigurePageModal()
+    {
+        if (_countries.Count == 0)
+        {
+            _countries = LanguageService.GetAllCountries();
+        }
+        var parameters = new DialogParameters<GeneratePageModal>
+        {
+            {x => x.SubmitGeneratePageModal, SubmitGeneratePageModal},
+            {x =>x.Countries,_countries }
+        };
+        DialogService.Show<GeneratePageModal>(null, parameters);
+    }
+
+    private void SubmitGeneratePageModal(GeneratePageClickedMessageResponse response)
+    {
+        response.ProjectName = ProjectValue.Name;
+        response.Questions = ProjectValue.Questions;
+        Messenger.Send(response);
+    }
+
+    private void SubmitNewProjectModal(NewProjectEnum newProjectEnum, string projectName)
+    {
+        if (projectName == string.Empty)
+        {
+            Snackbar.Add("Project name cannot be empty!", Severity.Error);
+            return;
+        }
+    
+        ProjectValue.Name = projectName;
+
+        ProjectValue.Questions = [];
+        
+        StateHasChanged();
+    
+        if (newProjectEnum == NewProjectEnum.ClosedAndSave)
+        {
+            ProjectService.SaveProject(ProjectValue);
+        }
+    }
+    
+    private void ShowNewProjectModal()
+    {
+        var parameters = new DialogParameters<NewProjectModal>
+        {
+            { x => x.SubmitNewProjectModal, SubmitNewProjectModal },
+        };
+
+        DialogService.Show<NewProjectModal>(null,parameters);
+        
+        if (ProjectValue is { Name: "", Questions.Count: <= 0 }) return;
+        
+        var parametersSave = new DialogParameters<SaveProjectModal>
+        {
+            { x => x.SaveProject, SaveProject }
+        };
+        DialogService.Show<SaveProjectModal>(null, parametersSave);
+        
+    }
+
+    private void SaveProject(bool save)
+    {
+        if (save)
+        {
+            ProjectService.SaveProject(ProjectValue);
+        }
+    }
+
+    private void ShowNewQuestionModal()
+    {
+        var parameters = new DialogParameters<NewQuestionModal>
+        {
+            { x => x.AddNewQuestion, AddNewQuestion }
+        };
+        DialogService.Show<NewQuestionModal>(null, parameters);
+    }
+
+    private void AddNewQuestion(int newQuestionType)
+    {
+        if (newQuestionType is < 0 or > 2)
+        {
+            Snackbar.Add("Unknown question type.", Severity.Error);
+            return;
+        }
+        _selectedQuestion = newQuestionType switch
+        {
+            0 => new TestOneQuestion(),
+            1 => new TestMultiQuestion(),
+            2 => new OpenQuestion(),
+            _ => throw new ArgumentOutOfRangeException()
+        };
+
+        _editing = true;
+
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SaveQuestion()
+    {
+        if (_selectedQuestion != null)
+        {
+            if (ProjectService.QuestionExists(ProjectValue, _selectedQuestion.ID))
+            {
+                var response = ProjectService.EditQuestion(ProjectValue, _selectedQuestion.ID, _selectedQuestion);
+                Snackbar.Add(response.Message, response.IsSuccess ? Severity.Success : Severity.Error);
+            }
+            else
+            {
+                ProjectService.AddQuestion(ProjectValue, _selectedQuestion);
+            }
+        }
+
+        _selectedQuestion = null;
+    }
+
+    private void CancelQuestion()
+    {
+        _selectedQuestion = null;
+    }
+
+    private void EditQuestion(Guid id)
+    {
+        _editing = true;
+        var q = ProjectService.GetQuestionById(ProjectValue, id);
+        _selectedQuestion = (Question)q?.Clone()!;
+    }
+
+    private void ViewQuestion(Guid id)
+    {
+        _editing = false;
+        _selectedQuestion = ProjectService.GetQuestionById(ProjectValue, id);
+        // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
+    }
+
+    private void DeleteQuestion(Guid id)
+    {
+        var response = ProjectService.DeleteQuestion(ProjectValue, id);
+        if (!response.IsSuccess)
+        {
+            Snackbar.Add(response.Message, Severity.Error);
+        }
+
+        if (_selectedQuestion != null && _selectedQuestion.ID == id)
+        {
+            _selectedQuestion = null;
+        }
+    }
+
+    private void CheckBoxChanged(CorrectAnswer value)
+    {
+        if (_selectedQuestion is not TestMultiQuestion question) return;
+        if (question.CorrectAnswers.Contains(value))
+        {
+            question.CorrectAnswers.Remove(value);
+        }
+        else
+        {
+            question.CorrectAnswers.Add(value);
+        }
+    }
+
+    public void Dispose()
+    {
+        Messenger.UnregisterAll(this);
+    }
+
+}

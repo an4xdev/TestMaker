@@ -1,12 +1,13 @@
 ﻿@inherits LayoutComponentBase
 @implements IDisposable
+@inject IMessenger Messenger
 <MudLayout>
     <MudMainContent Class="py-1 px-1">
         @Body
     </MudMainContent>
 </MudLayout>
 
-<MudThemeProvider @ref="@mudThemeProvider" @bind-IsDarkMode="@isDarkMode" />
+<MudThemeProvider @ref="@_mudThemeProvider" @bind-IsDarkMode="@_isDarkMode" />
 <MudPopoverProvider />
 
 <MudDialogProvider CloseButton="true" Position="DialogPosition.Center" BackdropClick = "false" FullWidth="true"/>
@@ -15,22 +16,22 @@
 
 @code 
 {
-    private bool isDarkMode;
-    private MudThemeProvider mudThemeProvider;
+    private bool _isDarkMode;
+    private MudThemeProvider _mudThemeProvider;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            isDarkMode = await mudThemeProvider.GetSystemPreference();
+            _isDarkMode = await _mudThemeProvider.GetSystemPreference();
             StateHasChanged();
-            WeakReferenceMessenger.Default.Register<ThemeChangedMessage>(this, async (r, message) =>
+            Messenger.Register<ThemeChangedMessage>(this, async (_, message) =>
                {
-                   isDarkMode = message.Theme switch
+                   _isDarkMode = message.Theme switch
                    {
                        Theme.White => false,
                        Theme.Dark => true,
-                       Theme.System => await mudThemeProvider.GetSystemPreference(),
+                       Theme.System => await _mudThemeProvider.GetSystemPreference(),
                        _ => true,
                    };
 
@@ -42,6 +43,6 @@
     
     public void Dispose()
     {
-        WeakReferenceMessenger.Default.Unregister<ThemeChangedMessage>(this);
+        Messenger.Unregister<ThemeChangedMessage>(this);
     }
 }
