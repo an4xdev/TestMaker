@@ -1,8 +1,13 @@
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
+using TestMaker.Data.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+builder.Services.AddSingleton<IMessenger, WeakReferenceMessenger>();
+builder.Services.AddSingleton<IProjectService, ProjectService>();
 
 builder.Services.AddMudServices(config =>
 {

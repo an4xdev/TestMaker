@@ -22,7 +22,7 @@
             <MenuFlyoutItem Text="About" Clicked="OpenInfo"/>
         </MenuBarItem>
         <MenuBarItem Text="Theme">
-            <MenuFlyoutItem Text="White" Clicked="OnThemeItemClicked">
+            <MenuFlyoutItem Text="Light" Clicked="OnThemeItemClicked">
                 <MenuFlyoutItem.IconImageSource>
                     <FontImageSource Glyph="&#x2600;"
                                      FontFamily="Arial" />

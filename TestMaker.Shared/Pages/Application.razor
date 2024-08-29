@@ -112,7 +112,7 @@
             </MudPaper>
         </div>
         <div class="px-1 py-1 w-50">
-            <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="height:94vh;">
+            <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="@Height">
                 @foreach (var question in ProjectService.GetQuestions(ProjectValue))
                 {
                     <div class="d-flex flex-row justify-content-between">
@@ -178,6 +178,7 @@
     [Inject] ISnackbar Snackbar { get; set; }
     [Inject] IDialogService DialogService { get; set; }
     [Inject] IMessenger Messenger { get; set; }
+    [Parameter] public string Height { get; set; }
 
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
