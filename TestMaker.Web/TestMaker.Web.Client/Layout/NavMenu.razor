@@ -5,7 +5,7 @@
     <MudDivider />
     <MudMenuItem>Save</MudMenuItem>
     <MudDivider />
-    <MudMenuItem>Exit</MudMenuItem>
+    <MudMenuItem OnClick="CloseClicked">Exit</MudMenuItem>
 </MudMenu>
 <MudMenu Label="Project" Class="ms-3">
     <MudMenuItem>Load from Markdown</MudMenuItem>
@@ -19,6 +19,7 @@
 {
     [Inject] IMessenger Messenger { get; set; }
     [Inject] IDialogService DialogService { get; set; }
+    [Inject] IJSRuntime JsRuntime { get; set; }
 
     private void NewProjectClicked()
     {
@@ -28,5 +29,10 @@
     private void OpenProjectClicked()
     {
         DialogService.Show<OpenFileModal>();
+    }
+
+    private async Task CloseClicked()
+    {
+        await JsRuntime.InvokeVoidAsync("window.close");
     }
 }

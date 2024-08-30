@@ -39,18 +39,18 @@
                         Class="relative d-flex justify-end gap-4">
                 <MudButton Color="Color.Primary"
                            OnClick="@OpenFilePickerAsync"
-                           Disabled="@(_fileName.Any())"
+                           Disabled="@(_fileName != string.Empty)"
                            Variant="Variant.Filled">
                     Open file picker
                 </MudButton>
                 <MudButton Color="Color.Primary"
-                           Disabled="@(!_fileName.Any())"
+                           Disabled="@(_fileName == string.Empty)"
                            OnClick="@Upload"
                            Variant="Variant.Filled">
                     Upload
                 </MudButton>
                 <MudButton Color="Color.Error"
-                           Disabled="@(!_fileName.Any())"
+                           Disabled="@(_fileName == string.Empty)"
                            OnClick="@ClearAsync"
                            Variant="Variant.Filled">
                     Clear
@@ -64,9 +64,11 @@
 </MudDialog>
 
 @code {
+    
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Inject] IMessenger Messenger { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
+    
     private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
     private string _dragClass = DefaultDragClass;
     private string _fileName = string.Empty;
@@ -88,17 +90,15 @@
         var files = e.GetMultipleFiles();
         if (files.Count != 1)
         {
-            Snackbar.Add("files.Count != 1", Severity.Error);
+            Snackbar.Add("You needs to provide only one file.", Severity.Error);
             return;
         }
-        foreach (var file in files)
-        {
-            _fileName = file.Name;
-        }
 
+        _fileName = files[0].Name;
+        
         if (_fileUpload == null)
         {
-            Snackbar.Add("_fileUpload  != null", Severity.Error);
+            Snackbar.Add("An error occured with file loading.", Severity.Error);
             return;
         }
         _fileUpload.Files = files[0];
@@ -111,13 +111,13 @@
         {
             if (_fileUpload?.Files == null)
             {
-                Snackbar.Add("_fileUpload?.Files == null", Severity.Error);
+                Snackbar.Add("You needs to provide file.", Severity.Error);
                 return;
             }
 
             if (!_fileUpload.Files.Name.EndsWith(".tmps", StringComparison.OrdinalIgnoreCase))
             {
-                Snackbar.Add("!_fileUpload.Files.Name.EndsWith", Severity.Error);
+                Snackbar.Add("Your file isn't ending with .tmps", Severity.Error);
                 return;
             }
             var stream = _fileUpload.Files.OpenReadStream();
@@ -134,7 +134,7 @@
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
+            Snackbar.Add("An error occurred with loading project.", Severity.Error);
         }
     }
 
