@@ -1,3 +1,3 @@
-﻿namespace TestMaker.Hybrid.Models;
+﻿namespace TestMaker.Data.Models;
 
 public record NewProjectRecord(string ProjectName, NewProjectEnum ProjectEnum);

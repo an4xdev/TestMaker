@@ -1,7 +1,7 @@
 ﻿using TestMaker.Data.Models;
 using TestMaker.Data.Services.ServiceModels;
 
-namespace TestMaker.Hybrid.Messages;
+namespace TestMaker.Data.Messages;
 
 public class GeneratePageClickedMessageResponse
 {

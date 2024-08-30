@@ -1,6 +1,6 @@
 ﻿using TestMaker.Data.Models;
 
-namespace TestMaker.Hybrid.Messages;
+namespace TestMaker.Data.Messages;
 public class SaveFileClickedMessageResponse
 {
     public Project Project { get; set; } = new();

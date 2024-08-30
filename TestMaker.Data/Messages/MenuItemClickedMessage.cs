@@ -1,4 +1,4 @@
-﻿namespace TestMaker.Hybrid.Messages;
+﻿namespace TestMaker.Data.Messages;
 
 public class MenuItemClickedMessage(string selectedOption)
 {

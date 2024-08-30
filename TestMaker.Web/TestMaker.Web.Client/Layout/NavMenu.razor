@@ -1,6 +1,6 @@
 ﻿@rendermode InteractiveAuto
 <MudMenu Label="File" Class="ms-3">
-    <MudMenuItem>New</MudMenuItem>
+    <MudMenuItem OnClick="NewProjectClicked">New</MudMenuItem>
     <MudMenuItem>Open</MudMenuItem>
     <MudDivider />
     <MudMenuItem>Save</MudMenuItem>
@@ -14,8 +14,13 @@
 <MudMenu Label="Help" Class="ms-3">
     <MudMenuItem>About</MudMenuItem>
 </MudMenu>
-<MudMenu Label="Theme" Class="ms-3">
-    <MudMenuItem>Light</MudMenuItem>
-    <MudMenuItem>Dark</MudMenuItem>
-    <MudMenuItem>System</MudMenuItem>
-</MudMenu>
+
+@code 
+{
+    [Inject] IMessenger Messenger { get; set; }
+
+    private void NewProjectClicked()
+    {
+        Messenger.Send(new NewProjectClickedMessage());
+    }
+}

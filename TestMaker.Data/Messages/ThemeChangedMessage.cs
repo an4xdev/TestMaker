@@ -1,8 +1,8 @@
-﻿namespace TestMaker.Hybrid.Messages;
+﻿namespace TestMaker.Data.Messages;
 
 public enum Theme
 {
-    White,
+    Light,
     Dark,
     System
 }
