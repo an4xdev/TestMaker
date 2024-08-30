@@ -1,7 +1,7 @@
 ﻿@rendermode InteractiveAuto
 <MudMenu Label="File" Class="ms-3">
     <MudMenuItem OnClick="NewProjectClicked">New</MudMenuItem>
-    <MudMenuItem>Open</MudMenuItem>
+    <MudMenuItem OnClick="OpenProjectClicked">Open</MudMenuItem>
     <MudDivider />
     <MudMenuItem>Save</MudMenuItem>
     <MudDivider />
@@ -18,9 +18,15 @@
 @code 
 {
     [Inject] IMessenger Messenger { get; set; }
+    [Inject] IDialogService DialogService { get; set; }
 
     private void NewProjectClicked()
     {
         Messenger.Send(new NewProjectClickedMessage());
+    }
+
+    private void OpenProjectClicked()
+    {
+        DialogService.Show<OpenFileModal>();
     }
 }
