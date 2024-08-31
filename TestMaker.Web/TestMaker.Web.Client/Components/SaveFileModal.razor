@@ -1,0 +1,18 @@
+﻿<MudDialog>
+    <TitleContent>
+        @Content
+    </TitleContent>
+    <DialogContent>
+        <div class="d-flex justify-content-center align-items-center" style="height: 10em">
+            <div>
+                <MudLink Href="@Json" Target="_blank" Download="@FileName" Style="font-size: 2em">@Content</MudLink>
+            </div>
+        </div>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Parameter] public string Json { get; set; }
+    [Parameter] public string FileName { get; set; }
+    [Parameter] public string Content { get; set; }
+}

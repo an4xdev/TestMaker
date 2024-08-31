@@ -1,18 +1,20 @@
-﻿@rendermode InteractiveAuto
+﻿@using System.Text
+@using TestMaker.Data.Services
+@rendermode InteractiveAuto
 <MudMenu Label="File" Class="ms-3">
     <MudMenuItem OnClick="NewProjectClicked">New</MudMenuItem>
     <MudMenuItem OnClick="OpenProjectClicked">Open</MudMenuItem>
     <MudDivider />
-    <MudMenuItem>Save</MudMenuItem>
+    <MudMenuItem OnClick="SaveProjectClicked">Save</MudMenuItem>
     <MudDivider />
     <MudMenuItem OnClick="CloseClicked">Exit</MudMenuItem>
 </MudMenu>
 <MudMenu Label="Project" Class="ms-3">
     <MudMenuItem>Load from Markdown</MudMenuItem>
-    <MudMenuItem>Generate page</MudMenuItem>
+    <MudMenuItem OnClick="GeneratePageClicked">Generate page</MudMenuItem>
 </MudMenu>
 <MudMenu Label="Help" Class="ms-3">
-    <MudMenuItem>About</MudMenuItem>
+    <MudMenuItem OnClick="InfoClicked">About</MudMenuItem>
 </MudMenu>
 
 @code 
@@ -20,6 +22,18 @@
     [Inject] IMessenger Messenger { get; set; }
     [Inject] IDialogService DialogService { get; set; }
     [Inject] IJSRuntime JsRuntime { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Messenger.Register<SaveFileClickedMessageResponse>(this, (r, message) =>
+        {
+            SaveProjectToFile(message.Project);
+        });
+        Messenger.Register<GeneratePageClickedMessageResponse>(this,(r, message) =>
+        {
+            GeneratePage(message);
+        } );
+    }
 
     private void NewProjectClicked()
     {
@@ -31,8 +45,71 @@
         DialogService.Show<OpenFileModal>();
     }
 
+    private void SaveProjectClicked()
+    {
+        Messenger.Send(new SaveFileClickedMessage());
+    }
+    
+    private void GeneratePageClicked()
+    {
+        Messenger.Send(new GeneratePageClickedMessage());
+    }
+
+    private void InfoClicked()
+    {
+        Messenger.Send(new OpenInfo());
+    }
+
     private async Task CloseClicked()
     {
         await JsRuntime.InvokeVoidAsync("window.close");
+    }
+
+    private void GeneratePage(GeneratePageClickedMessageResponse response)
+    {
+        var htmlBuilderService = new HtmlBuilderService();
+        htmlBuilderService = htmlBuilderService.AddHead(response.Language, response.ProjectName)
+            .AddBody(response.ProjectName, response.PageContent)
+            .AddScript(response.ShowOpenQuestionText)
+            .AddQuestions(response.Questions);
+        var jsonString = htmlBuilderService.Collect();
+        var bytes = Encoding.UTF8.GetBytes(jsonString);
+            
+        var base64String = Convert.ToBase64String(bytes);
+            
+        var dataUrl = $"data:application/octet-stream;base64,{base64String}";
+        
+        var par = new DialogParameters<SaveFileModal>
+        {
+            {x => x.Json, dataUrl},
+            {x=>x.FileName, $"{response.ProjectName}.html"},
+            {x=> x.Content, "Get generated html page"}
+        };
+        
+        DialogService.Show<SaveFileModal>(null, par);
+    }
+
+    private void SaveProjectToFile(Project project)
+    {
+        var jsonSerializerOptions = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+        var jsonString = JsonSerializer.Serialize(project, jsonSerializerOptions);
+            
+        var bytes = Encoding.UTF8.GetBytes(jsonString);
+            
+        var base64String = Convert.ToBase64String(bytes);
+            
+        var dataUrl = $"data:application/octet-stream;base64,{base64String}";
+
+        var par = new DialogParameters<SaveFileModal>
+        {
+            {x => x.Json, dataUrl},
+            {x=>x.FileName, $"{project.Name}.tmps"},
+            {x=> x.Content, "Get project file"}
+        };
+        
+        DialogService.Show<SaveFileModal>(null, par);
     }
 }
