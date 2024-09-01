@@ -6,7 +6,7 @@ The application will allow you to create tests, which will then be generated int
 
 ## Quick start
 
-For now implementation is focused in TestMaker.Hybrid project.
+For now implementation is focused in TestMaker.Web project.
 
 ### Requirements
 
@@ -14,11 +14,12 @@ For now implementation is focused in TestMaker.Hybrid project.
 
 ### Run
 
-Run *.Hybrid project in IDE, which will also compile *.Data project.
+- Run *.Hybrid project in IDE, which will also compile *.Data and *.Shared project.
+- Run *.Web project in IDE, which will also compile *.Data and *.Shared project.
 
 ## TODO
 
-- [ ] Full functionality in .NET Maui project
+- [x] Full functionality in .NET Maui project
 - [ ] Move shared blazor components
 
 ## Plans
