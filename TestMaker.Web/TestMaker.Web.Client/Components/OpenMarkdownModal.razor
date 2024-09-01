@@ -1,5 +1,4 @@
-﻿
-<MudDialog>
+﻿<MudDialog>
     <TitleContent>
         Open project
     </TitleContent>
@@ -7,7 +6,7 @@
         <MudStack Style="width: 100%">
             <MudFileUpload T="IBrowserFile"
                            @ref="@_fileUpload"
-                           Accept=".tmps"
+                           Accept=".md"
                            OnFilesChanged="OnInputFileChanged"
                            Hidden="@false"
                            InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
@@ -26,12 +25,12 @@
                         </MudText>
                         @if (_fileName != string.Empty)
                         {
-                        <MudChip T="string"
-                                 Color="Color.Dark"
-                                 Text="@_fileName"
-                                 tabindex="-1" />
+                            <MudChip T="string"
+                                     Color="Color.Dark"
+                                     Text="@_fileName"
+                                     tabindex="-1"/>
                         }
-                        
+
                     </MudPaper>
                 </ActivatorContent>
             </MudFileUpload>
@@ -59,21 +58,21 @@
         </MudStack>
     </DialogContent>
     <DialogActions>
-        
+
     </DialogActions>
 </MudDialog>
 
 @code {
-    
+
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Inject] IMessenger Messenger { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
-    
+
     private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
     private string _dragClass = DefaultDragClass;
     private string _fileName = string.Empty;
     private MudFileUpload<IBrowserFile>? _fileUpload;
-    
+
     private async Task ClearAsync()
     {
         await (_fileUpload?.ClearAsync() ?? Task.CompletedTask);
@@ -95,14 +94,14 @@
         }
 
         _fileName = files[0].Name;
-        
+
         if (_fileUpload == null)
         {
             Snackbar.Add("An error occured with file loading.", Severity.Error);
             return;
         }
+
         _fileUpload.Files = files[0];
-       
     }
 
     private async Task Upload()
@@ -115,21 +114,104 @@
                 return;
             }
 
-            if (!_fileUpload.Files.Name.EndsWith(".tmps", StringComparison.OrdinalIgnoreCase))
+            if (!_fileUpload.Files.Name.EndsWith(".md", StringComparison.OrdinalIgnoreCase))
             {
-                Snackbar.Add("Your file isn't ending with .tmps", Severity.Error);
+                Snackbar.Add("Your file isn't markdown", Severity.Error);
                 return;
             }
+
             var stream = _fileUpload.Files.OpenReadStream();
-            var jsonSerializerOptions = new JsonSerializerOptions
+            var reader = new StreamReader(stream);
+
+            if (reader.EndOfStream)
             {
-                WriteIndented = true
-            };
-            var project = await JsonSerializer.DeserializeAsync<Project>(stream, jsonSerializerOptions) ?? throw new InvalidOperationException();
+                Snackbar.Add("Empty markdown file", Severity.Error);
+                return;
+            }
+
+            var project = new Project();
+
+            var projectName = false;
+
+            var data = new List<string>();
+
+            while (!reader.EndOfStream)
+            {
+                var line = await reader.ReadLineAsync();
+                if (line == null)
+                {
+                    break;
+                }
+
+                if (line.Equals("")) continue;
+
+                if (!projectName)
+                {
+                    if (!line.StartsWith($"##"))
+                    {
+                        project.Name = line.Split("#")[1];
+                    }
+                    else
+                    {
+                        project.Name = _fileUpload.Files.Name.Split('.')[0];
+                        data.Add(line);
+                    }
+
+                    projectName = true;
+                    continue;
+                }
+
+                if (line.StartsWith("##") && data.Count == 2 || data.Count == 5)
+                {
+                    var parse = QuestionParser.Parse(data);
+                    if (parse.Question != null)
+                    {
+                        project.Questions.Add(parse.Question);
+                        data.Clear();
+                    }
+                    else if (parse.Message != null)
+                    {
+                        Snackbar.Add(parse.Message, Severity.Error);
+                    }
+                    else
+                    {
+                        Snackbar.Add("An error occurred while processing the question from the file.", Severity.Error);
+                        return;
+                    }
+                }
+
+                data.Add(line);
+            }
+
+            if (data.Count is 2 or 5)
+            {
+                var parse = QuestionParser.Parse(data);
+                if (parse.Question != null)
+                {
+                    project.Questions.Add(parse.Question);
+                    data.Clear();
+                }
+                else if (parse.Message != null)
+                {
+                    Snackbar.Add(parse.Message, Severity.Error);
+                }
+                else
+                {
+                    Snackbar.Add("An error occurred while processing the question from the file.", Severity.Error);
+                    return;
+                }
+            }
+            else
+            {
+                Snackbar.Add("An error occurred while processing the question from the file.", Severity.Error);
+                return;
+            }
+
             Messenger.Send(new LoadProjectFromFileMessage
             {
                 Project = project
             });
+            
             MudDialog.Close();
         }
         catch (Exception)
@@ -143,5 +225,5 @@
 
     private void ClearDragClass()
         => _dragClass = DefaultDragClass;
-    
+
 }

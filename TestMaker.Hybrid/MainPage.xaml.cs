@@ -129,79 +129,6 @@ public partial class MainPage : ContentPage
         await LoadProjectFromMarkdown();
     }
 
-    private async Task<Question?> ProcessQuestion(List<string> data)
-    {
-        var boldCounter = data.Count(s => s.Contains("**"));
-        switch (boldCounter)
-        {
-            case 0 when data.Count == 2:
-                return new OpenQuestion()
-                {
-                    ID = Guid.NewGuid(),
-                    QuestionText = data[0].Split("##")[1],
-                    Answer = data[1]
-                };
-            case 0 when data.Count != 2:
-                await Toast.Make("According to the data read, this should be an open question. Unfortunately, an error was encountered.").Show();
-                return null;
-            case 1 when data.Count == 5:
-            {
-                var question = new TestOneQuestion
-                {
-                    ID = Guid.NewGuid(),
-                    QuestionText = data[0].Split("##")[1]
-                };
-                for (var i = 1; i < data.Count; i++)
-                {
-                    var answer = new TestAnswer
-                    {
-                        Answer = data[i].Contains("**") ? data[i].Split("- **")[1].Split("**")[0] : data[i].Split("- ")[1],
-                        AnswerValue = (CorrectAnswer)i - 1
-                    };
-                    if (data[i].Contains("**"))
-                    {
-                        question.CorrectAnswer = (CorrectAnswer)i - 1;
-                    }
-                    question.Answers.Add(answer);
-                }
-                return question;
-            }
-            case 1 when data.Count != 5:
-                await Toast.Make("According to the data read, this should be an test question with one answer. Unfortunately, an error was encountered.").Show();
-                return null;
-            case > 1 and <= 4 when data.Count == 5:
-            {
-                var question = new TestMultiQuestion()
-                {
-                    ID = Guid.NewGuid(),
-                    QuestionText = data[0].Split("##")[1],
-                };
-
-                for (var i = 1; i < data.Count; i++)
-                {
-                    var answer = new TestAnswer
-                    {
-                        Answer = data[i].Contains("**") ? data[i].Split("- **")[1].Split("**")[0] : data[i].Split("- ")[1],
-                        AnswerValue = (CorrectAnswer)i - 1
-                    };
-
-                    if (data[i].Contains("**"))
-                    {
-                        question.CorrectAnswers.Add((CorrectAnswer)i - 1);
-                    }
-                    
-                    question.Answers.Add(answer);
-                }
-                return question;
-            }
-            case > 1 and <= 4 when data.Count != 5:
-                await Toast.Make("According to the data read, this should be an test question with multiple answers. Unfortunately, an error was encountered.").Show();
-                return null;
-        }
-        
-        return null;
-    }
-
     private async Task LoadProjectFromMarkdown()
     {
         var result = await FilePicker.Default.PickAsync(_pickOptionsMarkdown);
@@ -249,11 +176,15 @@ public partial class MainPage : ContentPage
 
             if (line.StartsWith("##") && data.Count == 2 || data.Count == 5)
             {
-                var question = await ProcessQuestion(data);
-                if (question != null)
+                var parse = QuestionParser.Parse(data);
+                if (parse.Question != null)
                 {
-                    project.Questions.Add(question);
+                    project.Questions.Add(parse.Question);
                     data.Clear();
+                }
+                else if(parse.Message != null)
+                {
+                    await Toast.Make(parse.Message).Show();
                 }
                 else
                 {
@@ -267,10 +198,16 @@ public partial class MainPage : ContentPage
 
         if (data.Count is 2 or 5)
         {
-            var question = await ProcessQuestion(data);
-            if (question != null)
+            
+            var parse = QuestionParser.Parse(data);
+            if (parse.Question != null)
             {
-                project.Questions.Add(question);
+                project.Questions.Add(parse.Question);
+                data.Clear();
+            }
+            else if(parse.Message != null)
+            {
+                await Toast.Make(parse.Message).Show();
             }
             else
             {

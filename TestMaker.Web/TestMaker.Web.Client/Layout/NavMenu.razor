@@ -10,7 +10,7 @@
     <MudMenuItem OnClick="CloseClicked">Exit</MudMenuItem>
 </MudMenu>
 <MudMenu Label="Project" Class="ms-3">
-    <MudMenuItem>Load from Markdown</MudMenuItem>
+    <MudMenuItem OnClick="LoadFromMarkdownClicked">Load from Markdown</MudMenuItem>
     <MudMenuItem OnClick="GeneratePageClicked">Generate page</MudMenuItem>
 </MudMenu>
 <MudMenu Label="Help" Class="ms-3">
@@ -48,6 +48,11 @@
     private void SaveProjectClicked()
     {
         Messenger.Send(new SaveFileClickedMessage());
+    }
+
+    private void LoadFromMarkdownClicked()
+    {
+        DialogService.Show<OpenMarkdownModal>();
     }
     
     private void GeneratePageClicked()
