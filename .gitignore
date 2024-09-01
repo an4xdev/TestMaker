@@ -443,3 +443,6 @@ FodyWeavers.xsd
 /TestMaker.Hybrid/.idea/.idea.TestMaker.Hybrid/.idea/libraries/org_jetbrains_kotlin_kotlin_stdlib_jdk8_1_9_0.xml
 /TestMaker.Hybrid/.idea/.idea.TestMaker.Hybrid/.idea/libraries/org_jetbrains_kotlinx_kotlinx_coroutines_android_1_7_2.xml
 /TestMaker.Hybrid/.idea/.idea.TestMaker.Hybrid/.idea/libraries/org_jetbrains_kotlinx_kotlinx_coroutines_core_jvm_1_7_2.xml
+/TestMaker.Hybrid/global.json
+/cert.txt
+/command.txt
