@@ -25,14 +25,22 @@
 
     protected override void OnInitialized()
     {
-        Messenger.Register<SaveFileClickedMessageResponse>(this, (r, message) =>
+        Messenger.Register<SaveFileClickedMessageResponse>(this, (_, message) =>
         {
             SaveProjectToFile(message.Project);
         });
-        Messenger.Register<GeneratePageClickedMessageResponse>(this,(r, message) =>
+        Messenger.Register<GeneratePageClickedMessageResponse>(this,(_, message) =>
         {
             GeneratePage(message);
-        } );
+        });
+        Messenger.Register<SaveFileWhenClosingResponse>(this, async (_, message) =>
+        {
+            if (message.Project != null)
+            {
+                SaveProjectToFile(message.Project);
+            }
+            await JsRuntime.InvokeVoidAsync("window.close");
+        });
     }
 
     private void NewProjectClicked()
@@ -64,10 +72,10 @@
     {
         Messenger.Send(new OpenInfo());
     }
-
-    private async Task CloseClicked()
+    
+    private void CloseClicked()
     {
-        await JsRuntime.InvokeVoidAsync("window.close");
+        Messenger.Send(new SaveFileWhenClosing());
     }
 
     private void GeneratePage(GeneratePageClickedMessageResponse response)

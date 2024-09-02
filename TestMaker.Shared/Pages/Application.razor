@@ -215,6 +215,15 @@
             ShowInfoModal();
             InvokeAsync(StateHasChanged);
         });
+        
+        Messenger.Register<SaveFileWhenClosing>(this, (_, _) =>
+        {
+            var parametersSave = new DialogParameters<SaveProjectModal>
+            {
+                { x => x.SaveProject, SaveProjectWhenClosing }
+            };
+            DialogService.Show<SaveProjectModal>(null, parametersSave);
+        });
 
         ProjectService.MockData(ProjectValue);
 
@@ -293,6 +302,14 @@
         {
             ProjectService.SaveProject(ProjectValue);
         }
+    }
+
+    private void SaveProjectWhenClosing(bool save)
+    {
+        Messenger.Send(new SaveFileWhenClosingResponse()
+        {
+            Project = save? ProjectValue: null
+        });
     }
 
     private void ShowNewQuestionModal()

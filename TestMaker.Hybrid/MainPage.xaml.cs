@@ -51,15 +51,24 @@ public partial class MainPage : ContentPage
         };
         
         // response from blazor on save project menu 
-        _messenger.Register<SaveFileClickedMessageResponse>(this, async (r, message) =>
+        _messenger.Register<SaveFileClickedMessageResponse>(this, async (_, message) =>
         {
             await SaveProjectToFile(message.Project);
         });
         
-        _messenger.Register<GeneratePageClickedMessageResponse>(this, async (r, message) =>
+        _messenger.Register<GeneratePageClickedMessageResponse>(this, async (_, message) =>
         {
             await GeneratePage(message);
-        } );
+        });
+        
+        _messenger.Register<SaveFileWhenClosingResponse>(this, async (_, message) =>
+        {
+            if (message.Project != null)
+            {
+                await SaveProjectToFile(message.Project);
+            }
+            Application.Current?.CloseWindow(Application.Current.MainPage.Window);
+        });
     }
     private void OnThemeItemClicked(object sender, EventArgs e)
     {
@@ -86,9 +95,10 @@ public partial class MainPage : ContentPage
             fileSaverResult.EnsureSuccess();
             await Toast.Make($"File is saved: {fileSaverResult.FilePath}").Show();
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            await Toast.Make(e.Message).Show();
+            // await Toast.Make(e.Message).Show();
+            await Toast.Make("An error occured with saving file").Show();
         }
        
     }
@@ -255,7 +265,7 @@ public partial class MainPage : ContentPage
 
     private void CloseApplication(object sender, EventArgs e)
     {
-        Application.Current?.CloseWindow(Application.Current.MainPage.Window);
+        _messenger.Send(new SaveFileWhenClosing());
     }
     
     private void OpenInfo(object sender, EventArgs e)
