@@ -119,11 +119,11 @@
                 Snackbar.Add("Your file isn't markdown", Severity.Error);
                 return;
             }
-
             var stream = _fileUpload.Files.OpenReadStream();
             var reader = new StreamReader(stream);
+            var content = await reader.ReadToEndAsync();
 
-            if (reader.EndOfStream)
+            if (string.IsNullOrWhiteSpace(content))
             {
                 Snackbar.Add("Empty markdown file", Severity.Error);
                 return;
@@ -134,16 +134,12 @@
             var projectName = false;
 
             var data = new List<string>();
+            
+            var lines = content.Split('\n');
 
-            while (!reader.EndOfStream)
+            foreach (var line in lines)
             {
-                var line = await reader.ReadLineAsync();
-                if (line == null)
-                {
-                    break;
-                }
-
-                if (line.Equals("")) continue;
+                if (string.IsNullOrWhiteSpace(line)) continue;
 
                 if (!projectName)
                 {
@@ -161,7 +157,7 @@
                     continue;
                 }
 
-                if (line.StartsWith("##") && data.Count == 2 || data.Count == 5)
+                if (line.StartsWith("##") && (data.Count == 2 || data.Count == 5))
                 {
                     var parse = QuestionParser.Parse(data);
                     if (parse.Question != null)
@@ -189,7 +185,6 @@
                 if (parse.Question != null)
                 {
                     project.Questions.Add(parse.Question);
-                    data.Clear();
                 }
                 else if (parse.Message != null)
                 {
@@ -214,7 +209,7 @@
             
             MudDialog.Close();
         }
-        catch (Exception)
+        catch (Exception e)
         {
             Snackbar.Add("An error occurred with loading project.", Severity.Error);
         }
