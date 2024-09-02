@@ -446,3 +446,4 @@ FodyWeavers.xsd
 /TestMaker.Hybrid/global.json
 /cert.txt
 /command.txt
+/TestMaker.Web/TestMaker.Web/.config/dotnet-tools.json
