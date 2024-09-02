@@ -20,7 +20,7 @@ For now implementation is focused in TestMaker.Web project.
 ## TODO
 
 - [x] Full functionality in .NET Maui project
-- [ ] Move shared blazor components
+- [x] Move shared blazor components
 
 ## Plans
 
