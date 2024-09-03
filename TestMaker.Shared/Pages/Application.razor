@@ -10,43 +10,60 @@
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     @if (ProjectValue.Name != string.Empty)
     {
-        <div class="d-flex flex-column px-1 py-1" style="width:50%;">
-            <MudPaper Class="px-1 py-1" Elevation="3">
-                <MudText Typo="Typo.h3">
-                    <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name
-                </MudText>
-            </MudPaper>
-            <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
-                <div class="px-1 py-1 h-100">
-                    @if (_selectedQuestion != null)
-                    {
-                        <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
-                        @if (_editing)
+        <div style="width:50%;">
+            <MudPaper Class="d-flex flex-column px-1 py-1" Style="height:86.25vh;">
+                <MudPaper Class="px-1 py-1" Elevation="3">
+                    <MudText Typo="Typo.h3">
+                        <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name
+                    </MudText>
+                </MudPaper>
+                <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
+                    <div class="px-1 py-1 h-100 overflow-scroll">
+                        @if (_selectedQuestion != null)
                         {
-                            <MudFocusTrap  DefaultFocus="DefaultFocus.FirstChild">
-                                <MudTextField @bind-Value="_selectedQuestion.QuestionText"/>
-                            </MudFocusTrap>
-                        }
-                        else
-                        {
-                            <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
-                        }
+                            <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
+                            @if (_editing)
+                            {
+                                <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
+                                    <MudTextField @bind-Value="_selectedQuestion.QuestionText"/>
+                                </MudFocusTrap>
+                            }
+                            else
+                            {
+                                <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
+                            }
 
-                        @switch (_selectedQuestion)
-                        {
-                            case TestOneQuestion t1Question:
-                                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
-                                <MudRadioGroup @bind-Value="t1Question.CorrectAnswer" T="CorrectAnswer">
-                                    @foreach (var answer in t1Question.Answers)
+                            @switch (_selectedQuestion)
+                            {
+                                case TestOneQuestion t1Question:
+                                    <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
+                                    <MudRadioGroup @bind-Value="t1Question.CorrectAnswer" T="CorrectAnswer">
+                                        @foreach (var answer in t1Question.Answers)
+                                        {
+                                            <div class="d-flex my-2">
+                                                <div>
+                                                    <MudRadio Value="@(answer.AnswerValue)">
+                                                        @if (!_editing)
+                                                        {
+                                                            @answer.Answer
+                                                        }
+                                                    </MudRadio>
+                                                </div>
+                                                @if (_editing)
+                                                {
+                                                    <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
+                                                }
+                                            </div>
+                                        }
+                                    </MudRadioGroup>
+                                    break;
+                                case TestMultiQuestion tmquestion:
+                                    <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
+                                    @foreach (var answer in tmquestion.Answers)
                                     {
                                         <div class="d-flex my-2">
                                             <div>
-                                                <MudRadio Value="@(answer.AnswerValue)">
-                                                    @if (!_editing)
-                                                    {
-                                                        @answer.Answer
-                                                    }
-                                                </MudRadio>
+                                                <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
                                             </div>
                                             @if (_editing)
                                             {
@@ -54,60 +71,52 @@
                                             }
                                         </div>
                                     }
-                                </MudRadioGroup>
-                                break;
-                            case TestMultiQuestion tmquestion:
-                                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
-                                @foreach (var answer in tmquestion.Answers)
-                                {
-                                    <div class="d-flex my-2">
-                                        <div>
-                                            <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
-                                        </div>
-                                        @if (_editing)
-                                        {
-                                            <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
-                                        }
-                                    </div>
-                                }
 
-                                break;
-                            case OpenQuestion openQuestion:
-                                <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
-                                @if (!_editing)
-                                {
-                                    <MudText>@openQuestion.Answer</MudText>
-                                }
-                                else
-                                {
-                                    <MudTextField Text="@openQuestion.Answer" T="string" AutoGrow MaxLines="35"/>
-                                }
+                                    break;
+                                case OpenQuestion openQuestion:
+                                    <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
+                                    @if (!_editing)
+                                    {
+                                        <MudText>@openQuestion.Answer</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudTextField Text="@openQuestion.Answer" T="string" AutoGrow MaxLines="35"/>
+                                    }
 
-                                break;
-                            default:
-                                <MudText>Unknown</MudText>
-                                break;
+                                    break;
+                                default:
+                                    <MudText>Unknown</MudText>
+                                    break;
+                            }
+
+                            @if (_editing)
+                            {
+                                <div class="d-flex justify-center align-center py-1">
+                                    <MudButton Color="Color.Success" OnClick="AddAnswer">ADD</MudButton>
+                                </div>
+                            }
                         }
-                    }
-                    else
+                        else
+                        {
+                            <div class="d-flex justify-content-center align-items-center h-100 flex-column">
+                                <div>
+                                    <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do something with question</MudText>
+                                </div>
+                                <div class="py-2">
+                                    <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add" OnClick="ShowNewQuestionModal">Add new</MudButton>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    @if (_selectedQuestion != null)
                     {
-                        <div class="d-flex justify-content-center align-items-center h-100 flex-column">
-                            <div>
-                                <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do something with question</MudText>
-                            </div>
-                            <div class="py-2">
-                                <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add" OnClick="ShowNewQuestionModal">Add new</MudButton>
-                            </div>
+                        <div class="d-flex justify-content-end">
+                            <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save</MudButton>
+                            <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
                         </div>
                     }
-                </div>
-                @if (_selectedQuestion != null)
-                {
-                    <div class="d-flex justify-content-end">
-                        <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save</MudButton>
-                        <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
-                    </div>
-                }
+                </MudPaper>
             </MudPaper>
         </div>
         <div class="px-1 py-1 w-50">
@@ -184,13 +193,10 @@
     private bool _editing;
 
     private List<Language> _countries = [];
-    
+
     protected override void OnInitialized()
     {
-        Messenger.Register<SaveFileClickedMessage>(this, (_, _) =>
-        {
-            ProjectService.SaveProject(ProjectValue);
-        });
+        Messenger.Register<SaveFileClickedMessage>(this, (_, _) => { ProjectService.SaveProject(ProjectValue); });
 
         Messenger.Register<LoadProjectFromFileMessage>(this, (_, message) =>
         {
@@ -209,13 +215,13 @@
             ShowConfigurePageModal();
             InvokeAsync(StateHasChanged);
         });
-        
+
         Messenger.Register<OpenInfo>(this, (_, _) =>
         {
             ShowInfoModal();
             InvokeAsync(StateHasChanged);
         });
-        
+
         Messenger.Register<SaveFileWhenClosing>(this, (_, _) =>
         {
             var parametersSave = new DialogParameters<SaveProjectModal>
@@ -225,7 +231,7 @@
             DialogService.Show<SaveProjectModal>(null, parametersSave);
         });
 
-        // ProjectService.MockData(ProjectValue);
+        ProjectService.MockData(ProjectValue);
 
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
@@ -235,17 +241,18 @@
     {
         DialogService.Show<InfoModal>();
     }
-    
+
     private void ShowConfigurePageModal()
     {
         if (_countries.Count == 0)
         {
             _countries = LanguageService.GetAllCountries();
         }
+
         var parameters = new DialogParameters<GeneratePageModal>
         {
-            {x => x.SubmitGeneratePageModal, SubmitGeneratePageModal},
-            {x =>x.Countries,_countries }
+            { x => x.SubmitGeneratePageModal, SubmitGeneratePageModal },
+            { x => x.Countries, _countries }
         };
         DialogService.Show<GeneratePageModal>(null, parameters);
     }
@@ -264,19 +271,19 @@
             Snackbar.Add("Project name cannot be empty!", Severity.Error);
             return;
         }
-    
+
         ProjectValue.Name = projectName;
 
         ProjectValue.Questions = [];
-        
+
         StateHasChanged();
-    
+
         if (newProjectEnum == NewProjectEnum.ClosedAndSave)
         {
             ProjectService.SaveProject(ProjectValue);
         }
     }
-    
+
     private void ShowNewProjectModal()
     {
         var parameters = new DialogParameters<NewProjectModal>
@@ -284,16 +291,15 @@
             { x => x.SubmitNewProjectModal, SubmitNewProjectModal },
         };
 
-        DialogService.Show<NewProjectModal>(null,parameters);
-        
+        DialogService.Show<NewProjectModal>(null, parameters);
+
         if (ProjectValue is { Name: "", Questions.Count: <= 0 }) return;
-        
+
         var parametersSave = new DialogParameters<SaveProjectModal>
         {
             { x => x.SaveProject, SaveProject }
         };
         DialogService.Show<SaveProjectModal>(null, parametersSave);
-        
     }
 
     private void SaveProject(bool save)
@@ -308,7 +314,7 @@
     {
         Messenger.Send(new SaveFileWhenClosingResponse()
         {
-            Project = save? ProjectValue: null
+            Project = save ? ProjectValue : null
         });
     }
 
@@ -328,6 +334,7 @@
             Snackbar.Add("Unknown question type.", Severity.Error);
             return;
         }
+
         _selectedQuestion = newQuestionType switch
         {
             0 => new TestOneQuestion(),
@@ -389,6 +396,48 @@
         if (_selectedQuestion != null && _selectedQuestion.ID == id)
         {
             _selectedQuestion = null;
+        }
+    }
+
+    private void AddAnswer()
+    {
+        if (!_editing || _selectedQuestion == null)
+        {
+            return;
+        }
+
+        switch (_selectedQuestion)
+        {
+            case TestOneQuestion toQuestion:
+                var toTemp = toQuestion.GetMaxCorrectAnswer();
+                if (toTemp == CorrectAnswer.Incorrect)
+                {
+                    Snackbar.Add($"If you need a question with more than {(int)CorrectAnswer.Z} answers, please contact me: michal.zuk30601@gmail.com, I would like to know this test question.", Severity.Warning);
+                    return;
+                }
+                toQuestion.Answers.Add(new TestAnswer
+                {
+                    Answer = string.Empty,
+                    AnswerValue = toTemp
+                });
+                break;
+            case TestMultiQuestion tmQuestion:
+                var tmTemp = tmQuestion.GetMaxCorrectAnswer();
+                if (tmTemp == CorrectAnswer.Incorrect)
+                {
+                    Snackbar.Add($"If you need a question with more than {(int)CorrectAnswer.Z} answers, please contact me: michal.zuk30601@gmail.com, I would like to know this test question.", Severity.Warning);
+                    return;
+                }
+                tmQuestion.Answers.Add(new TestAnswer
+                {
+                    Answer = string.Empty,
+                    AnswerValue = tmTemp
+                });
+                break;
+            case OpenQuestion:
+                return;
+            default:
+                return;
         }
     }
 

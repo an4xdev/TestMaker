@@ -40,4 +40,14 @@ public class TestMultiQuestion : Question
             CorrectAnswers = CorrectAnswers.Select(correct => correct).ToList(),
         };
     }
+    
+    public CorrectAnswer GetMaxCorrectAnswer()
+    {
+        var temp = Answers.Select(a => (int)a.AnswerValue).Max();
+        if ((CorrectAnswer)temp == CorrectAnswer.Z)
+        {
+            return CorrectAnswer.Incorrect;
+        }
+        return (CorrectAnswer)temp + 1;
+    }
 }
