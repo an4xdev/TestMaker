@@ -82,7 +82,6 @@
 
     <ItemGroup>
       <Folder Include="Components\Modals\" />
-      <Folder Include="Services\" />
     </ItemGroup>
 
 </Project>

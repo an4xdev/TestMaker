@@ -30,7 +30,7 @@
                             }
                             else
                             {
-                                <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
+                                <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText> 
                             }
 
                             @switch (_selectedQuestion)
@@ -40,7 +40,7 @@
                                     <MudRadioGroup @bind-Value="t1Question.CorrectAnswer" T="CorrectAnswer">
                                         @foreach (var answer in t1Question.Answers)
                                         {
-                                            <div class="d-flex my-2">
+                                            <div class="d-flex my-2 align-items-baseline">
                                                 <div>
                                                     <MudRadio Value="@(answer.AnswerValue)">
                                                         @if (!_editing)
@@ -52,6 +52,7 @@
                                                 @if (_editing)
                                                 {
                                                     <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
+                                                    <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
                                                 }
                                             </div>
                                         }
@@ -61,13 +62,14 @@
                                     <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
                                     @foreach (var answer in tmquestion.Answers)
                                     {
-                                        <div class="d-flex my-2">
+                                        <div class="d-flex my-2 align-items-baseline">
                                             <div>
                                                 <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
                                             </div>
                                             @if (_editing)
                                             {
                                                 <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
+                                                <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
                                             }
                                         </div>
                                     }
@@ -88,10 +90,10 @@
                                     break;
                             }
 
-                            @if (_editing)
+                            @if (_editing && _selectedQuestion is not OpenQuestion)
                             {
                                 <div class="d-flex justify-center align-center py-1">
-                                    <MudButton Color="Color.Success" OnClick="AddAnswer">ADD</MudButton>
+                                    <MudButton Color="Color.Success" OnClick="AddAnswer" StartIcon="@Icons.Material.Filled.Add">ADD</MudButton>
                                 </div>
                             }
                         }
@@ -396,6 +398,50 @@
         if (_selectedQuestion != null && _selectedQuestion.ID == id)
         {
             _selectedQuestion = null;
+        }
+    }
+
+    private void DeleteAnswer(Guid id)
+    {
+        if (!_editing || _selectedQuestion == null)
+        {
+            return;
+        }
+        
+        switch (_selectedQuestion)
+        {
+            case TestOneQuestion toQuestion:
+                var answerTo = toQuestion.Answers.Find(a => a.Id == id);
+                if (answerTo == null)
+                {
+                    Snackbar.Add("Unknown answer to delete.", Severity.Error);
+                    return;
+                }
+                var indexTo = toQuestion.Answers.FindIndex(a=>a.Id == id);
+                toQuestion.Answers.Remove(answerTo);
+                for (var i = indexTo; i < toQuestion.Answers.Count; i++)
+                {
+                    toQuestion.Answers[i].AnswerValue -= 1;
+                }
+                break;
+            case TestMultiQuestion tmQuestion:
+                var answerTm = tmQuestion.Answers.Find(a => a.Id == id);
+                if (answerTm == null)
+                {
+                    Snackbar.Add("Unknown answer to delete.", Severity.Error);
+                    return;
+                }
+                var indexTm = tmQuestion.Answers.FindIndex(a=>a.Id == id);
+                tmQuestion.Answers.Remove(answerTm);
+                for (var i = indexTm; i < tmQuestion.Answers.Count; i++)
+                {
+                    tmQuestion.Answers[i].AnswerValue -= 1;
+                }
+                break;
+            case OpenQuestion:
+                return;
+            default:
+                return;
         }
     }
 
