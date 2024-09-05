@@ -71,7 +71,6 @@
                                             }
                                         </div>
                                     }
-
                                     break;
                                 case OpenQuestion openQuestion:
                                     <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
@@ -81,9 +80,8 @@
                                     }
                                     else
                                     {
-                                        <MudTextField Text="@openQuestion.Answer" T="string" AutoGrow MaxLines="35"/>
+                                        <MudTextField T="string" AutoGrow MaxLines="35" @bind-Value="@openQuestion.Answer"/>
                                     }
-
                                     break;
                                 default:
                                     <MudText>Unknown</MudText>
