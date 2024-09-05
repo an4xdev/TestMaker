@@ -11,14 +11,14 @@
     @if (ProjectValue.Name != string.Empty)
     {
         <div style="width:50%;">
-            <MudPaper Class="d-flex flex-column px-1 py-1" Style="height:86.25vh;">
+            <MudPaper Class="d-flex flex-column px-1 py-1">
                 <MudPaper Class="px-1 py-1" Elevation="3">
                     <MudText Typo="Typo.h3">
                         <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name
                     </MudText>
                 </MudPaper>
                 <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
-                    <div class="px-1 py-1 h-100 overflow-scroll">
+                    <div class="px-1 py-1 overflow-scroll" style="@(_selectedQuestion != null ? "height:80vh;": "height:84vh;")">
                         @if (_selectedQuestion != null)
                         {
                             <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
@@ -109,14 +109,16 @@
                             </div>
                         }
                     </div>
-                    @if (_selectedQuestion != null)
-                    {
+                </MudPaper>
+                @if (_selectedQuestion != null)
+                {
+                    <MudPaper>
                         <div class="d-flex justify-content-end">
                             <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save</MudButton>
                             <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
                         </div>
-                    }
-                </MudPaper>
+                    </MudPaper>
+                }
             </MudPaper>
         </div>
         <div class="px-1 py-1 w-50">
