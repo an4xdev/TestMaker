@@ -2,7 +2,7 @@
 
 public class OpenQuestion : Question
 {
-    public string Answer { get; set; } = string.Empty;
+    public Field Answer { get; set; } = new();
     public override object Clone()
     {
         return new OpenQuestion

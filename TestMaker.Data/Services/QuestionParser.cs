@@ -7,6 +7,7 @@ public static class QuestionParser
 {
     public static QuestionParseResponse Parse(List<string> data)
     {
+        // TODO: change to also parse photos
         var boldCounter = data.Count(s => s.Contains("**"));
         switch (boldCounter)
         {
@@ -15,7 +16,7 @@ public static class QuestionParser
                 {
                     ID = Guid.NewGuid(),
                     QuestionText = data[0].Split("##")[1],
-                    Answer = data[1]
+                    Answer = new Field { Value = data[1], Type = FieldType.Text }
                 };
                 return new QuestionParseResponse
                 {
@@ -38,18 +39,22 @@ public static class QuestionParser
                 {
                     var answer = new TestAnswer
                     {
-                        Answer = data[i].Contains("**") ? data[i].Split("- **")[1].Split("**")[0] : data[i].Split("- ")[1],
+                        Answer = new Field{Value = data[i].Contains("**")
+                            ? data[i].Split("- **")[1].Split("**")[0]
+                            : data[i].Split("- ")[1], Type = FieldType.Text},
                         AnswerValue = (CorrectAnswer)i - 1
                     };
                     if (data[i].Contains("**"))
                     {
                         question.CorrectAnswer = (CorrectAnswer)i - 1;
                     }
+
                     question.Answers.Add(answer);
                 }
+
                 return new QuestionParseResponse
                 {
-                    Question =  question
+                    Question = question
                 };
             }
             case 1 when data.Count != 5:
@@ -70,7 +75,9 @@ public static class QuestionParser
                 {
                     var answer = new TestAnswer
                     {
-                        Answer = data[i].Contains("**") ? data[i].Split("- **")[1].Split("**")[0] : data[i].Split("- ")[1],
+                        Answer = new Field{Value = data[i].Contains("**")
+                            ? data[i].Split("- **")[1].Split("**")[0]
+                            : data[i].Split("- ")[1], Type = FieldType.Text},
                         AnswerValue = (CorrectAnswer)i - 1
                     };
 
@@ -78,9 +85,10 @@ public static class QuestionParser
                     {
                         question.CorrectAnswers.Add((CorrectAnswer)i - 1);
                     }
-                    
+
                     question.Answers.Add(answer);
                 }
+
                 return new QuestionParseResponse
                 {
                     Question = question
@@ -93,7 +101,7 @@ public static class QuestionParser
                         "According to the data read, this should be an test question with multiple answers. Unfortunately, an error was encountered."
                 };
         }
-        
+
         return new QuestionParseResponse();
     }
 }

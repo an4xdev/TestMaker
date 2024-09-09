@@ -6,22 +6,38 @@ public abstract class TestQuestion: Question
     [
         new()
         {
-            Answer = string.Empty,
+            Answer = new Field
+            {
+                Value = string.Empty,
+                Type = FieldType.Text
+            },
             AnswerValue =  CorrectAnswer.A
         },
         new()
         {
-            Answer = string.Empty,
+            Answer = new Field
+            {
+                Value = string.Empty,
+                Type = FieldType.Text
+            },
             AnswerValue =  CorrectAnswer.B
         },
         new()
         {
-            Answer = string.Empty,
+            Answer = new Field
+            {
+                Value = string.Empty,
+                Type = FieldType.Text
+            },
             AnswerValue =  CorrectAnswer.C
         },
         new()
         {
-            Answer = string.Empty,
+            Answer = new Field
+            {
+                Value = string.Empty,
+                Type = FieldType.Text
+            },
             AnswerValue =  CorrectAnswer.D
         }
     ];

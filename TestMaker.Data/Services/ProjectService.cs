@@ -12,6 +12,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
     {
         project.Questions.Add(question);
     }
+
     public ServiceResponse DeleteQuestion(Project project, Guid id)
     {
         ServiceResponse response = new()
@@ -81,7 +82,21 @@ public class ProjectService(IMessenger messenger) : IProjectService
         return temp.Count == 0 ? null : temp[random.Next(temp.Count)];
     }
 
-    private readonly string[] _lorem = ["Lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit.", "Integer", "nibh", "lectus,", "placerat", "placerat", "erat", "sed,", "semper", "laoreet", "urna.", "Fusce", "vestibulum,", "ex", "mollis", "vulputate", "commodo,", "massa", "erat", "rutrum", "nisl,", "finibus", "vehicula", "augue", "nulla", "ac", "ipsum.", "Sed", "aliquet", "maximus", "ex", "porta", "condimentum.", "Duis", "pulvinar", "imperdiet", "pellentesque.", "Nunc", "gravida", "euismod", "tincidunt.", "Mauris", "ac", "neque", "nunc.", "Curabitur", "ornare", "quam", "et", "quam", "posuere", "euismod", "ac", "in", "neque.", "Vestibulum", "eleifend", "semper", "pretium.", "Donec", "mi", "est,", "aliquet", "quis", "finibus", "vitae,", "tincidunt", "vitae", "ligula.", "Nulla", "quis", "sodales", "augue,", "a", "placerat", "erat.", "Aliquam", "lacinia,", "leo", "in", "accumsan", "lacinia,", "turpis", "mi", "bibendum", "metus,", "non", "tincidunt", "ante", "augue", "in", "nisi.", "Quisque", "placerat", "turpis", "ut", "mauris", "varius", "ultrices.", "Vestibulum", "sit", "amet", "rutrum", "metus,", "id", "efficitur", "dui.", "Mauris", "commodo", "magna", "nulla,", "rhoncus", "aliquet", "metus", "faucibus", "at.", "Cras", "posuere,", "nunc", "a", "facilisis", "suscipit,", "ipsum", "tortor", "fermentum", "erat,", "sit", "amet", "consectetur", "lorem", "nulla", "sit", "amet", "elit.", "Morbi", "et", "aliquet", "velit."
+    private readonly string[] _lorem =
+    [
+        "Lorem", "ipsum", "dolor", "sit", "amet,", "consectetur", "adipiscing", "elit.", "Integer", "nibh", "lectus,",
+        "placerat", "placerat", "erat", "sed,", "semper", "laoreet", "urna.", "Fusce", "vestibulum,", "ex", "mollis",
+        "vulputate", "commodo,", "massa", "erat", "rutrum", "nisl,", "finibus", "vehicula", "augue", "nulla", "ac",
+        "ipsum.", "Sed", "aliquet", "maximus", "ex", "porta", "condimentum.", "Duis", "pulvinar", "imperdiet",
+        "pellentesque.", "Nunc", "gravida", "euismod", "tincidunt.", "Mauris", "ac", "neque", "nunc.", "Curabitur",
+        "ornare", "quam", "et", "quam", "posuere", "euismod", "ac", "in", "neque.", "Vestibulum", "eleifend", "semper",
+        "pretium.", "Donec", "mi", "est,", "aliquet", "quis", "finibus", "vitae,", "tincidunt", "vitae", "ligula.",
+        "Nulla", "quis", "sodales", "augue,", "a", "placerat", "erat.", "Aliquam", "lacinia,", "leo", "in", "accumsan",
+        "lacinia,", "turpis", "mi", "bibendum", "metus,", "non", "tincidunt", "ante", "augue", "in", "nisi.", "Quisque",
+        "placerat", "turpis", "ut", "mauris", "varius", "ultrices.", "Vestibulum", "sit", "amet", "rutrum", "metus,",
+        "id", "efficitur", "dui.", "Mauris", "commodo", "magna", "nulla,", "rhoncus", "aliquet", "metus", "faucibus",
+        "at.", "Cras", "posuere,", "nunc", "a", "facilisis", "suscipit,", "ipsum", "tortor", "fermentum", "erat,",
+        "sit", "amet", "consectetur", "lorem", "nulla", "sit", "amet", "elit.", "Morbi", "et", "aliquet", "velit."
     ];
 
     private string GetRandomString(int factor)
@@ -98,6 +113,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
 
         return string.Join(" ", list);
     }
+
     public void MockData(Project project)
     {
         const int questionFactor = 25;
@@ -119,7 +135,29 @@ public class ProjectService(IMessenger messenger) : IProjectService
                         ID = Guid.NewGuid(),
                         QuestionText = GetRandomString(questionFactor),
                         // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2}, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                        Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
+                        Answers =
+                        [
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.A
+                            },
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.B
+                            },
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.C
+                            },
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.D
+                            }
+                        ],
                         CorrectAnswer = (CorrectAnswer)random.Next(4),
                     });
                     break;
@@ -144,7 +182,29 @@ public class ProjectService(IMessenger messenger) : IProjectService
                         ID = Guid.NewGuid(),
                         QuestionText = GetRandomString(questionFactor),
                         // Answers = [new TestAnswer { Answer = "Duis in dictum leo.", AnswerValue = 0 }, new TestAnswer { Answer = "Morbi viverra, enim in porta tincidunt, metus ipsum imperdiet velit, in facilisis enim odio vitae leo.", AnswerValue = 1 }, new TestAnswer { Answer = "Vestibulum sit amet pulvinar velit, ut ultricies eros", AnswerValue = 2 }, new TestAnswer { Answer = "Fusce vel velit commodo, maximus eros quis, faucibus nulla.", AnswerValue = 3 }],
-                        Answers = [new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.A }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.B }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.C }, new TestAnswer { Answer = GetRandomString(answerFactor), AnswerValue = CorrectAnswer.D }],
+                        Answers =
+                        [
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.A
+                            },
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.B
+                            },
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.C
+                            },
+                            new TestAnswer
+                            {
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                AnswerValue = CorrectAnswer.D
+                            }
+                        ],
                         CorrectAnswers = answers
                     });
                     break;
@@ -154,7 +214,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
                     {
                         ID = Guid.NewGuid(),
                         QuestionText = GetRandomString(questionFactor),
-                        Answer = string.Join(" ", _lorem)
+                        Answer = new Field { Value = string.Join(" ", _lorem), Type = FieldType.Text }
                     });
                     break;
             }

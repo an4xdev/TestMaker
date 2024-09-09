@@ -5,6 +5,7 @@
 @using TestMaker.Data.Services
 @using TestMaker.Data.Services.ServiceModels
 @using TestMaker.Shared.Modals
+@using FieldType = TestMaker.Data.Models.FieldType
 @implements IDisposable
 @* @inject IJSRuntime JSRuntime *@
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
@@ -45,13 +46,13 @@
                                                     <MudRadio Value="@(answer.AnswerValue)">
                                                         @if (!_editing)
                                                         {
-                                                            @answer.Answer
+                                                            @answer.Answer.Value
                                                         }
                                                     </MudRadio>
                                                 </div>
                                                 @if (_editing)
                                                 {
-                                                    <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
+                                                    <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
                                                     <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
                                                 }
                                             </div>
@@ -64,11 +65,11 @@
                                     {
                                         <div class="d-flex my-2 align-items-baseline">
                                             <div>
-                                                <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                                                <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer.Value : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
                                             </div>
                                             @if (_editing)
                                             {
-                                                <MudTextField @bind-Value="answer.Answer" Label="Provide answer" Clearable FullWidth/>
+                                                <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
                                                 <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
                                             }
                                         </div>
@@ -79,11 +80,11 @@
                                     <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
                                     @if (!_editing)
                                     {
-                                        <MudText>@openQuestion.Answer</MudText>
+                                        <MudText>@openQuestion.Answer.Value</MudText>
                                     }
                                     else
                                     {
-                                        <MudTextField T="string" AutoGrow MaxLines="35" @bind-Value="@openQuestion.Answer"/>
+                                        <MudTextField T="string" AutoGrow MaxLines="35" @bind-Value="@openQuestion.Answer.Value"/>
                                     }
 
                                     break;
@@ -453,7 +454,7 @@
                 }
                 question.Answers.Add(new TestAnswer
                 {
-                    Answer = string.Empty,
+                    Answer = new Field{Value = string.Empty, Type = FieldType.Text},
                     AnswerValue = temp
                 });
                 break;
