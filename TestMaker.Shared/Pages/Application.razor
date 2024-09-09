@@ -18,7 +18,7 @@
                     </MudText>
                 </MudPaper>
                 <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
-                    <div class="px-1 py-1 overflow-scroll" style="@(_selectedQuestion != null ? "height:80vh;": "height:84vh;")">
+                    <div class="px-1 py-1 overflow-scroll" style="@(_selectedQuestion != null ? "height:80vh;" : "height:84vh;")">
                         @if (_selectedQuestion != null)
                         {
                             <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
@@ -30,7 +30,7 @@
                             }
                             else
                             {
-                                <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText> 
+                                <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
                             }
 
                             @switch (_selectedQuestion)
@@ -73,6 +73,7 @@
                                             }
                                         </div>
                                     }
+
                                     break;
                                 case OpenQuestion openQuestion:
                                     <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
@@ -84,6 +85,7 @@
                                     {
                                         <MudTextField T="string" AutoGrow MaxLines="35" @bind-Value="@openQuestion.Answer"/>
                                     }
+
                                     break;
                                 default:
                                     <MudText>Unknown</MudText>
@@ -407,36 +409,24 @@
         {
             return;
         }
-        
+
         switch (_selectedQuestion)
         {
-            case TestOneQuestion toQuestion:
-                var answerTo = toQuestion.Answers.Find(a => a.Id == id);
-                if (answerTo == null)
+            case TestQuestion question:
+                var answer = question.Answers.Find(a => a.Id == id);
+                if (answer == null)
                 {
                     Snackbar.Add("Unknown answer to delete.", Severity.Error);
                     return;
                 }
-                var indexTo = toQuestion.Answers.FindIndex(a=>a.Id == id);
-                toQuestion.Answers.Remove(answerTo);
-                for (var i = indexTo; i < toQuestion.Answers.Count; i++)
+
+                var index = question.Answers.FindIndex(a => a.Id == id);
+                question.Answers.Remove(answer);
+                for (var i = index; i < question.Answers.Count; i++)
                 {
-                    toQuestion.Answers[i].AnswerValue -= 1;
+                    question.Answers[i].AnswerValue -= 1;
                 }
-                break;
-            case TestMultiQuestion tmQuestion:
-                var answerTm = tmQuestion.Answers.Find(a => a.Id == id);
-                if (answerTm == null)
-                {
-                    Snackbar.Add("Unknown answer to delete.", Severity.Error);
-                    return;
-                }
-                var indexTm = tmQuestion.Answers.FindIndex(a=>a.Id == id);
-                tmQuestion.Answers.Remove(answerTm);
-                for (var i = indexTm; i < tmQuestion.Answers.Count; i++)
-                {
-                    tmQuestion.Answers[i].AnswerValue -= 1;
-                }
+
                 break;
             case OpenQuestion:
                 return;
@@ -454,30 +444,17 @@
 
         switch (_selectedQuestion)
         {
-            case TestOneQuestion toQuestion:
-                var toTemp = toQuestion.GetMaxCorrectAnswer();
-                if (toTemp == CorrectAnswer.Incorrect)
+            case TestQuestion question:
+                var temp = question.GetMaxCorrectAnswer();
+                if (temp == CorrectAnswer.Incorrect)
                 {
                     Snackbar.Add($"If you need a question with more than {(int)CorrectAnswer.Z} answers, please contact me: michal.zuk30601@gmail.com, I would like to know this test question.", Severity.Warning);
                     return;
                 }
-                toQuestion.Answers.Add(new TestAnswer
+                question.Answers.Add(new TestAnswer
                 {
                     Answer = string.Empty,
-                    AnswerValue = toTemp
-                });
-                break;
-            case TestMultiQuestion tmQuestion:
-                var tmTemp = tmQuestion.GetMaxCorrectAnswer();
-                if (tmTemp == CorrectAnswer.Incorrect)
-                {
-                    Snackbar.Add($"If you need a question with more than {(int)CorrectAnswer.Z} answers, please contact me: michal.zuk30601@gmail.com, I would like to know this test question.", Severity.Warning);
-                    return;
-                }
-                tmQuestion.Answers.Add(new TestAnswer
-                {
-                    Answer = string.Empty,
-                    AnswerValue = tmTemp
+                    AnswerValue = temp
                 });
                 break;
             case OpenQuestion:

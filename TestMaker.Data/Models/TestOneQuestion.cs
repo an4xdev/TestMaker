@@ -1,33 +1,7 @@
 ﻿namespace TestMaker.Data.Models;
 
-public class TestOneQuestion : Question
+public class TestOneQuestion : TestQuestion
 {
-    public TestOneQuestion()
-    {
-        Answers = [
-            new TestAnswer
-            {
-                Answer = string.Empty,
-                AnswerValue =  CorrectAnswer.A
-            },
-            new TestAnswer
-            {
-                Answer = string.Empty,
-                AnswerValue =  CorrectAnswer.B
-            },
-            new TestAnswer
-            {
-                Answer = string.Empty,
-                AnswerValue =  CorrectAnswer.C
-            },
-            new TestAnswer
-            {
-                Answer = string.Empty,
-                AnswerValue =  CorrectAnswer.D
-            }
-        ];
-    }
-    public List<TestAnswer> Answers { get; set; } = [];
     public CorrectAnswer CorrectAnswer { get; set; }
     public override object Clone()
     {
@@ -39,16 +13,7 @@ public class TestOneQuestion : Question
             CorrectAnswer = CorrectAnswer,
         };
     }
-
-    public CorrectAnswer GetMaxCorrectAnswer()
-    {
-        var temp = Answers.Select(a => (int)a.AnswerValue).Max();
-        if ((CorrectAnswer)temp == CorrectAnswer.Z)
-        {
-            return CorrectAnswer.Incorrect;
-        }
-        return (CorrectAnswer)temp + 1;
-    }
+    
 }
 
 
