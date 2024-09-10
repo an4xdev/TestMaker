@@ -1,4 +1,5 @@
 ﻿@using CommunityToolkit.Mvvm.Messaging
+@using Microsoft.AspNetCore.Components.Forms
 @using MudBlazor
 @using TestMaker.Data.Messages
 @using TestMaker.Data.Models
@@ -46,13 +47,36 @@
                                                     <MudRadio Value="@(answer.AnswerValue)">
                                                         @if (!_editing)
                                                         {
-                                                            @answer.Answer.Value
+                                                            @if (answer.Answer.Type == FieldType.Text)
+                                                            {
+                                                                @answer.Answer.Value
+                                                            }
+                                                            else
+                                                            {
+                                                                <MudImage Src="@answer.Answer.Value"/>
+                                                            }
                                                         }
                                                     </MudRadio>
                                                 </div>
                                                 @if (_editing)
                                                 {
-                                                    <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
+                                                    @if (answer.Answer.Type == FieldType.Text)
+                                                    {
+                                                        <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
+                                                    }
+                                                    else
+                                                    {
+                                                        <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
+                                                            <ActivatorContent>
+                                                                <MudButton Variant="Variant.Filled"
+                                                                           Color="Color.Primary"
+                                                                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                                                                    Select file
+                                                                </MudButton>
+                                                            </ActivatorContent>
+                                                        </MudFileUpload>
+                                                    }
+                                                    <MudButton Color="Color.Warning" StartIcon="@(answer.Answer.Type == FieldType.Text  ? Icons.Material.Filled.Camera: Icons.Material.Filled.FontDownload)" OnClick="() => ChangeType(answer.Answer)">Switch type</MudButton>
                                                     <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
                                                 }
                                             </div>
@@ -196,6 +220,9 @@
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
     private bool _editing;
+
+    private IBrowserFile photo;
+    private string prevData;
 
     private List<Language> _countries = [];
 
@@ -369,6 +396,21 @@
         }
 
         _selectedQuestion = null;
+    }
+
+    private void ChangeType(Field field)
+    {
+        if (field.Value != string.Empty)
+        {
+            prevData = field.Value;
+            field.Value = string.Empty;
+        }
+        else if (field.Value == string.Empty && prevData != string.Empty)
+        {
+            field.Value = prevData;
+        }
+
+        field.Type = field.Type == FieldType.Photo ? FieldType.Text : FieldType.Photo;
     }
 
     private void CancelQuestion()

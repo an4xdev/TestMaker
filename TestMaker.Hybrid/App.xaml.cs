@@ -1,5 +1,8 @@
-﻿using CommunityToolkit.Maui.Storage;
+﻿using System;
+using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.Messaging;
+using Microsoft.Maui;
+using Microsoft.Maui.Controls;
 using TestMaker.Data.Messages;
 
 namespace TestMaker.Hybrid
