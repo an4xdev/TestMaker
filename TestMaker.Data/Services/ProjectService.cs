@@ -188,7 +188,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
                         [
                             new TestAnswer
                             {
-                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
+                                Answer = new Field { Value = _mockImage, Type = FieldType.Photo },
                                 AnswerValue = CorrectAnswer.A
                             },
                             new TestAnswer

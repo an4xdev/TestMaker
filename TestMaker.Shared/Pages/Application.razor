@@ -68,11 +68,12 @@
                                                     {
                                                         <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
                                                             <ActivatorContent>
-                                                                <MudButton Variant="Variant.Filled"
-                                                                           Color="Color.Primary"
-                                                                           StartIcon="@Icons.Material.Filled.CloudUpload">
-                                                                    Select file
-                                                                </MudButton>
+                                                            <MudImage Src="@answer.Answer.Value"/>
+                                                            <MudButton Variant="Variant.Filled"
+                                                                       Color="Color.Primary"
+                                                                       StartIcon="@Icons.Material.Filled.CloudUpload" Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
+                                                                Change file
+                                                            </MudButton>
                                                             </ActivatorContent>
                                                         </MudFileUpload>
                                                     }
@@ -88,17 +89,37 @@
                                     @foreach (var answer in tmquestion.Answers)
                                     {
                                         <div class="d-flex my-2 align-items-baseline">
-                                            <div>
-                                                <MudCheckBox T="bool" Label="@(!_editing ? answer.Answer.Value : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
-                                            </div>
+                                                <MudCheckBox T="bool" Label="@(!_editing && answer.Answer.Type == FieldType.Text ? answer.Answer.Value : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
+                                                @if (!_editing && answer.Answer.Type == FieldType.Photo)
+                                                {
+                                                    <div>
+                                                        <MudImage Src="@answer.Answer.Value"/>
+                                                    </div>
+                                                }
                                             @if (_editing)
                                             {
-                                                <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
+                                                @if (answer.Answer.Type == FieldType.Text)
+                                                {
+                                                    <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
+                                                }
+                                                else
+                                                {
+                                                    <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
+                                                        <ActivatorContent>
+                                                            <MudImage Src="@answer.Answer.Value"/>
+                                                            <MudButton Variant="Variant.Filled"
+                                                                       Color="Color.Primary"
+                                                                       StartIcon="@Icons.Material.Filled.CloudUpload" Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
+                                                                Change file
+                                                            </MudButton>
+                                                        </ActivatorContent>
+                                                    </MudFileUpload>
+                                                }
+                                                <MudButton Color="Color.Warning" StartIcon="@(answer.Answer.Type == FieldType.Text  ? Icons.Material.Filled.Camera: Icons.Material.Filled.FontDownload)" OnClick="() => ChangeType(answer.Answer)">Switch type</MudButton>
                                                 <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
                                             }
                                         </div>
                                     }
-
                                     break;
                                 case OpenQuestion openQuestion:
                                     <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
