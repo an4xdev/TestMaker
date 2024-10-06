@@ -29,7 +29,7 @@ For now implementation is focused in TestMaker.Web project.
 
 ## Parsing
 
-Application now can parse md files like:
+Application in 1.0 release can parse md files like:
 
 ```md
 # Project name (optional, if none project name is file name)
