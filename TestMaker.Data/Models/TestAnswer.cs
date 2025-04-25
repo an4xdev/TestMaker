@@ -10,7 +10,7 @@ public class TestAnswer : ICloneable
         return new TestAnswer
         {
             Id = Id,
-            Answer = Answer,
+            Answer = (Field)Answer.Clone(),
             AnswerValue = AnswerValue,
         };
     }

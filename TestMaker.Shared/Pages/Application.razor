@@ -1,6 +1,7 @@
 ﻿@using CommunityToolkit.Mvvm.Messaging
 @using Microsoft.AspNetCore.Components.Forms
 @using MudBlazor
+@using TestMaker.Data.Exceptions
 @using TestMaker.Data.Messages
 @using TestMaker.Data.Models
 @using TestMaker.Data.Services
@@ -125,7 +126,7 @@
                                     <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
                                     @if (!_editing)
                                     {
-                                        <MudText>@openQuestion.Answer.Value</MudText>
+                                        <MudText Style="white-space: pre-line;">@openQuestion.Answer.Value</MudText>
                                     }
                                     else
                                     {
@@ -171,25 +172,38 @@
         </div>
         <div class="px-1 py-1 w-50">
             <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="@Height">
-                @foreach (var question in ProjectService.GetQuestions(ProjectValue))
-                {
-                    <div class="d-flex flex-row justify-content-between">
-                        <div class="px-1 py-1">
-                            <MudText>@question.QuestionText</MudText>
-                        </div>
-                        <div class="px-1 py-1 d-flex">
-                            <div>
-                                <MudButton Color="Color.Primary" OnClick="(() => ViewQuestion(question.ID))">View</MudButton>
-                            </div>
-                            <div>
-                                <MudButton Color="Color.Warning" OnClick="(() => EditQuestion(question.ID))">Edit</MudButton>
-                            </div>
-                            <div>
-                                <MudButton Color="Color.Error" OnClick="(() => DeleteQuestion(question.ID))">Delete</MudButton>
-                            </div>
-                        </div>
+                <MudPaper Class="d-flex flex-row justify-content-evenly">
+                    <div>
+                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with one answer: <MudText Inline="true" >@_testOneQuestionCount</MudText></MudText>
                     </div>
-                }
+                    <div>
+                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with multiple answer: <MudText Inline="true" >@_testMultiQuestionCount</MudText></MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="Typo.body1" Class="fw-bolder">Open question: <MudText Inline="true" >@_openQuestionCount</MudText></MudText>
+                    </div>
+                </MudPaper>
+                <MudPaper>
+                    @foreach (var question in ProjectService.GetQuestions(ProjectValue))
+                    {
+                        <div class="d-flex flex-row justify-content-between">
+                            <div class="px-1 py-1">
+                                <MudText>@question.QuestionText</MudText>
+                            </div>
+                            <div class="px-1 py-1 d-flex">
+                                <div>
+                                    <MudButton Color="Color.Primary" OnClick="() => ViewQuestion(question.ID)">View</MudButton>
+                                </div>
+                                <div>
+                                    <MudButton Color="Color.Warning" OnClick="() => EditQuestion(question.ID)">Edit</MudButton>
+                                </div>
+                                <div>
+                                    <MudButton Color="Color.Error" OnClick="() => DeleteQuestion(question.ID)">Delete</MudButton>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </MudPaper>
             </MudPaper>
         </div>
     }
@@ -247,6 +261,10 @@
 
     private List<Language> _countries = [];
 
+    private int _testOneQuestionCount;
+    private int _testMultiQuestionCount;
+    private int _openQuestionCount;
+
     protected override void OnInitialized()
     {
         Messenger.Register<SaveFileClickedMessage>(this, (_, _) => { ProjectService.SaveProject(ProjectValue); });
@@ -284,10 +302,18 @@
             DialogService.Show<SaveProjectModal>(null, parametersSave);
         });
 
-        ProjectService.MockData(ProjectValue);
+        ProjectService.StatsUpdate += UpdateQuestionCounts;
 
+        ProjectService.MockData(ProjectValue);
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
+    }
+
+    private void UpdateQuestionCounts(QuestionCount count)
+    {
+        _testOneQuestionCount = count.TestOneQuestionCount;
+        _testMultiQuestionCount = count.TestMultipleQuestionCount;
+        _openQuestionCount = count.OpenQuestionCount;
     }
 
     private void ShowInfoModal()
@@ -365,7 +391,7 @@
 
     private void SaveProjectWhenClosing(bool save)
     {
-        Messenger.Send(new SaveFileWhenClosingResponse()
+        Messenger.Send(new SaveFileWhenClosingResponse
         {
             Project = save ? ProjectValue : null
         });
@@ -405,14 +431,15 @@
     {
         if (_selectedQuestion != null)
         {
-            if (ProjectService.QuestionExists(ProjectValue, _selectedQuestion.ID))
+            try
             {
-                var response = ProjectService.EditQuestion(ProjectValue, _selectedQuestion.ID, _selectedQuestion);
-                Snackbar.Add(response.Message, response.IsSuccess ? Severity.Success : Severity.Error);
+                ProjectService.AddOrEditQuestion(ProjectValue, _selectedQuestion, _selectedQuestion.ID);
+                Snackbar.Add("The action was successfully completed.",Severity.Success);
             }
-            else
+            catch (QuestionNotFoundException e)
             {
-                ProjectService.AddQuestion(ProjectValue, _selectedQuestion);
+                Console.WriteLine(e);
+                Snackbar.Add(e.Message, Severity.Error);
             }
         }
 
@@ -442,8 +469,15 @@
     private void EditQuestion(Guid id)
     {
         _editing = true;
-        var q = ProjectService.GetQuestionById(ProjectValue, id);
-        _selectedQuestion = (Question)q?.Clone()!;
+        try
+        {
+            var q = ProjectService.GetQuestionById(ProjectValue, id);
+            _selectedQuestion = (Question)q?.Clone()!;
+        }
+        catch (QuestionNotFoundException e)
+        {
+            Snackbar.Add(e.Message, Severity.Error);
+        }
     }
 
     private void ViewQuestion(Guid id)
@@ -455,10 +489,13 @@
 
     private void DeleteQuestion(Guid id)
     {
-        var response = ProjectService.DeleteQuestion(ProjectValue, id);
-        if (!response.IsSuccess)
+        try
         {
-            Snackbar.Add(response.Message, Severity.Error);
+            ProjectService.DeleteQuestion(ProjectValue, id);
+        }
+        catch (QuestionNotFoundException e)
+        {
+            Snackbar.Add(e.Message, Severity.Error);
         }
 
         if (_selectedQuestion != null && _selectedQuestion.ID == id)
@@ -543,6 +580,7 @@
 
     public void Dispose()
     {
+        ProjectService.StatsUpdate -= UpdateQuestionCounts;
         Messenger.UnregisterAll(this);
     }
 

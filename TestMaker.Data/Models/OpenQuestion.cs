@@ -9,7 +9,7 @@ public class OpenQuestion : Question
         {
             ID = ID,
             QuestionText = QuestionText,
-            Answer = Answer,
+            Answer = (Field)Answer.Clone(),
         };
     }
 }

@@ -35,6 +35,8 @@ public static class QuestionParser
                     ID = Guid.NewGuid(),
                     QuestionText = data[0].Split("##")[1]
                 };
+
+                question.Answers.Clear();
                 for (var i = 1; i < data.Count; i++)
                 {
                     var answer = new TestAnswer
@@ -58,7 +60,7 @@ public static class QuestionParser
                 };
             }
             case 1 when data.Count != 5:
-                return new QuestionParseResponse()
+                return new QuestionParseResponse
                 {
                     Message =
                         "According to the data read, this should be an test question with one answer. Unfortunately, an error was encountered."
@@ -71,6 +73,7 @@ public static class QuestionParser
                     QuestionText = data[0].Split("##")[1],
                 };
 
+                question.Answers.Clear();
                 for (var i = 1; i < data.Count; i++)
                 {
                     var answer = new TestAnswer

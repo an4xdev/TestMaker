@@ -165,6 +165,8 @@ public partial class MainPage : ContentPage
         var projectName = false;
 
         var data = new List<string>();
+
+        var lineCounter = 1;
         
         while (!reader.EndOfStream)
         {
@@ -173,12 +175,14 @@ public partial class MainPage : ContentPage
             {
                 break;
             }
-            
+
+            lineCounter++;
+
             if(line.Equals("")) continue;
             
             if (!projectName)
             {
-                if (!line.StartsWith($"##"))
+                if (!line.StartsWith("##"))
                 {
                     project.Name = line.Split("#")[1];
                 }
@@ -205,7 +209,7 @@ public partial class MainPage : ContentPage
                 }
                 else
                 {
-                    await Toast.Make("An error occurred while processing the question from the file.").Show();
+                    await Toast.Make($"The question is in an incorrect format. At line: {lineCounter}").Show();
                     return;
                 }
             }
@@ -215,7 +219,6 @@ public partial class MainPage : ContentPage
 
         if (data.Count is 2 or 5)
         {
-            
             var parse = QuestionParser.Parse(data);
             if (parse.Question != null)
             {
@@ -228,13 +231,13 @@ public partial class MainPage : ContentPage
             }
             else
             {
-                await Toast.Make("An error occurred while processing the question from the file.").Show();
+                await Toast.Make($"An error occurred while processing the question from the file. At line: {lineCounter}").Show();
                 return;
             }
         }
         else
         {
-            await Toast.Make("An error occurred while processing the question from the file.").Show();
+            await Toast.Make($"Last question is in an incorrect format. At line: {lineCounter}").Show();
             return;
         }
         
