@@ -6,46 +6,144 @@
         Configure quest page
     </TitleContent>
     <DialogContent>
+        <div class="mt-6">
+            <MudText Typo="Typo.h3">Choose previously prepared or set of labels</MudText>
+            <MudButton OnClick="() => ChangePageContentLanguage(Languages.English)">English</MudButton>
+            <MudButton OnClick="() => ChangePageContentLanguage(Languages.Polish)">Polish</MudButton>
+            <MudButton OnClick="() => ChangePageContentLanguage(Languages.None)">Custom</MudButton>
+        </div>
         <MudSelect T="string" Label="Select language" @bind-Value="_languageCode">
             @foreach (var country in Countries)
             {
                 <MudSelectItem Value="@country.Code">@country.Name</MudSelectItem>
             }
         </MudSelect>
-        <div class="my-6">
-            <MudText>Choose previously prepared or set yours labels on buttons</MudText>
-            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.English))">English</MudButton>
-            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.Polish))">Polish</MudButton>
-            <MudButton OnClick="(() => ChangePageContentLanguage(Languages.None))">Custom</MudButton>
+        @* details *@
+        <MudText Typo="Typo.h4">Open question answer</MudText>
+        <div class="d-flex mt-6">
+            <div class="w-50 me-6">
+                <MudText Typo="Typo.h5">Label:</MudText>
+            </div>
+            <div class="w-50 me-6">
+                <MudText Typo="Typo.h5">Show open question preview:</MudText>
+            </div>
         </div>
-        <div class="my-6">
+        <div class="d-flex">
             <div class="w-50 me-6">
                 <MudTextField @bind-Value="_pageContent.ShowAnswer"/>
             </div>
             <div class="w-50">
                 <MudExpansionPanel Text="@_pageContent.ShowAnswer">
-                    Open question answer
+                    AAA BBB CCC DDD
                 </MudExpansionPanel>
+            </div>
+        </div>
+        @* buttons *@
+        <MudText Typo="Typo.h4">Buttons</MudText>
+        <div class="d-flex mt-6">
+            <div class="w-50 me-6">
+                <MudText Typo="Typo.h5">Labels:</MudText>
+            </div>
+            <div class="w-50">
+                <MudText Typo="Typo.h5">Buttons preview:</MudText>
             </div>
         </div>
         <div class="d-flex">
             <div class="w-50 me-6">
-                <MudText>Labels:</MudText>
-                <MudTextField @bind-Value="_pageContent.Button1" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button2" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button3" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button4" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button5" Clearable/>
-                <MudTextField @bind-Value="_pageContent.Button6" Clearable/>
+                <MudTextField @bind-Value="_pageContent.AnotherSingleChoiceQuestion" Clearable/>
             </div>
             <div class="w-50">
-                <MudText>Preview:</MudText>
-                <MudButton Color="Color.Primary">@_pageContent.Button1</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button2</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button3</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button4</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button5</MudButton>
-                <MudButton Color="Color.Primary">@_pageContent.Button6</MudButton>
+                <MudButton>@_pageContent.AnotherSingleChoiceQuestion</MudButton>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.RandomSingleChoiceQuestion" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudButton Color="Color.Primary">@_pageContent.RandomSingleChoiceQuestion</MudButton>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.AnotherMultipleChoiceQuestion" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudButton Color="Color.Primary">@_pageContent.AnotherMultipleChoiceQuestion</MudButton>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.RandomMultipleChoiceQuestion" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudButton Color="Color.Primary">@_pageContent.RandomMultipleChoiceQuestion</MudButton>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.AnotherOpenQuestion" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudButton Color="Color.Primary">@_pageContent.AnotherOpenQuestion</MudButton>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.RandomOpenQuestion" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudButton Color="Color.Primary">@_pageContent.RandomOpenQuestion</MudButton>
+            </div>
+        </div>
+        @* Labels *@
+        <MudText Typo="Typo.h4">Labels</MudText>
+        <div class="d-flex mt-6">
+            <div class="w-50 me-6">
+                <MudText Typo="Typo.h5">Text:</MudText>
+            </div>
+            <div class="w-50">
+                <MudText Typo="Typo.h5">Label preview:</MudText>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.Answer" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudText Color="Color.Primary">@_pageContent.Answer</MudText>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.QuestionHeader" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudText Color="Color.Primary">@_pageContent.QuestionHeader</MudText>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.NotAllAnswers" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudText Color="Color.Primary">@_pageContent.NotAllAnswers</MudText>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.TestMultiAllAnswers" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudText Color="Color.Primary">@_pageContent.TestMultiAllAnswers</MudText>
+            </div>
+        </div>
+        <div class="d-flex">
+            <div class="w-50 me-6">
+                <MudTextField @bind-Value="_pageContent.CheckAnswers" Clearable/>
+            </div>
+            <div class="w-50">
+                <MudText Color="Color.Primary">@_pageContent.CheckAnswers</MudText>
             </div>
         </div>
     </DialogContent>
@@ -58,18 +156,26 @@
 @code
 {
     [Inject] ISnackbar Snackbar { get; set; }
-    
+
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
-    
+
     [Parameter] public Action<GeneratePageClickedMessageResponse> SubmitGeneratePageModal { get; set; }
     [Parameter] public List<Language> Countries { get; set; }
-    
+
     private string _languageCode = string.Empty;
     private PageContent _pageContent = new(Languages.None);
-    
+
     private void ChangePageContentLanguage(Languages lang)
     {
         _pageContent = new PageContent(lang);
+        _languageCode = lang switch
+        {
+            Languages.None => string.Empty,
+            Languages.English => "en",
+            Languages.Polish => "pl",
+            _ => string.Empty
+        };
+
     }
 
     private void Submit()
@@ -85,7 +191,7 @@
             Snackbar.Add("Fill in all fields or use previously prepared set.", Severity.Error);
             return;
         }
-        
+
         var response = new GeneratePageClickedMessageResponse
         {
             Language = _languageCode,
@@ -94,9 +200,9 @@
             Questions = [],
             ShowOpenQuestionText = _pageContent.ShowAnswer
         };
-        
+
         MudDialog.Close();
-        
+
         SubmitGeneratePageModal(response);
     }
 }

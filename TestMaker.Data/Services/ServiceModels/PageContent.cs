@@ -7,53 +7,78 @@ public class PageContent
         switch (language)
         {
             case Languages.English:
-                Button1 = "Another single-choice question";
-                Button2 = "Random single-choice question";
-                Button3 = "Another multiple choice question";
-                Button4 = "Random multiple choice question";
-                Button5 = "Another open question";
-                Button6 = "Random open question";
+                AnotherSingleChoiceQuestion = "Another single-choice question";
+                RandomSingleChoiceQuestion = "Random single-choice question";
+                AnotherMultipleChoiceQuestion = "Another multiple choice question";
+                RandomMultipleChoiceQuestion = "Random multiple choice question";
+                AnotherOpenQuestion = "Another open question";
+                RandomOpenQuestion = "Random open question";
                 ShowAnswer = "Show answer";
+                QuestionHeader = "Question: ";
+                Answer = "Answer:";
+                NotAllAnswers = "You don't select all correct answers.";
+                TestMultiAllAnswers = "Correct!";
+                CheckAnswers = "Check answers";
                 break;
             case Languages.Polish:
-                Button1 = "Kolejne pytanie jednokrotnego wyboru";
-                Button2 = "Losowe pytanie jednokrotnego wyboru";
-                Button3 = "Kolejne pytanie wielokrotnego wyboru";
-                Button4 = "Losowe pytanie wielokrotnego wyboru";
-                Button5 = "Kolejne pytanie otwarte";
-                Button6 = "Losowe pytanie otwarte";
+                AnotherSingleChoiceQuestion = "Kolejne pytanie jednokrotnego wyboru";
+                RandomSingleChoiceQuestion = "Losowe pytanie jednokrotnego wyboru";
+                AnotherMultipleChoiceQuestion = "Kolejne pytanie wielokrotnego wyboru";
+                RandomMultipleChoiceQuestion = "Losowe pytanie wielokrotnego wyboru";
+                AnotherOpenQuestion = "Kolejne pytanie otwarte";
+                RandomOpenQuestion = "Losowe pytanie otwarte";
                 ShowAnswer = "Pokaż odpowiedź";
+                QuestionHeader = "Pytanie: ";
+                Answer = "Odpowiedź:";
+                NotAllAnswers = "Nie zaznaczyłeś wszystkich poprawnych odpowiedzi.";
+                TestMultiAllAnswers = "Brawo!";
+                CheckAnswers = "Sprawdź odpowiedzi";
                 break;
             case Languages.None:
-                Button1 = string.Empty;
-                Button2 = string.Empty;
-                Button3 = string.Empty;
-                Button4 = string.Empty;
-                Button5 = string.Empty;
-                Button6 = string.Empty;
+                AnotherSingleChoiceQuestion = string.Empty;
+                RandomSingleChoiceQuestion = string.Empty;
+                AnotherMultipleChoiceQuestion = string.Empty;
+                RandomMultipleChoiceQuestion = string.Empty;
+                AnotherOpenQuestion = string.Empty;
+                RandomOpenQuestion = string.Empty;
                 ShowAnswer = string.Empty;
+                QuestionHeader = string.Empty;
+                NotAllAnswers = string.Empty;
+                TestMultiAllAnswers = string.Empty;
+                CheckAnswers = string.Empty;
+                Answer = string.Empty;
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(language), language, null);
         }
     }
-    public string Button1 { get; set;}
-    public string Button2 { get; set;}
-    public string Button3 { get; set;}
-    public string Button4 { get; set;}
-    public string Button5 { get; set;}
-    public string Button6 { get; set;}
-    
+
+    public string AnotherSingleChoiceQuestion { get; set; }
+    public string RandomSingleChoiceQuestion { get; set; }
+    public string AnotherMultipleChoiceQuestion { get; set; }
+    public string RandomMultipleChoiceQuestion { get; set; }
+    public string AnotherOpenQuestion { get; set; }
+    public string RandomOpenQuestion { get; set; }
+
     public string ShowAnswer { get; set; }
-    
-    public bool IsEmpty => string.IsNullOrEmpty(Button1) 
-                              || string.IsNullOrEmpty(Button2) 
-                              || string.IsNullOrEmpty(Button3) 
-                              || string.IsNullOrEmpty(Button4) 
-                              || string.IsNullOrEmpty(Button5) 
-                              || string.IsNullOrEmpty(Button6) 
-                              || string.IsNullOrEmpty(ShowAnswer);
-    
+    public string Answer {get; set;}
+    public string QuestionHeader { get; set; }
+    public string NotAllAnswers { get; set; }
+    public string TestMultiAllAnswers { get; set; }
+    public string CheckAnswers { get; set; }
+
+    public bool IsEmpty => string.IsNullOrEmpty(AnotherSingleChoiceQuestion)
+                           || string.IsNullOrEmpty(RandomSingleChoiceQuestion)
+                           || string.IsNullOrEmpty(AnotherMultipleChoiceQuestion)
+                           || string.IsNullOrEmpty(RandomMultipleChoiceQuestion)
+                           || string.IsNullOrEmpty(AnotherOpenQuestion)
+                           || string.IsNullOrEmpty(RandomOpenQuestion)
+                           || string.IsNullOrEmpty(ShowAnswer)
+                           || string.IsNullOrEmpty(Answer)
+                           || string.IsNullOrEmpty(QuestionHeader)
+                           || string.IsNullOrEmpty(NotAllAnswers)
+                           || string.IsNullOrEmpty(TestMultiAllAnswers)
+                           || string.IsNullOrEmpty(CheckAnswers);
 }
 
 public enum Languages

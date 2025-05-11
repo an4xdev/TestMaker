@@ -3,6 +3,7 @@
 public class TestOneQuestion : TestQuestion
 {
     public CorrectAnswer CorrectAnswer { get; set; }
+
     public override object Clone()
     {
         return new TestOneQuestion
@@ -13,7 +14,4 @@ public class TestOneQuestion : TestQuestion
             CorrectAnswer = CorrectAnswer,
         };
     }
-    
 }
-
-

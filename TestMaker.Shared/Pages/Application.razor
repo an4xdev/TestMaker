@@ -328,12 +328,17 @@
             _countries = LanguageService.GetAllCountries();
         }
 
+        var options = new DialogOptions
+        {
+            MaxWidth = MaxWidth.ExtraLarge
+        };
+
         var parameters = new DialogParameters<GeneratePageModal>
         {
             { x => x.SubmitGeneratePageModal, SubmitGeneratePageModal },
             { x => x.Countries, _countries }
         };
-        DialogService.Show<GeneratePageModal>(null, parameters);
+        DialogService.Show<GeneratePageModal>(null, parameters, options);
     }
 
     private void SubmitGeneratePageModal(GeneratePageClickedMessageResponse response)

@@ -14,6 +14,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
         project.Questions.Add(question);
         StatsUpdate?.Invoke(GetQuestionCount(project));
     }
+
     public void DeleteQuestion(Project project, Guid id)
     {
         var isSuccess = project.Questions.RemoveAll(x => x.ID == id) == 1;
@@ -21,6 +22,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
         {
             throw new QuestionNotFoundException("Cannot delete question that's not available");
         }
+
         StatsUpdate?.Invoke(GetQuestionCount(project));
     }
 
@@ -35,6 +37,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
 
         project.Questions[index] = edited;
     }
+
     public Question GetQuestionById(Project project, Guid id)
     {
         var question = project.Questions.Find(q => q.ID == id);
@@ -132,8 +135,10 @@ public class ProjectService(IMessenger messenger) : IProjectService
                         [
                             new TestAnswer
                             {
-                                Answer = new Field { Value = MockImage, Type = FieldType.Photo },
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
                                 AnswerValue = CorrectAnswer.A
+                                // Answer = new Field { Value = MockImage, Type = FieldType.Photo },
+                                // AnswerValue = CorrectAnswer.A
                             },
                             new TestAnswer
                             {
@@ -156,12 +161,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
                     break;
                 case < n / 3 * 2:
                 {
-                    var rand = random.Next(4);
-
-                    if (rand == 0)
-                    {
-                        rand++;
-                    }
+                    var rand = random.Next(1, 4);
 
                     List<CorrectAnswer> answers = new(rand);
 
@@ -179,7 +179,9 @@ public class ProjectService(IMessenger messenger) : IProjectService
                         [
                             new TestAnswer
                             {
-                                Answer = new Field { Value = MockImage, Type = FieldType.Photo },
+                                // Answer = new Field { Value = MockImage, Type = FieldType.Photo },
+                                // AnswerValue = CorrectAnswer.A
+                                Answer = new Field { Value = GetRandomString(answerFactor), Type = FieldType.Text },
                                 AnswerValue = CorrectAnswer.A
                             },
                             new TestAnswer
@@ -212,6 +214,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
                     break;
             }
         }
+
         StatsUpdate?.Invoke(GetQuestionCount(project));
     }
 

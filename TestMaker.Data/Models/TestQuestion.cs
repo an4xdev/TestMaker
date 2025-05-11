@@ -1,6 +1,6 @@
 ﻿namespace TestMaker.Data.Models;
 
-public abstract class TestQuestion: Question
+public abstract class TestQuestion : Question
 {
     public List<TestAnswer> Answers { get; set; } =
     [
@@ -11,7 +11,7 @@ public abstract class TestQuestion: Question
                 Value = string.Empty,
                 Type = FieldType.Text
             },
-            AnswerValue =  CorrectAnswer.A
+            AnswerValue = CorrectAnswer.A
         },
         new()
         {
@@ -20,7 +20,7 @@ public abstract class TestQuestion: Question
                 Value = string.Empty,
                 Type = FieldType.Text
             },
-            AnswerValue =  CorrectAnswer.B
+            AnswerValue = CorrectAnswer.B
         },
         new()
         {
@@ -29,7 +29,7 @@ public abstract class TestQuestion: Question
                 Value = string.Empty,
                 Type = FieldType.Text
             },
-            AnswerValue =  CorrectAnswer.C
+            AnswerValue = CorrectAnswer.C
         },
         new()
         {
@@ -38,7 +38,7 @@ public abstract class TestQuestion: Question
                 Value = string.Empty,
                 Type = FieldType.Text
             },
-            AnswerValue =  CorrectAnswer.D
+            AnswerValue = CorrectAnswer.D
         }
     ];
 
@@ -49,6 +49,7 @@ public abstract class TestQuestion: Question
         {
             return CorrectAnswer.Incorrect;
         }
+
         return (CorrectAnswer)temp + 1;
     }
 }

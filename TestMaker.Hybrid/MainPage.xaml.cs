@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Maui.Controls;
-using Microsoft.Maui.Devices;
-using Microsoft.Maui.Storage;
 using TestMaker.Data.Messages;
 using TestMaker.Data.Models;
 using TestMaker.Data.Services;
@@ -37,7 +30,7 @@ public partial class MainPage : ContentPage
         var filePickerFileTypeProject = new FilePickerFileType(
             new Dictionary<DevicePlatform, IEnumerable<string>>
             {
-                { DevicePlatform.WinUI, new[] { ".tmps" } }, // file extension
+                { DevicePlatform.WinUI, [".tmps"] }, // file extension
             });
         _pickOptionsProject =  new PickOptions
         {
@@ -47,7 +40,7 @@ public partial class MainPage : ContentPage
         var filePickerFileTypeMarkdown = new FilePickerFileType(
             new Dictionary<DevicePlatform, IEnumerable<string>>
             {
-                { DevicePlatform.WinUI, new[] { ".md" } }, // file extension
+                { DevicePlatform.WinUI, [".md"] }, // file extension
             });
         
         // markdown
@@ -74,7 +67,7 @@ public partial class MainPage : ContentPage
             {
                 await SaveProjectToFile(message.Project);
             }
-            Application.Current?.CloseWindow(Application.Current.MainPage.Window);
+            Application.Current?.CloseWindow(Application.Current.MainPage?.Window!);
         });
     }
     private void OnThemeItemClicked(object sender, EventArgs e)
@@ -255,10 +248,23 @@ public partial class MainPage : ContentPage
     private async Task GeneratePage(GeneratePageClickedMessageResponse response)
     {
         var htmlBuilderService = new HtmlBuilderService();
-        htmlBuilderService = htmlBuilderService.AddHead(response.Language, response.ProjectName)
+        htmlBuilderService = htmlBuilderService
+            .AddHead(response.Language, response.ProjectName)
             .AddBody(response.ProjectName, response.PageContent)
-            .AddScript(response.ShowOpenQuestionText)
-            .AddQuestions(response.Questions);
+            .AddScript(response.PageContent);
+        if (response.Questions.TestOneQuestionsExists())
+        {
+            htmlBuilderService = htmlBuilderService.AddTestOneQuestionsScripts();
+        }
+        if (response.Questions.TestMultiQuestionsExists())
+        {
+            htmlBuilderService = htmlBuilderService.AddTestMultiQuestionsScripts();
+        }
+        if (response.Questions.OpenQuestionsExists())
+        {
+            htmlBuilderService = htmlBuilderService.AddOpenQuestionsScript();
+        }
+        htmlBuilderService = htmlBuilderService.AddQuestions(response.Questions);
         try
         {
             var jsonString = htmlBuilderService.Collect();

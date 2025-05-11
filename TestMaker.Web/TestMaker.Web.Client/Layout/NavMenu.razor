@@ -1,5 +1,4 @@
 ﻿@using System.Text
-@using TestMaker.Data.Services
 @rendermode InteractiveAuto
 <MudMenu Label="File" Class="ms-3">
     <MudMenuItem OnClick="NewProjectClicked">New</MudMenuItem>
@@ -81,10 +80,23 @@
     private void GeneratePage(GeneratePageClickedMessageResponse response)
     {
         var htmlBuilderService = new HtmlBuilderService();
-        htmlBuilderService = htmlBuilderService.AddHead(response.Language, response.ProjectName)
+        htmlBuilderService = htmlBuilderService
+            .AddHead(response.Language, response.ProjectName)
             .AddBody(response.ProjectName, response.PageContent)
-            .AddScript(response.ShowOpenQuestionText)
-            .AddQuestions(response.Questions);
+            .AddScript(response.PageContent);
+        if (response.Questions.TestOneQuestionsExists())
+        {
+            htmlBuilderService = htmlBuilderService.AddTestOneQuestionsScripts();
+        }
+        if (response.Questions.TestMultiQuestionsExists())
+        {
+            htmlBuilderService = htmlBuilderService.AddTestMultiQuestionsScripts();
+        }
+        if (response.Questions.OpenQuestionsExists())
+        {
+            htmlBuilderService = htmlBuilderService.AddOpenQuestionsScript();
+        }
+        htmlBuilderService = htmlBuilderService.AddQuestions(response.Questions);
         var jsonString = htmlBuilderService.Collect();
         var bytes = Encoding.UTF8.GetBytes(jsonString);
             
