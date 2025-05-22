@@ -113,7 +113,7 @@ public class ProjectService(IMessenger messenger) : IProjectService
     public void MockData(Project project)
     {
         const int questionFactor = 25;
-        const int answerFactor = 8;
+        const int answerFactor = 16;
 
         project.Name = "TEST";
 
@@ -205,11 +205,13 @@ public class ProjectService(IMessenger messenger) : IProjectService
                     break;
                 }
                 default:
+                    var start = random.Next(0, _lorem.Length / 2);
+                    var end = random.Next(_lorem.Length / 2, _lorem.Length);
                     project.Questions.Add(new OpenQuestion
                     {
                         ID = Guid.NewGuid(),
                         QuestionText = GetRandomString(questionFactor),
-                        Answer = new Field { Value = string.Join(" ", _lorem), Type = FieldType.Text }
+                        Answer = new Field { Value = string.Join(" ", _lorem[start..end]), Type = FieldType.Text }
                     });
                     break;
             }

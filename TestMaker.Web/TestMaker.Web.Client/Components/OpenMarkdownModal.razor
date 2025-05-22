@@ -67,6 +67,7 @@
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Inject] IMessenger Messenger { get; set; }
     [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] IShowNotification notification { get; set; }
 
     private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
     private string _dragClass = DefaultDragClass;
@@ -119,6 +120,7 @@
                 Snackbar.Add("Your file isn't markdown", Severity.Error);
                 return;
             }
+
             var stream = _fileUpload.Files.OpenReadStream();
             var reader = new StreamReader(stream);
             var content = await reader.ReadToEndAsync();
@@ -129,87 +131,18 @@
                 return;
             }
 
-            var project = new Project();
+            var project = await QuestionParser.ParseProjectFromMarkdown(notification, content.Split(Environment.NewLine), _fileUpload.Files.Name.Split('.')[0]);
 
-            var projectName = false;
-
-            var data = new List<string>();
-            
-            var lines = content.Split('\n');
-
-            foreach (var line in lines)
-            {
-                if (string.IsNullOrWhiteSpace(line)) continue;
-
-                if (!projectName)
-                {
-                    if (!line.StartsWith($"##"))
-                    {
-                        project.Name = line.Split("#")[1];
-                    }
-                    else
-                    {
-                        project.Name = _fileUpload.Files.Name.Split('.')[0];
-                        data.Add(line);
-                    }
-
-                    projectName = true;
-                    continue;
-                }
-
-                if (line.StartsWith("##") && (data.Count == 2 || data.Count == 5))
-                {
-                    var parse = QuestionParser.Parse(data);
-                    if (parse.Question != null)
-                    {
-                        project.Questions.Add(parse.Question);
-                        data.Clear();
-                    }
-                    else if (parse.Message != null)
-                    {
-                        Snackbar.Add(parse.Message, Severity.Error);
-                    }
-                    else
-                    {
-                        Snackbar.Add("An error occurred while processing the question from the file.", Severity.Error);
-                        return;
-                    }
-                }
-
-                data.Add(line);
-            }
-
-            if (data.Count is 2 or 5)
-            {
-                var parse = QuestionParser.Parse(data);
-                if (parse.Question != null)
-                {
-                    project.Questions.Add(parse.Question);
-                }
-                else if (parse.Message != null)
-                {
-                    Snackbar.Add(parse.Message, Severity.Error);
-                }
-                else
-                {
-                    Snackbar.Add("An error occurred while processing the question from the file.", Severity.Error);
-                    return;
-                }
-            }
-            else
-            {
-                Snackbar.Add("An error occurred while processing the question from the file.", Severity.Error);
-                return;
-            }
+            if (project == null) return;
 
             Messenger.Send(new LoadProjectFromFileMessage
             {
                 Project = project
             });
-            
+
             MudDialog.Close();
         }
-        catch (Exception e)
+        catch (Exception)
         {
             Snackbar.Add("An error occurred with loading project.", Severity.Error);
         }

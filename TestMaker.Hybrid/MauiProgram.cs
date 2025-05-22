@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using MudBlazor;
 using MudBlazor.Services;
@@ -7,9 +6,7 @@ using TestMaker.Data.Services;
 using CommunityToolkit.Maui;
 using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Maui.Controls.Hosting;
-using Microsoft.Maui.Hosting;
+using TestMaker.Hybrid.Services;
 
 namespace TestMaker.Hybrid
 {
@@ -40,6 +37,7 @@ namespace TestMaker.Hybrid
             builder.Services.AddSingleton<IProjectService, ProjectService>();
             builder.Services.AddSingleton(FileSaver.Default);
             builder.Services.AddSingleton<IMessenger, WeakReferenceMessenger>();
+            builder.Services.AddScoped<IShowNotification, DesktopShowNotification>();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();

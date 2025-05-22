@@ -4,24 +4,23 @@ using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using TestMaker.Data.Messages;
+using TestMaker.Data.Services;
 
 namespace TestMaker.Hybrid
 {
-    public partial class App : Application
+    public partial class App
     {
-        private readonly IMessenger _messenger;
-        public App(IFileSaver saver, IMessenger messenger)
+        public App(IFileSaver saver, IMessenger messenger, IShowNotification showNotification)
         {
-            _messenger = messenger;
             InitializeComponent();
-            MainPage = new NavigationPage(new MainPage(saver, messenger));
+            MainPage = new NavigationPage(new MainPage(saver, messenger, showNotification));
         }
         
         // https://github.com/dotnet/maui/issues/11263#issuecomment-1384487707
         protected override Window CreateWindow(IActivationState activationState)
         {
             var window = base.CreateWindow(activationState);
-            window.Title = $"Test Maker by Michał Żuk \u00a9 {DateTime.Now.Year}";
+            window.Title = $"Test Maker by Michał Żuk \u00a9 2024 - {DateTime.Now.Year}";
             return window;
         }
     }
