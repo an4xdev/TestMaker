@@ -6,7 +6,6 @@ using CommunityToolkit.Mvvm.Messaging;
 using TestMaker.Data.Messages;
 using TestMaker.Data.Models;
 using TestMaker.Data.Services;
-using TestMaker.Hybrid.Services;
 
 namespace TestMaker.Hybrid;
 
@@ -14,10 +13,12 @@ public partial class MainPage
 {
     private readonly IFileSaver _fileSaver;
     private readonly JsonSerializerOptions _jsonSerializerOptions;
-    private readonly PickOptions _pickOptionsProject;
-    private readonly PickOptions _pickOptionsMarkdown;
     private readonly IMessenger _messenger;
+    private readonly PickOptions _pickOptionsImage = PickOptions.Images;
+    private readonly PickOptions _pickOptionsMarkdown;
+    private readonly PickOptions _pickOptionsProject;
     private readonly IShowNotification _showNotification;
+    private readonly string[] _supportedPhotoExtensions;
 
     public MainPage(IFileSaver saver, IMessenger messenger, IShowNotification showNotification)
     {
@@ -41,13 +42,13 @@ public partial class MainPage
             PickerTitle = "Please select project file.",
             FileTypes = filePickerFileTypeProject,
         };
+
+        // markdown
         var filePickerFileTypeMarkdown = new FilePickerFileType(
             new Dictionary<DevicePlatform, IEnumerable<string>>
             {
                 { DevicePlatform.WinUI, [".md"] }, // file extension
             });
-
-        // markdown
         _pickOptionsMarkdown = new PickOptions
         {
             PickerTitle = "Please select markdown file.",
@@ -61,6 +62,9 @@ public partial class MainPage
         _messenger.Register<GeneratePageClickedMessageResponse>(this,
             async (_, message) => { await GeneratePage(message); });
 
+        _messenger.Register<LoadPhotoToAnswerRequest>(this,
+            async (_, message) => { await LoadPhotoFromMarkdown(message); });
+
         _messenger.Register<SaveFileWhenClosingResponse>(this, async (_, message) =>
         {
             if (message.Project != null)
@@ -70,6 +74,8 @@ public partial class MainPage
 
             Application.Current?.CloseWindow(Application.Current.MainPage?.Window!);
         });
+
+        _supportedPhotoExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
     }
 
     private void OnThemeItemClicked(object sender, EventArgs e)
@@ -166,6 +172,40 @@ public partial class MainPage
         _messenger.Send(new LoadProjectFromFileMessage
         {
             Project = project
+        });
+    }
+
+    private async Task LoadPhotoFromMarkdown(LoadPhotoToAnswerRequest request)
+    {
+        var result = await FilePicker.Default.PickAsync(_pickOptionsImage);
+
+        if (result == null) return;
+        await using var stream = await result.OpenReadAsync();
+
+        if (stream.Length == 0)
+        {
+            await Toast.Make("Selected image is empty").Show();
+            return;
+        }
+
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        var imageBytes = memoryStream.ToArray();
+
+        var extension = Path.GetExtension(result.FileName).TrimStart('.').ToLower();
+
+        if (!_supportedPhotoExtensions.Contains(extension))
+        {
+            await Toast.Make($"This image type: {extension} isn't supported").Show();
+            return;
+        }
+
+        var data = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
+
+        _messenger.Send(new LoadPhotoToAnswerResponse
+        {
+            QuestionId = request.QuestionId,
+            PhotoBase64Data = data
         });
     }
 

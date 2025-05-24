@@ -17,14 +17,15 @@
             <MudPaper Class="d-flex flex-column px-1 py-1">
                 <MudPaper Class="px-1 py-1" Elevation="3">
                     <MudText Typo="Typo.h3">
-                        <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name
+                        <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project:</MudText>@ProjectValue.Name
                     </MudText>
                 </MudPaper>
                 <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
-                    <div class="px-1 py-1 overflow-scroll" style="@(_selectedQuestion != null ? "height:80vh;" : "height:84vh;")">
+                    <div class="px-1 py-1 overflow-scroll"
+                         style="@(_selectedQuestion != null ? "height:80vh;" : "height:84vh;")">
                         @if (_selectedQuestion != null)
                         {
-                            <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
+                            <MudText Typo="Typo.h5" Color="Color.Secondary">Question:</MudText>
                             @if (_editing)
                             {
                                 <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
@@ -63,23 +64,32 @@
                                                 {
                                                     @if (answer.Answer.Type == FieldType.Text)
                                                     {
-                                                        <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
+                                                        <MudTextField @bind-Value="answer.Answer.Value"
+                                                                      Label="Provide answer" Clearable FullWidth/>
                                                     }
                                                     else
                                                     {
                                                         <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
                                                             <ActivatorContent>
-                                                            <MudImage Src="@answer.Answer.Value"/>
-                                                            <MudButton Variant="Variant.Filled"
-                                                                       Color="Color.Primary"
-                                                                       StartIcon="@Icons.Material.Filled.CloudUpload" Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
-                                                                Change file
-                                                            </MudButton>
+                                                                <MudImage Src="@answer.Answer.Value"/>
+                                                                <MudButton Variant="Variant.Filled"
+                                                                           Color="Color.Primary"
+                                                                           StartIcon="@Icons.Material.Filled.CloudUpload"
+                                                                           Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
+                                                                    Change file
+                                                                </MudButton>
                                                             </ActivatorContent>
                                                         </MudFileUpload>
                                                     }
-                                                    <MudButton Color="Color.Warning" StartIcon="@(answer.Answer.Type == FieldType.Text  ? Icons.Material.Filled.Camera: Icons.Material.Filled.FontDownload)" OnClick="() => ChangeType(answer.Answer)">Switch type</MudButton>
-                                                    <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
+
+                                                    <MudButton Color="Color.Warning"
+                                                               StartIcon="@(answer.Answer.Type == FieldType.Text ? Icons.Material.Filled.Camera : Icons.Material.Filled.FontDownload)"
+                                                               OnClick="() => ChangeType(answer.Answer)">Switch type
+                                                    </MudButton>
+                                                    <MudButton Color="Color.Error"
+                                                               StartIcon="@Icons.Material.Filled.Delete"
+                                                               OnClick="() => DeleteAnswer(answer.Id)">DELETE
+                                                    </MudButton>
                                                 }
                                             </div>
                                         }
@@ -90,18 +100,22 @@
                                     @foreach (var answer in tmquestion.Answers)
                                     {
                                         <div class="d-flex my-2 align-items-baseline">
-                                                <MudCheckBox T="bool" Label="@(!_editing && answer.Answer.Type == FieldType.Text ? answer.Answer.Value : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
-                                                @if (!_editing && answer.Answer.Type == FieldType.Photo)
-                                                {
-                                                    <div>
-                                                        <MudImage Src="@answer.Answer.Value"/>
-                                                    </div>
-                                                }
+                                            <MudCheckBox T="bool"
+                                                         Label="@(!_editing && answer.Answer.Type == FieldType.Text ? answer.Answer.Value : "")"
+                                                         Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))"
+                                                         ValueChanged="() => CheckBoxChanged(answer.AnswerValue)"></MudCheckBox>
+                                            @if (!_editing && answer.Answer.Type == FieldType.Photo)
+                                            {
+                                                <div>
+                                                    <MudImage Src="@answer.Answer.Value"/>
+                                                </div>
+                                            }
                                             @if (_editing)
                                             {
                                                 @if (answer.Answer.Type == FieldType.Text)
                                                 {
-                                                    <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
+                                                    <MudTextField @bind-Value="answer.Answer.Value"
+                                                                  Label="Provide answer" Clearable FullWidth/>
                                                 }
                                                 else
                                                 {
@@ -110,17 +124,25 @@
                                                             <MudImage Src="@answer.Answer.Value"/>
                                                             <MudButton Variant="Variant.Filled"
                                                                        Color="Color.Primary"
-                                                                       StartIcon="@Icons.Material.Filled.CloudUpload" Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
+                                                                       StartIcon="@Icons.Material.Filled.CloudUpload"
+                                                                       Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
                                                                 Change file
                                                             </MudButton>
                                                         </ActivatorContent>
                                                     </MudFileUpload>
                                                 }
-                                                <MudButton Color="Color.Warning" StartIcon="@(answer.Answer.Type == FieldType.Text  ? Icons.Material.Filled.Camera: Icons.Material.Filled.FontDownload)" OnClick="() => ChangeType(answer.Answer)">Switch type</MudButton>
-                                                <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
+
+                                                <MudButton Color="Color.Warning"
+                                                           StartIcon="@(answer.Answer.Type == FieldType.Text ? Icons.Material.Filled.Camera : Icons.Material.Filled.FontDownload)"
+                                                           OnClick="() => ChangeType(answer.Answer)">Switch type
+                                                </MudButton>
+                                                <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete"
+                                                           OnClick="() => DeleteAnswer(answer.Id)">DELETE
+                                                </MudButton>
                                             }
                                         </div>
                                     }
+
                                     break;
                                 case OpenQuestion openQuestion:
                                     <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
@@ -130,7 +152,8 @@
                                     }
                                     else
                                     {
-                                        <MudTextField T="string" AutoGrow MaxLines="35" @bind-Value="@openQuestion.Answer.Value"/>
+                                        <MudTextField T="string" AutoGrow MaxLines="35"
+                                                      @bind-Value="@openQuestion.Answer.Value"/>
                                     }
 
                                     break;
@@ -142,7 +165,9 @@
                             @if (_editing && _selectedQuestion is not OpenQuestion)
                             {
                                 <div class="d-flex justify-center align-center py-1">
-                                    <MudButton Color="Color.Success" OnClick="AddAnswer" StartIcon="@Icons.Material.Filled.Add">ADD</MudButton>
+                                    <MudButton Color="Color.Success" OnClick="AddAnswer"
+                                               StartIcon="@Icons.Material.Filled.Add">ADD
+                                    </MudButton>
                                 </div>
                             }
                         }
@@ -150,10 +175,14 @@
                         {
                             <div class="d-flex justify-content-center align-items-center h-100 flex-column">
                                 <div>
-                                    <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do something with question</MudText>
+                                    <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do
+                                        something with question
+                                    </MudText>
                                 </div>
                                 <div class="py-2">
-                                    <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add" OnClick="ShowNewQuestionModal">Add new</MudButton>
+                                    <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add"
+                                               OnClick="ShowNewQuestionModal">Add new
+                                    </MudButton>
                                 </div>
                             </div>
                         }
@@ -163,7 +192,8 @@
                 {
                     <MudPaper>
                         <div class="d-flex justify-content-end">
-                            <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save</MudButton>
+                            <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save
+                            </MudButton>
                             <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
                         </div>
                     </MudPaper>
@@ -174,13 +204,19 @@
             <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="@Height">
                 <MudPaper Class="d-flex flex-row justify-content-evenly">
                     <div>
-                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with one answer: <MudText Inline="true" >@_testOneQuestionCount</MudText></MudText>
+                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with one answer:
+                            <MudText Inline="true">@_testOneQuestionCount</MudText>
+                        </MudText>
                     </div>
                     <div>
-                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with multiple answer: <MudText Inline="true" >@_testMultiQuestionCount</MudText></MudText>
+                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with multiple answer:
+                            <MudText Inline="true">@_testMultiQuestionCount</MudText>
+                        </MudText>
                     </div>
                     <div>
-                        <MudText Typo="Typo.body1" Class="fw-bolder">Open question: <MudText Inline="true" >@_openQuestionCount</MudText></MudText>
+                        <MudText Typo="Typo.body1" Class="fw-bolder">Open question:
+                            <MudText Inline="true">@_openQuestionCount</MudText>
+                        </MudText>
                     </div>
                 </MudPaper>
                 <MudPaper>
@@ -192,13 +228,16 @@
                             </div>
                             <div class="px-1 py-1 d-flex">
                                 <div>
-                                    <MudButton Color="Color.Primary" OnClick="() => ViewQuestion(question.ID)">View</MudButton>
+                                    <MudButton Color="Color.Primary" OnClick="() => ViewQuestion(question.ID)">View
+                                    </MudButton>
                                 </div>
                                 <div>
-                                    <MudButton Color="Color.Warning" OnClick="() => EditQuestion(question.ID)">Edit</MudButton>
+                                    <MudButton Color="Color.Warning" OnClick="() => EditQuestion(question.ID)">Edit
+                                    </MudButton>
                                 </div>
                                 <div>
-                                    <MudButton Color="Color.Error" OnClick="() => DeleteQuestion(question.ID)">Delete</MudButton>
+                                    <MudButton Color="Color.Error" OnClick="() => DeleteQuestion(question.ID)">Delete
+                                    </MudButton>
                                 </div>
                             </div>
                         </div>
@@ -272,6 +311,22 @@
         Messenger.Register<LoadProjectFromFileMessage>(this, (_, message) =>
         {
             ProjectValue = message.Project;
+            ProjectService.UpdateStatsOnLoad(ProjectValue);
+            foreach (var question in ProjectValue.Questions)
+            {
+                if (question is not TestQuestion testQuestion) continue;
+                foreach (var unused in testQuestion
+                             .Answers
+                             .Where(testAnswer => testAnswer.Answer.Type == FieldType.Photo && !testAnswer.Answer.Value.Contains("data")))
+                {
+                    // JSRuntime.InvokeVoidAsync("console.log", $"Loaded from markdown answer ID: {unused.Id}");
+                    Messenger.Send(new LoadPhotoToAnswerRequest
+                    {
+                        QuestionId = unused.Id
+                    });
+                }
+            }
+
             InvokeAsync(StateHasChanged);
         });
 
@@ -302,9 +357,16 @@
             DialogService.Show<SaveProjectModal>(null, parametersSave);
         });
 
+        Messenger.Register<LoadPhotoToAnswerResponse>(this, (_, message) =>
+        {
+            // TODO: check for exception
+            ProjectService.UpdateQuestionPhotoData(ProjectValue, message.QuestionId, message.PhotoBase64Data);
+        });
+
         ProjectService.StatsUpdate += UpdateQuestionCounts;
 
         ProjectService.MockData(ProjectValue);
+        ProjectService.UpdateStatsOnLoad(ProjectValue);
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
     }
@@ -439,7 +501,7 @@
             try
             {
                 ProjectService.AddOrEditQuestion(ProjectValue, _selectedQuestion, _selectedQuestion.ID);
-                Snackbar.Add("The action was successfully completed.",Severity.Success);
+                Snackbar.Add("The action was successfully completed.", Severity.Success);
             }
             catch (QuestionNotFoundException e)
             {
@@ -534,8 +596,6 @@
                 }
 
                 break;
-            case OpenQuestion:
-                return;
             default:
                 return;
         }
@@ -557,14 +617,13 @@
                     Snackbar.Add($"If you need a question with more than {(int)CorrectAnswer.Z} answers, please contact me: michal.zuk30601@gmail.com, I would like to know this test question.", Severity.Warning);
                     return;
                 }
+
                 question.Answers.Add(new TestAnswer
                 {
-                    Answer = new Field{Value = string.Empty, Type = FieldType.Text},
+                    Answer = new Field { Value = string.Empty, Type = FieldType.Text },
                     AnswerValue = temp
                 });
                 break;
-            case OpenQuestion:
-                return;
             default:
                 return;
         }

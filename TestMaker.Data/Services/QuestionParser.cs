@@ -6,7 +6,9 @@ namespace TestMaker.Data.Services;
 public static class QuestionParser
 {
     /// <summary>
-    /// Get project from markdown file
+    /// Get project from markdown file.<br />
+    /// Loading photos is done by just setting answer type to Photo.<br/>
+    /// You should load this photo after separately.
     /// </summary>
     /// <param name="notification">Service for showing notifications</param>
     /// <param name="lines">Lines split by '\n'</param>
@@ -94,7 +96,6 @@ public static class QuestionParser
 
     private static Task<QuestionParseResponse> Parse(List<string> data)
     {
-        // TODO: change to also parse photos
         var boldCounter = data.Count(s => s.Contains("**"));
         switch (boldCounter)
         {
@@ -132,14 +133,14 @@ public static class QuestionParser
                 {
                     var answer = new TestAnswer
                     {
+                        AnswerValue = (CorrectAnswer)i - 1,
                         Answer = new Field
                         {
                             Value = data[i].Contains("**")
                                 ? data[i].Split("- **")[1].Split("**")[0]
                                 : data[i].Split("- ")[1],
-                            Type = FieldType.Text
-                        },
-                        AnswerValue = (CorrectAnswer)i - 1
+                            Type = data[i].Contains('!') ? FieldType.Photo : FieldType.Text
+                        }
                     };
                     if (data[i].Contains("**"))
                     {
@@ -178,7 +179,7 @@ public static class QuestionParser
                             Value = data[i].Contains("**")
                                 ? data[i].Split("- **")[1].Split("**")[0]
                                 : data[i].Split("- ")[1],
-                            Type = FieldType.Text
+                            Type = data[i].Contains('!') ? FieldType.Photo : FieldType.Text
                         },
                         AnswerValue = (CorrectAnswer)i - 1
                     };
