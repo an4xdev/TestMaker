@@ -204,7 +204,7 @@ public partial class MainPage
 
         _messenger.Send(new LoadPhotoToAnswerResponse
         {
-            QuestionId = request.QuestionId,
+            AnswerId = request.AnswerId,
             PhotoBase64Data = data
         });
     }

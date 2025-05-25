@@ -69,6 +69,7 @@
                                                     }
                                                     else
                                                     {
+                                                        @*TODO: implement loading new image*@
                                                         <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
                                                             <ActivatorContent>
                                                                 <MudImage Src="@answer.Answer.Value"/>
@@ -119,6 +120,7 @@
                                                 }
                                                 else
                                                 {
+                                                    @*TODO: implement loading new image*@
                                                     <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
                                                         <ActivatorContent>
                                                             <MudImage Src="@answer.Answer.Value"/>
@@ -285,18 +287,18 @@
 </MudPaper>
 
 @code {
-    [Inject] IProjectService ProjectService { get; set; }
-    [Inject] ISnackbar Snackbar { get; set; }
-    [Inject] IDialogService DialogService { get; set; }
-    [Inject] IMessenger Messenger { get; set; }
-    [Parameter] public string Height { get; set; }
+    [Inject] IProjectService ProjectService { get; set; } = null!;
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
+    [Inject] IDialogService DialogService { get; set; } = null!;
+    [Inject] IMessenger Messenger { get; set; } = null!;
+    [Parameter] public string Height { get; set; } = string.Empty;
 
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
     private bool _editing;
 
-    private IBrowserFile photo;
-    private string prevData;
+    private IBrowserFile _photo = null!;
+    private string _prevData = string.Empty;
 
     private List<Language> _countries = [];
 
@@ -310,22 +312,44 @@
 
         Messenger.Register<LoadProjectFromFileMessage>(this, (_, message) =>
         {
+            // JSRuntime.InvokeVoidAsync("console.log", $"Loaded from markdown answer ID: {unused.Id}");
             ProjectValue = message.Project;
+            List<Tuple<string, Guid, string>> answersList = [];
             ProjectService.UpdateStatsOnLoad(ProjectValue);
             foreach (var question in ProjectValue.Questions)
             {
                 if (question is not TestQuestion testQuestion) continue;
-                foreach (var unused in testQuestion
-                             .Answers
-                             .Where(testAnswer => testAnswer.Answer.Type == FieldType.Photo && !testAnswer.Answer.Value.Contains("data")))
-                {
-                    // JSRuntime.InvokeVoidAsync("console.log", $"Loaded from markdown answer ID: {unused.Id}");
-                    Messenger.Send(new LoadPhotoToAnswerRequest
-                    {
-                        QuestionId = unused.Id
-                    });
-                }
+
+                answersList.AddRange(testQuestion
+                    .Answers
+                    .Where(testAnswer => testAnswer.Answer.Type == FieldType.Photo &&
+                                         !testAnswer.Answer.Value.Contains("data")
+                    )
+                    .Select(ta => new Tuple<string, Guid, string>(testQuestion.QuestionText, ta.Id, string.Empty)
+                    ));
             }
+
+            if (answersList.Count == 0)
+            {
+                return;
+            }
+
+            var parametersSave = new DialogParameters<LoadPhotoModal>
+            {
+                { x => x.Messenger, Messenger },
+                { x => x.Answers, answersList },
+                { x => x.Project, ProjectValue },
+                { x => x.ProjectService, ProjectService }
+            };
+
+            DialogService.Show<LoadPhotoModal>(null, parametersSave, new DialogOptions
+            {
+                CloseOnEscapeKey = false,
+                BackdropClick = false,
+                NoHeader = true,
+                CloseButton = false,
+                MaxWidth = MaxWidth.ExtraLarge
+            });
 
             InvokeAsync(StateHasChanged);
         });
@@ -355,12 +379,6 @@
                 { x => x.SaveProject, SaveProjectWhenClosing }
             };
             DialogService.Show<SaveProjectModal>(null, parametersSave);
-        });
-
-        Messenger.Register<LoadPhotoToAnswerResponse>(this, (_, message) =>
-        {
-            // TODO: check for exception
-            ProjectService.UpdateQuestionPhotoData(ProjectValue, message.QuestionId, message.PhotoBase64Data);
         });
 
         ProjectService.StatsUpdate += UpdateQuestionCounts;
@@ -517,12 +535,12 @@
     {
         if (field.Value != string.Empty)
         {
-            prevData = field.Value;
+            _prevData = field.Value;
             field.Value = string.Empty;
         }
-        else if (field.Value == string.Empty && prevData != string.Empty)
+        else if (field.Value == string.Empty && _prevData != string.Empty)
         {
-            field.Value = prevData;
+            field.Value = _prevData;
         }
 
         field.Type = field.Type == FieldType.Photo ? FieldType.Text : FieldType.Photo;

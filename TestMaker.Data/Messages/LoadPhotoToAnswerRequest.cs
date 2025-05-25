@@ -2,5 +2,5 @@
 
 public class LoadPhotoToAnswerRequest
 {
-    public Guid QuestionId { get; set; }
+    public Guid AnswerId { get; set; }
 }

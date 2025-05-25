@@ -1,0 +1,91 @@
+﻿@using CommunityToolkit.Mvvm.Messaging
+@using MudBlazor
+@using TestMaker.Data.Messages
+@using TestMaker.Data.Models
+@using TestMaker.Data.Services
+@implements IDisposable
+<MudDialog>
+    <TitleContent>
+        Load photos after loading from Markdown
+    </TitleContent>
+    <DialogContent>
+        @foreach (var question in Answers)
+        {
+            <MudText>@question.Item1</MudText>
+            @if (question.Item3 != string.Empty)
+            {
+                <MudImage Src="@question.Item3"></MudImage>
+            }
+
+            <MudButton OnClick="() => SendRequest(question.Item2)">Load file</MudButton>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Success" OnClick="() => ApplyImages()">Apply images</MudButton>
+        <MudButton Color="Color.Primary" OnClick="() => ApplyImagesAndClose()">Apply images and close</MudButton>
+        <MudButton Color="Color.Error" OnClick="() => MudDialog.Close()">Cancel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    [Inject] ISnackbar Snackbar { get; set; }
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public IMessenger Messenger { get; set; }
+    [Parameter] public List<Tuple<string, Guid, string>> Answers { get; set; }
+    [Parameter] public ProjectService ProjectService { get; set; }
+    [Parameter] public Project Project { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Messenger.Register<LoadPhotoToAnswerResponse>(this, (_, message) =>
+        {
+            var tuple = Answers.FirstOrDefault(t => t.Item2 == message.AnswerId);
+            if (tuple is null)
+            {
+                Snackbar.Add("Cannot find answer", Severity.Error);
+                return;
+            }
+
+            var index = Answers.IndexOf(tuple);
+            Answers.Remove(tuple);
+            Answers.Insert(index, new Tuple<string, Guid, string>(tuple.Item1, message.AnswerId, message.PhotoBase64Data));
+            StateHasChanged();
+        });
+    }
+
+    public void ApplyImagesAndClose()
+    {
+        ApplyImages();
+        Dispose();
+        MudDialog.Close();
+    }
+
+    public void ApplyImages()
+    {
+        foreach (var answer in Answers)
+        {
+            try
+            {
+                ProjectService.UpdateQuestionPhotoData(Project, answer.Item2, answer.Item3);
+            }
+            catch (Exception)
+            {
+                Snackbar.Add($"Could not set image to answer from question: {answer.Item1}", Severity.Error);
+            }
+        }
+    }
+
+    public void SendRequest(Guid answerId)
+    {
+        Messenger.Send(new LoadPhotoToAnswerRequest
+        {
+            AnswerId = answerId
+        });
+    }
+
+    public void Dispose()
+    {
+        Messenger.Unregister<LoadPhotoToAnswerResponse>(this);
+    }
+}
