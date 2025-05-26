@@ -1,0 +1,34 @@
+﻿@using MudBlazor
+<div class="d-flex justify-content-center w-100">
+    <div class="d-flex justify-content-center flex-column">
+        <div>
+            <MudPaper Elevation="3" Class="p-3 mb-3">
+                <div>
+                    <MudText Typo="Typo.h4">Create new project with:</MudText>
+                </div>
+                <div>
+                    <MudTreeView T="string" ReadOnly ExpandOnClick="false">
+                        <MudTreeViewItem Text="File" Expanded="true">
+                            <MudTreeViewItem Text="New"/>
+                        </MudTreeViewItem>
+                    </MudTreeView>
+                </div>
+            </MudPaper>
+        </div>
+        <div>
+            <MudPaper Elevation="3" Class="p-3">
+                <div>
+                    <MudText Typo="Typo.h4">or open existing project with:</MudText>
+                </div>
+                <div>
+                    <MudTreeView T="string" ReadOnly ExpandOnClick="false">
+                        <MudTreeViewItem Text="File" Expanded="true">
+                            <MudTreeViewItem Text="Open"/>
+                        </MudTreeViewItem>
+                    </MudTreeView>
+                </div>
+            </MudPaper>
+        </div>
+
+    </div>
+</div>

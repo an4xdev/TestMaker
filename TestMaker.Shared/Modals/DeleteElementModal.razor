@@ -1,0 +1,17 @@
+﻿@using MudBlazor
+<MudDialog>
+    <TitleContent>
+        Are you sure want to delete this @Type?
+    </TitleContent>
+    <DialogActions>
+        <MudButton Color="Color.Error" OnClick="() => MudDialog.Close(true)">Yes</MudButton>
+        <MudButton Color="Color.Success" OnClick="() => MudDialog.Close(false)">No</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code
+{
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string Type { get; set; }
+    [Parameter] public Guid Id { get; set; }
+}

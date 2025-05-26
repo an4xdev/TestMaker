@@ -1,0 +1,15 @@
+﻿@using MudBlazor
+<MudPaper>
+    <div class="d-flex justify-content-end">
+        <MudButton Color="Color.Success" Disabled="@(!Editing)" OnClick="SaveQuestion">Save
+        </MudButton>
+        <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
+    </div>
+</MudPaper>
+
+@code
+{
+    [Parameter] public bool Editing { get; set; }
+    [Parameter] public Action SaveQuestion { get; set; } = null!;
+    [Parameter] public Action CancelQuestion { get; set; } = null!;
+}
