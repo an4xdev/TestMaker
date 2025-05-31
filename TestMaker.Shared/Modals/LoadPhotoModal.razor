@@ -63,15 +63,15 @@
 
     public void ApplyImages()
     {
-        foreach (var answer in Answers)
+        foreach (var (questionText, answerId, photoData) in Answers)
         {
             try
             {
-                ProjectService.UpdateQuestionPhotoData(Project, answer.Item2, answer.Item3);
+                ProjectService.UpdateQuestionPhotoData(Project, answerId, photoData);
             }
             catch (Exception)
             {
-                Snackbar.Add($"Could not set image to answer from question: {answer.Item1}", Severity.Error);
+                Snackbar.Add($"Could not set image to answer from question: {questionText}", Severity.Error);
             }
         }
     }
