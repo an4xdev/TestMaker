@@ -39,9 +39,9 @@
                                         ChangeType="ChangeType"
                                         DeleteAnswer="DeleteAnswer"
                                         Editing="_editing"
+                                        PhotoAcceptExtensions="@PhotoAcceptExtensions"
                                         Question="testOneQuestion"
-                                        PhotoEditClass=@PhotoEditClass
-                                        PhotoAcceptExtensions=@PhotoAcceptExtensions
+                                        ChangePhoto="ChangePhotoInTestAnswer"
                                     />
 
                                     break;
@@ -52,8 +52,9 @@
                                         CheckBoxChanged="CheckBoxChanged"
                                         DeleteAnswer="DeleteAnswer"
                                         Editing="_editing"
-                                        PhotoAcceptExtensions=@PhotoAcceptExtensions
-                                        PhotoEditClass=@PhotoEditClass Question=@testMultiQuestion
+                                        PhotoAcceptExtensions="@PhotoAcceptExtensions"
+                                        Question="testMultiQuestion"
+                                        ChangePhoto="ChangePhotoInTestAnswer"
                                     />
 
                                     break;
@@ -65,7 +66,7 @@
 
                                     break;
                                 default:
-                                    <MudText>Unknown</MudText>
+                                    <MudText Color="Color.Error">Unknown</MudText>
                                     break;
                             }
 
@@ -119,7 +120,6 @@
     private Question? _selectedQuestion;
     private bool _editing;
 
-    private const string PhotoEditClass = "position:absolute;top: 45%;left: 30%;z-index: 1000;";
     private const string PhotoAcceptExtensions = ".png, .jpg";
 
     private IBrowserFile _photo = null!;
@@ -169,7 +169,7 @@
                 BackdropClick = false,
                 NoHeader = true,
                 CloseButton = false,
-                MaxWidth = MaxWidth.ExtraLarge
+                MaxWidth = MaxWidth.Large
             });
 
             InvokeAsync(StateHasChanged);
@@ -376,6 +376,36 @@
         }
 
         StateHasChanged();
+    }
+
+    private async Task ChangePhotoInTestAnswer(IBrowserFile? file, Guid id, TestQuestion question)
+    {
+        try
+        {
+            if (file == null)
+            {
+                throw new Exception();
+            }
+
+            await using var stream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+
+            await stream.CopyToAsync(memoryStream);
+
+            var imageBytes = memoryStream.ToArray();
+
+            var extension = Path.GetExtension(file.Name).TrimStart('.').ToLower();
+
+            var testAnswer = question.Answers.First(a => a.Id == id);
+
+            testAnswer.Answer.Value = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
+
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Something unexpected happened when loading file.");
+        }
     }
 
     private void ViewQuestion(Guid id)

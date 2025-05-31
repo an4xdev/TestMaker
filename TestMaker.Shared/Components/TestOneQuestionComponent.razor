@@ -32,16 +32,26 @@
                 }
                 else
                 {
-                    @*TODO: implement loading new image*@
-                    <MudFileUpload T="IBrowserFile" Accept=@PhotoAcceptExtensions>
+                    <MudFileUpload
+                        T="IBrowserFile"
+                        Accept="@PhotoAcceptExtensions"
+                        FilesChanged="args =>  ChangePhoto(args, answer.Id, Question)"
+                    >
                         <ActivatorContent>
-                            <MudImage Src="@answer.Answer.Value"/>
-                            <MudButton Variant="Variant.Filled"
-                                       Color="Color.Primary"
-                                       StartIcon="@Icons.Material.Filled.CloudUpload"
-                                       Style="@(answer.Answer.Value != string.Empty ? PhotoEditClass : "")">
-                                Change file
-                            </MudButton>
+                            @if (answer.Answer.Value != string.Empty)
+                            {
+                                <MudTooltip Text="Click to change file" Arrow="true" Placement="Placement.Top">
+                                    <MudImage Src="@answer.Answer.Value"/>
+                                </MudTooltip>
+                            }
+                            else
+                            {
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           StartIcon="@Icons.Material.Filled.CloudUpload">
+                                    Change file
+                                </MudButton>
+                            }
                         </ActivatorContent>
                     </MudFileUpload>
                 }
@@ -64,7 +74,7 @@
     [Parameter] public TestOneQuestion Question { get; set; } = null!;
     [Parameter] public bool Editing { get; set; }
     [Parameter] public string PhotoAcceptExtensions { get; set; } = string.Empty;
-    [Parameter] public string PhotoEditClass { get; set; } = string.Empty;
     [Parameter] public Action<Field> ChangeType { get; set; } = null!;
     [Parameter] public Func<Guid, Task> DeleteAnswer { get; set; } = null!;
+    [Parameter] public Func<IBrowserFile?, Guid, TestQuestion, Task> ChangePhoto { get; set; } = null!;
 }
