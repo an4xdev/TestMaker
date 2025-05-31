@@ -398,7 +398,7 @@
 
             var imageBytes = memoryStream.ToArray();
 
-            var extension = Path.GetExtension(file.Name).TrimStart('.').ToLower();
+            var extension = Path.GetExtension(file.Name).TrimStart('.').ToLowerInvariant();
 
             var testAnswer = question.Answers.First(a => a.Id == id);
 

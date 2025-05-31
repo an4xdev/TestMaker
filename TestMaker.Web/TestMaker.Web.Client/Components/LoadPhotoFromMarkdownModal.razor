@@ -121,7 +121,7 @@
                 return;
             }
 
-            var extension = Path.GetExtension(_fileName).TrimStart('.').ToLower();
+            var extension = Path.GetExtension(_fileName).TrimStart('.').ToLowerInvariant();
 
             if (!_supportedPhotoExtensions.Contains(extension))
             {
