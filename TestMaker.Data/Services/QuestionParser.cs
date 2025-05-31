@@ -139,7 +139,7 @@ public static class QuestionParser
                             Value = data[i].Contains("**")
                                 ? data[i].Split("- **")[1].Split("**")[0]
                                 : data[i].Split("- ")[1],
-                            Type = data[i].Contains('!') ? FieldType.Photo : FieldType.Text
+                            Type = Regex.IsMatch(data[i], @"!\[.*?\]\(.*?\)") ? FieldType.Photo : FieldType.Text
                         }
                     };
                     if (data[i].Contains("**"))
