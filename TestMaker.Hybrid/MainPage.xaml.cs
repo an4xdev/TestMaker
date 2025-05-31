@@ -188,7 +188,7 @@ public partial class MainPage
             return;
         }
 
-        var extension = Path.GetExtension(result.FileName).TrimStart('.').ToLower();
+        var extension = Path.GetExtension(result.FileName).TrimStart('.').ToLowerInvariant();
 
         if (!_supportedPhotoExtensions.Contains(extension))
         {
