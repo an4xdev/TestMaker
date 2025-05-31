@@ -8,9 +8,9 @@
         <MudTextField @bind-Value="ProjectName" T="string" Label="Project name"/>
     </DialogContent>
     <DialogActions>
-        <MudButton Color="Color.Primary" OnClick="(() => Submit(NewProjectEnum.Closed))">New</MudButton>
-        <MudButton Color="Color.Secondary" OnClick="(() => Submit(NewProjectEnum.ClosedAndSave))">New and Save</MudButton>
-        <MudButton Color="Color.Error" OnClick="CloseModal">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="() => Submit(NewProjectEnum.Closed)">New</MudButton>
+        <MudButton Color="Color.Secondary" OnClick="() => Submit(NewProjectEnum.ClosedAndSave)">New and Save</MudButton>
+        <MudButton Color="Color.Error" OnClick="() => MudDialog.Close()">Cancel</MudButton>
     </DialogActions>
 </MudDialog>
 

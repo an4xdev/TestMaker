@@ -6,6 +6,7 @@
 @using TestMaker.Data.Models
 @using TestMaker.Data.Services
 @using TestMaker.Data.Services.ServiceModels
+@using TestMaker.Shared.Components
 @using TestMaker.Shared.Modals
 @using FieldType = TestMaker.Data.Models.FieldType
 @implements IDisposable
@@ -13,257 +14,117 @@
 <MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
     @if (ProjectValue.Name != string.Empty)
     {
-        <div style="width:50%;">
+        <div class="w-50">
             <MudPaper Class="d-flex flex-column px-1 py-1">
                 <MudPaper Class="px-1 py-1" Elevation="3">
                     <MudText Typo="Typo.h3">
-                        <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project: </MudText>@ProjectValue.Name
+                        <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project:</MudText>@ProjectValue.Name
                     </MudText>
                 </MudPaper>
                 <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
-                    <div class="px-1 py-1 overflow-scroll" style="@(_selectedQuestion != null ? "height:80vh;" : "height:84vh;")">
+                    <div class="px-1 py-1 overflow-scroll"
+                         style="@(_selectedQuestion != null ? "height:80vh;" : "height:84vh;")">
                         @if (_selectedQuestion != null)
                         {
-                            <MudText Typo="Typo.h5" Color="Color.Secondary">Question: </MudText>
-                            @if (_editing)
-                            {
-                                <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
-                                    <MudTextField @bind-Value="_selectedQuestion.QuestionText"/>
-                                </MudFocusTrap>
-                            }
-                            else
-                            {
-                                <MudText Typo="Typo.h5">@_selectedQuestion.QuestionText</MudText>
-                            }
+                            <QuestionHeader
+                                Editing="_editing"
+                                SelectedQuestion="_selectedQuestion"
+                            />
 
                             @switch (_selectedQuestion)
                             {
-                                case TestOneQuestion t1Question:
-                                    <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
-                                    <MudRadioGroup @bind-Value="t1Question.CorrectAnswer" T="CorrectAnswer">
-                                        @foreach (var answer in t1Question.Answers)
-                                        {
-                                            <div class="d-flex my-2 align-items-baseline">
-                                                <div>
-                                                    <MudRadio Value="@(answer.AnswerValue)">
-                                                        @if (!_editing)
-                                                        {
-                                                            @if (answer.Answer.Type == FieldType.Text)
-                                                            {
-                                                                @answer.Answer.Value
-                                                            }
-                                                            else
-                                                            {
-                                                                <MudImage Src="@answer.Answer.Value"/>
-                                                            }
-                                                        }
-                                                    </MudRadio>
-                                                </div>
-                                                @if (_editing)
-                                                {
-                                                    @if (answer.Answer.Type == FieldType.Text)
-                                                    {
-                                                        <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
-                                                    }
-                                                    else
-                                                    {
-                                                        <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
-                                                            <ActivatorContent>
-                                                            <MudImage Src="@answer.Answer.Value"/>
-                                                            <MudButton Variant="Variant.Filled"
-                                                                       Color="Color.Primary"
-                                                                       StartIcon="@Icons.Material.Filled.CloudUpload" Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
-                                                                Change file
-                                                            </MudButton>
-                                                            </ActivatorContent>
-                                                        </MudFileUpload>
-                                                    }
-                                                    <MudButton Color="Color.Warning" StartIcon="@(answer.Answer.Type == FieldType.Text  ? Icons.Material.Filled.Camera: Icons.Material.Filled.FontDownload)" OnClick="() => ChangeType(answer.Answer)">Switch type</MudButton>
-                                                    <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
-                                                }
-                                            </div>
-                                        }
-                                    </MudRadioGroup>
+                                case TestOneQuestion testOneQuestion:
+
+                                    <TestOneQuestionComponent
+                                        ChangeType="ChangeType"
+                                        DeleteAnswer="DeleteAnswer"
+                                        Editing="_editing"
+                                        PhotoAcceptExtensions="@PhotoAcceptExtensions"
+                                        Question="testOneQuestion"
+                                        ChangePhoto="ChangePhotoInTestAnswer"
+                                    />
+
                                     break;
-                                case TestMultiQuestion tmquestion:
-                                    <MudText Typo="Typo.h6" Color="Color.Tertiary">Answers:</MudText>
-                                    @foreach (var answer in tmquestion.Answers)
-                                    {
-                                        <div class="d-flex my-2 align-items-baseline">
-                                                <MudCheckBox T="bool" Label="@(!_editing && answer.Answer.Type == FieldType.Text ? answer.Answer.Value : "")" Value="@(tmquestion.CorrectAnswers.Contains(answer.AnswerValue))" ValueChanged="(() => CheckBoxChanged(answer.AnswerValue))"></MudCheckBox>
-                                                @if (!_editing && answer.Answer.Type == FieldType.Photo)
-                                                {
-                                                    <div>
-                                                        <MudImage Src="@answer.Answer.Value"/>
-                                                    </div>
-                                                }
-                                            @if (_editing)
-                                            {
-                                                @if (answer.Answer.Type == FieldType.Text)
-                                                {
-                                                    <MudTextField @bind-Value="answer.Answer.Value" Label="Provide answer" Clearable FullWidth/>
-                                                }
-                                                else
-                                                {
-                                                    <MudFileUpload T="IBrowserFile" Accept=".png, .jpg">
-                                                        <ActivatorContent>
-                                                            <MudImage Src="@answer.Answer.Value"/>
-                                                            <MudButton Variant="Variant.Filled"
-                                                                       Color="Color.Primary"
-                                                                       StartIcon="@Icons.Material.Filled.CloudUpload" Style="@(answer.Answer.Value != string.Empty ? "position:absolute;top: 45%;left: 30%;z-index: 1000;" : "")">
-                                                                Change file
-                                                            </MudButton>
-                                                        </ActivatorContent>
-                                                    </MudFileUpload>
-                                                }
-                                                <MudButton Color="Color.Warning" StartIcon="@(answer.Answer.Type == FieldType.Text  ? Icons.Material.Filled.Camera: Icons.Material.Filled.FontDownload)" OnClick="() => ChangeType(answer.Answer)">Switch type</MudButton>
-                                                <MudButton Color="Color.Error" StartIcon="@Icons.Material.Filled.Delete" OnClick="() => DeleteAnswer(answer.Id)">DELETE</MudButton>
-                                            }
-                                        </div>
-                                    }
+                                case TestMultiQuestion testMultiQuestion:
+
+                                    <TestMultiQuestionComponent
+                                        ChangeType="ChangeType"
+                                        CheckBoxChanged="CheckBoxChanged"
+                                        DeleteAnswer="DeleteAnswer"
+                                        Editing="_editing"
+                                        PhotoAcceptExtensions="@PhotoAcceptExtensions"
+                                        Question="testMultiQuestion"
+                                        ChangePhoto="ChangePhotoInTestAnswer"
+                                    />
+
                                     break;
                                 case OpenQuestion openQuestion:
-                                    <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
-                                    @if (!_editing)
-                                    {
-                                        <MudText Style="white-space: pre-line;">@openQuestion.Answer.Value</MudText>
-                                    }
-                                    else
-                                    {
-                                        <MudTextField T="string" AutoGrow MaxLines="35" @bind-Value="@openQuestion.Answer.Value"/>
-                                    }
+                                    <OpenQuestionComponent
+                                        Editing="_editing"
+                                        Question="openQuestion"
+                                    />
 
                                     break;
                                 default:
-                                    <MudText>Unknown</MudText>
+                                    <MudText Color="Color.Error">Unknown</MudText>
                                     break;
                             }
 
                             @if (_editing && _selectedQuestion is not OpenQuestion)
                             {
-                                <div class="d-flex justify-center align-center py-1">
-                                    <MudButton Color="Color.Success" OnClick="AddAnswer" StartIcon="@Icons.Material.Filled.Add">ADD</MudButton>
-                                </div>
+                                <AddAnswerComponent
+                                    AddAnswer="AddAnswer"
+                                />
                             }
                         }
                         else
                         {
-                            <div class="d-flex justify-content-center align-items-center h-100 flex-column">
-                                <div>
-                                    <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do something with question</MudText>
-                                </div>
-                                <div class="py-2">
-                                    <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add" OnClick="ShowNewQuestionModal">Add new</MudButton>
-                                </div>
-                            </div>
+                            <EmptyQuestion
+                                ShowNewQuestionModal="ShowNewQuestionModal"
+                            />
                         }
                     </div>
                 </MudPaper>
                 @if (_selectedQuestion != null)
                 {
-                    <MudPaper>
-                        <div class="d-flex justify-content-end">
-                            <MudButton Color="Color.Success" Disabled="@(!_editing)" OnClick="SaveQuestion">Save</MudButton>
-                            <MudButton Color="Color.Error" OnClick="CancelQuestion">Cancel</MudButton>
-                        </div>
-                    </MudPaper>
+                    <BottomButtonsActions
+                        CancelQuestion="CancelQuestion"
+                        SaveQuestion="SaveQuestion"
+                        Editing="_editing"
+                    />
                 }
             </MudPaper>
         </div>
-        <div class="px-1 py-1 w-50">
-            <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="@Height">
-                <MudPaper Class="d-flex flex-row justify-content-evenly">
-                    <div>
-                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with one answer: <MudText Inline="true" >@_testOneQuestionCount</MudText></MudText>
-                    </div>
-                    <div>
-                        <MudText Typo="Typo.body1" Class="fw-bolder">Test question with multiple answer: <MudText Inline="true" >@_testMultiQuestionCount</MudText></MudText>
-                    </div>
-                    <div>
-                        <MudText Typo="Typo.body1" Class="fw-bolder">Open question: <MudText Inline="true" >@_openQuestionCount</MudText></MudText>
-                    </div>
-                </MudPaper>
-                <MudPaper>
-                    @foreach (var question in ProjectService.GetQuestions(ProjectValue))
-                    {
-                        <div class="d-flex flex-row justify-content-between">
-                            <div class="px-1 py-1">
-                                <MudText>@question.QuestionText</MudText>
-                            </div>
-                            <div class="px-1 py-1 d-flex">
-                                <div>
-                                    <MudButton Color="Color.Primary" OnClick="() => ViewQuestion(question.ID)">View</MudButton>
-                                </div>
-                                <div>
-                                    <MudButton Color="Color.Warning" OnClick="() => EditQuestion(question.ID)">Edit</MudButton>
-                                </div>
-                                <div>
-                                    <MudButton Color="Color.Error" OnClick="() => DeleteQuestion(question.ID)">Delete</MudButton>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </MudPaper>
-            </MudPaper>
-        </div>
+        <QuestionsSidePanel
+            ProjectValue="ProjectValue"
+            DeleteQuestion="DeleteQuestion"
+            EditQuestion="EditQuestion"
+            ViewQuestion="ViewQuestion"
+            Height="@Height"
+        />
     }
     else
     {
-        <div class="d-flex justify-content-center w-100">
-            <div class="d-flex justify-content-center flex-column">
-                <div>
-                    <MudPaper Elevation="3" Class="p-3 mb-3">
-                        <div>
-                            <MudText Typo="Typo.h4">Create new project with:</MudText>
-                        </div>
-                        <div>
-                            <MudTreeView T="string" ReadOnly>
-                                <MudTreeViewItem Text="File" Expanded="true">
-                                    <MudTreeViewItem Text="New"/>
-                                </MudTreeViewItem>
-                            </MudTreeView>
-                        </div>
-                    </MudPaper>
-                </div>
-                <div>
-                    <MudPaper Elevation="3" Class="p-3">
-                        <div>
-                            <MudText Typo="Typo.h4">or open existing project with:</MudText>
-                        </div>
-                        <div>
-                            <MudTreeView T="string" ReadOnly>
-                                <MudTreeViewItem Text="File" Expanded="true">
-                                    <MudTreeViewItem Text="Open"/>
-                                </MudTreeViewItem>
-                            </MudTreeView>
-                        </div>
-                    </MudPaper>
-                </div>
-
-            </div>
-        </div>
+        <EmptyProjectWelcome/>
     }
 </MudPaper>
 
 @code {
-    [Inject] IProjectService ProjectService { get; set; }
-    [Inject] ISnackbar Snackbar { get; set; }
-    [Inject] IDialogService DialogService { get; set; }
-    [Inject] IMessenger Messenger { get; set; }
-    [Parameter] public string Height { get; set; }
+    [Inject] IProjectService ProjectService { get; set; } = null!;
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
+    [Inject] IDialogService DialogService { get; set; } = null!;
+    [Inject] IMessenger Messenger { get; set; } = null!;
+    [Parameter] public string Height { get; set; } = string.Empty;
 
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
     private bool _editing;
 
-    private IBrowserFile photo;
-    private string prevData;
+    private const string PhotoAcceptExtensions = ".png, .jpg";
+
+    private string _prevData = string.Empty;
 
     private List<Language> _countries = [];
-
-    private int _testOneQuestionCount;
-    private int _testMultiQuestionCount;
-    private int _openQuestionCount;
 
     protected override void OnInitialized()
     {
@@ -271,7 +132,45 @@
 
         Messenger.Register<LoadProjectFromFileMessage>(this, (_, message) =>
         {
+            // JSRuntime.InvokeVoidAsync("console.log", $"Loaded from markdown answer ID: {unused.Id}");
             ProjectValue = message.Project;
+            List<LoadPhotoRecord> answersList = [];
+            ProjectService.UpdateStatsOnLoad(ProjectValue);
+            foreach (var question in ProjectValue.Questions)
+            {
+                if (question is not TestQuestion testQuestion) continue;
+
+                answersList.AddRange(testQuestion
+                    .Answers
+                    .Where(testAnswer => testAnswer.Answer.Type == FieldType.Photo &&
+                                         !testAnswer.Answer.Value.Contains("data")
+                    )
+                    .Select(ta => new LoadPhotoRecord(testQuestion.QuestionText, ta.Id, string.Empty)
+                    ));
+            }
+
+            if (answersList.Count == 0)
+            {
+                return;
+            }
+
+            var parametersSave = new DialogParameters<LoadPhotoModal>
+            {
+                { x => x.Messenger, Messenger },
+                { x => x.Answers, answersList },
+                { x => x.Project, ProjectValue },
+                { x => x.ProjectService, ProjectService }
+            };
+
+            DialogService.Show<LoadPhotoModal>(null, parametersSave, new DialogOptions
+            {
+                CloseOnEscapeKey = false,
+                BackdropClick = false,
+                NoHeader = true,
+                CloseButton = false,
+                MaxWidth = MaxWidth.Large
+            });
+
             InvokeAsync(StateHasChanged);
         });
 
@@ -302,18 +201,9 @@
             DialogService.Show<SaveProjectModal>(null, parametersSave);
         });
 
-        ProjectService.StatsUpdate += UpdateQuestionCounts;
-
         ProjectService.MockData(ProjectValue);
         // SelectedQuestion = ProjectService.GetRandomQuestion(Project, QuestionType.Open);
         // Editing = true;
-    }
-
-    private void UpdateQuestionCounts(QuestionCount count)
-    {
-        _testOneQuestionCount = count.TestOneQuestionCount;
-        _testMultiQuestionCount = count.TestMultipleQuestionCount;
-        _openQuestionCount = count.OpenQuestionCount;
     }
 
     private void ShowInfoModal()
@@ -321,6 +211,7 @@
         DialogService.Show<InfoModal>();
     }
 
+    #region Project
     private void ShowConfigurePageModal()
     {
         if (_countries.Count == 0)
@@ -411,6 +302,9 @@
         DialogService.Show<NewQuestionModal>(null, parameters);
     }
 
+    #endregion
+
+    #region Questions
     private void AddNewQuestion(int newQuestionType)
     {
         if (newQuestionType is < 0 or > 2)
@@ -439,7 +333,7 @@
             try
             {
                 ProjectService.AddOrEditQuestion(ProjectValue, _selectedQuestion, _selectedQuestion.ID);
-                Snackbar.Add("The action was successfully completed.",Severity.Success);
+                Snackbar.Add("The action was successfully completed.", Severity.Success);
             }
             catch (QuestionNotFoundException e)
             {
@@ -455,12 +349,12 @@
     {
         if (field.Value != string.Empty)
         {
-            prevData = field.Value;
+            _prevData = field.Value;
             field.Value = string.Empty;
         }
-        else if (field.Value == string.Empty && prevData != string.Empty)
+        else if (field.Value == string.Empty && _prevData != string.Empty)
         {
-            field.Value = prevData;
+            field.Value = _prevData;
         }
 
         field.Type = field.Type == FieldType.Photo ? FieldType.Text : FieldType.Photo;
@@ -483,20 +377,71 @@
         {
             Snackbar.Add(e.Message, Severity.Error);
         }
+
+        StateHasChanged();
+    }
+
+    private async Task ChangePhotoInTestAnswer(IBrowserFile? file, Guid id, TestQuestion question)
+    {
+        try
+        {
+            if (file == null)
+            {
+                throw new Exception();
+            }
+
+            await using var stream = file.OpenReadStream();
+            using var memoryStream = new MemoryStream();
+
+            await stream.CopyToAsync(memoryStream);
+
+            var imageBytes = memoryStream.ToArray();
+
+            var extension = Path.GetExtension(file.Name).TrimStart('.').ToLowerInvariant();
+
+            var testAnswer = question.Answers.First(a => a.Id == id);
+
+            testAnswer.Answer.Value = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
+
+            StateHasChanged();
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("Something unexpected happened when loading file.");
+        }
     }
 
     private void ViewQuestion(Guid id)
     {
         _editing = false;
         _selectedQuestion = ProjectService.GetQuestionById(ProjectValue, id);
+        StateHasChanged();
         // _ = JSRuntime.InvokeVoidAsync("console.log", $"ViewQuestion(Guid ID = {ID})");
     }
 
-    private void DeleteQuestion(Guid id)
+    private async Task DeleteQuestion(Guid id)
     {
         try
         {
-            ProjectService.DeleteQuestion(ProjectValue, id);
+            var parameters = new DialogParameters<DeleteElementModal>
+            {
+                { x => x.Id, id },
+                { x => x.Type, "question" }
+            };
+            var dialog = await DialogService.ShowAsync<DeleteElementModal>(null, parameters);
+
+            StateHasChanged();
+
+            var result = await dialog.Result;
+
+            if (result is { Canceled: false })
+            {
+                bool.TryParse(result.Data?.ToString(), out var delete);
+                if (delete)
+                {
+                    ProjectService.DeleteQuestion(ProjectValue, id);
+                }
+            }
         }
         catch (QuestionNotFoundException e)
         {
@@ -507,9 +452,14 @@
         {
             _selectedQuestion = null;
         }
+
+        StateHasChanged();
     }
 
-    private void DeleteAnswer(Guid id)
+    #endregion
+
+    #region Answers
+    private async Task DeleteAnswer(Guid id)
     {
         if (!_editing || _selectedQuestion == null)
         {
@@ -519,23 +469,40 @@
         switch (_selectedQuestion)
         {
             case TestQuestion question:
-                var answer = question.Answers.Find(a => a.Id == id);
-                if (answer == null)
-                {
-                    Snackbar.Add("Unknown answer to delete.", Severity.Error);
-                    return;
-                }
 
-                var index = question.Answers.FindIndex(a => a.Id == id);
-                question.Answers.Remove(answer);
-                for (var i = index; i < question.Answers.Count; i++)
+                var parameters = new DialogParameters<DeleteElementModal>
                 {
-                    question.Answers[i].AnswerValue -= 1;
+                    { x => x.Id, id },
+                    { x => x.Type, "answer" }
+                };
+                var dialog = await DialogService.ShowAsync<DeleteElementModal>(null, parameters);
+
+                StateHasChanged();
+
+                var result = await dialog.Result;
+
+                if (result is { Canceled: false })
+                {
+                    bool.TryParse(result.Data?.ToString(), out var delete);
+                    if (delete)
+                    {
+                        var answer = question.Answers.Find(a => a.Id == id);
+                        if (answer == null)
+                        {
+                            Snackbar.Add("Unknown answer to delete.", Severity.Error);
+                            return;
+                        }
+
+                        var index = question.Answers.FindIndex(a => a.Id == id);
+                        question.Answers.Remove(answer);
+                        for (var i = index; i < question.Answers.Count; i++)
+                        {
+                            question.Answers[i].AnswerValue -= 1;
+                        }
+                    }
                 }
 
                 break;
-            case OpenQuestion:
-                return;
             default:
                 return;
         }
@@ -557,14 +524,13 @@
                     Snackbar.Add($"If you need a question with more than {(int)CorrectAnswer.Z} answers, please contact me: michal.zuk30601@gmail.com, I would like to know this test question.", Severity.Warning);
                     return;
                 }
+
                 question.Answers.Add(new TestAnswer
                 {
-                    Answer = new Field{Value = string.Empty, Type = FieldType.Text},
+                    Answer = new Field { Value = string.Empty, Type = FieldType.Text },
                     AnswerValue = temp
                 });
                 break;
-            case OpenQuestion:
-                return;
             default:
                 return;
         }
@@ -583,9 +549,10 @@
         }
     }
 
+    #endregion
+
     public void Dispose()
     {
-        ProjectService.StatsUpdate -= UpdateQuestionCounts;
         Messenger.UnregisterAll(this);
     }
 

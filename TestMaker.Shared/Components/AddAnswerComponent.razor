@@ -1,0 +1,11 @@
+﻿@using MudBlazor
+<div class="d-flex justify-center align-center py-1">
+    <MudButton Color="Color.Success" OnClick="AddAnswer"
+               StartIcon="@Icons.Material.Filled.Add">ADD
+    </MudButton>
+</div>
+
+@code
+{
+    [Parameter] public Action AddAnswer { get; set; } = null!;
+}

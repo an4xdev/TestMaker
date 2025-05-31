@@ -1,0 +1,18 @@
+﻿@using MudBlazor
+@using TestMaker.Data.Models
+<MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
+@if (!Editing)
+{
+    <MudText Class="pre-line">@Question.Answer.Value</MudText>
+}
+else
+{
+    <MudTextField T="string" AutoGrow MaxLines="35"
+                  @bind-Value="@Question.Answer.Value"/>
+}
+
+@code
+{
+    [Parameter] public OpenQuestion Question { get; set; } = null!;
+    [Parameter] public bool Editing { get; set; }
+}

@@ -1,0 +1,18 @@
+﻿@using MudBlazor
+<div class="d-flex justify-content-center align-items-center h-100 flex-column">
+    <div>
+        <MudText Typo="Typo.h5" Align="Align.Center" Color="Color.Tertiary">Add new or do
+            something with question
+        </MudText>
+    </div>
+    <div class="py-2">
+        <MudButton Color="Color.Success" EndIcon="@Icons.Material.Filled.Add"
+                   OnClick="ShowNewQuestionModal">Add new
+        </MudButton>
+    </div>
+</div>
+
+@code
+{
+    [Parameter] public Action ShowNewQuestionModal { get; set; }
+}

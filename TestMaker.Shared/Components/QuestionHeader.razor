@@ -1,0 +1,19 @@
+﻿@using MudBlazor
+@using TestMaker.Data.Models
+<MudText Typo="Typo.h5" Color="Color.Secondary">Question:</MudText>
+@if (Editing)
+{
+    <MudFocusTrap DefaultFocus="DefaultFocus.FirstChild">
+        <MudTextField @bind-Value="SelectedQuestion.QuestionText"/>
+    </MudFocusTrap>
+}
+else
+{
+    <MudText Typo="Typo.h5">@SelectedQuestion.QuestionText</MudText>
+}
+
+@code
+{
+    [Parameter] public bool Editing { get; set; }
+    [Parameter] public Question SelectedQuestion { get; set; } = null!;
+}

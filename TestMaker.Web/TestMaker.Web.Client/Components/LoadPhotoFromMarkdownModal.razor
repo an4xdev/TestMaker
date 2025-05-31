@@ -1,0 +1,164 @@
+﻿<MudDialog>
+    <TitleContent>
+        Load photo to answer
+    </TitleContent>
+    <DialogContent>
+        <MudStack Style="width: 100%">
+            <MudFileUpload T="IBrowserFile"
+                           @ref="@_fileUpload"
+                           Accept="@Accept"
+                           OnFilesChanged="OnInputFileChanged"
+                           Hidden="@false"
+                           InputClass="absolute mud-width-full mud-height-full overflow-hidden z-10"
+                           InputStyle="opacity:0"
+                           tabindex="-1"
+                           @ondrop="@ClearDragClass"
+                           @ondragenter="@SetDragClass"
+                           @ondragleave="@ClearDragClass"
+                           @ondragend="@ClearDragClass">
+                <ActivatorContent>
+                    <MudPaper Height="300px"
+                              Outlined="true"
+                              Class="@_dragClass">
+                        <MudText Typo="Typo.h6">
+                            Drag and drop files here or click
+                        </MudText>
+                        @if (_fileName != string.Empty)
+                        {
+                            <MudChip T="string"
+                                     Color="Color.Dark"
+                                     Text="@_fileName"
+                                     tabindex="-1"/>
+                        }
+
+                    </MudPaper>
+                </ActivatorContent>
+            </MudFileUpload>
+            <MudToolBar Gutters="@false"
+                        Class="relative d-flex justify-end gap-4">
+                <MudButton Color="Color.Primary"
+                           OnClick="@OpenFilePickerAsync"
+                           Disabled="@(_fileName != string.Empty)"
+                           Variant="Variant.Filled">
+                    Open file picker
+                </MudButton>
+                <MudButton Color="Color.Primary"
+                           Disabled="@(_fileName == string.Empty)"
+                           OnClick="@Upload"
+                           Variant="Variant.Filled">
+                    Upload
+                </MudButton>
+                <MudButton Color="Color.Error"
+                           Disabled="@(_fileName == string.Empty)"
+                           OnClick="@ClearAsync"
+                           Variant="Variant.Filled">
+                    Clear
+                </MudButton>
+            </MudToolBar>
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+    [Inject] IMessenger Messenger { get; set; } = null!;
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
+
+    [Parameter] public LoadPhotoToAnswerRequest Request { get; set; } = null!;
+
+    private const string DefaultDragClass = "relative rounded-lg border-2 border-dashed pa-4 mt-4 mud-width-full mud-height-full";
+    private string _dragClass = DefaultDragClass;
+    private string _fileName = string.Empty;
+    private MudFileUpload<IBrowserFile>? _fileUpload;
+    private readonly string[] _supportedPhotoExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "webp"];
+
+    private const string Accept = ".jpg .jpeg .png .gif .bmp .webp";
+
+    private async Task ClearAsync()
+    {
+        await (_fileUpload?.ClearAsync() ?? Task.CompletedTask);
+        _fileName = string.Empty;
+        ClearDragClass();
+    }
+
+    private Task OpenFilePickerAsync()
+    {
+        return _fileUpload?.OpenFilePickerAsync() ?? Task.CompletedTask;
+    }
+
+    private void OnInputFileChanged(InputFileChangeEventArgs e)
+    {
+        ClearDragClass();
+        var files = e.GetMultipleFiles();
+        if (files.Count != 1)
+        {
+            Snackbar.Add("You needs to provide only one file.", Severity.Error);
+            return;
+        }
+
+        _fileName = files[0].Name;
+
+        if (_fileUpload == null)
+        {
+            Snackbar.Add("An error occured with file loading.", Severity.Error);
+            return;
+        }
+
+        _fileUpload.Files = files[0];
+    }
+
+    private async Task Upload()
+    {
+        try
+        {
+            if (_fileUpload?.Files == null)
+            {
+                Snackbar.Add("You needs to provide file.", Severity.Error);
+                return;
+            }
+
+            var extension = Path.GetExtension(_fileName).TrimStart('.').ToLowerInvariant();
+
+            if (!_supportedPhotoExtensions.Contains(extension))
+            {
+                Snackbar.Add($"This image type: {extension} isn't supported", Severity.Error);
+                return;
+            }
+
+            await using var stream = _fileUpload.Files.OpenReadStream();
+
+            using var memoryStream = new MemoryStream();
+            await stream.CopyToAsync(memoryStream);
+            var imageBytes = memoryStream.ToArray();
+
+            var data = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
+
+            Messenger.Send(new LoadPhotoToAnswerResponse
+            {
+                AnswerId = Request.AnswerId,
+                PhotoBase64Data = data
+            });
+
+            MudDialog.Close();
+        }
+        catch (Exception)
+        {
+            Snackbar.Add("An error occurred with loading project.", Severity.Error);
+        }
+    }
+
+    private void SetDragClass()
+    {
+        _dragClass = $"{DefaultDragClass} mud-border-primary";
+    }
+
+    private void ClearDragClass()
+    {
+        _dragClass = DefaultDragClass;
+    }
+
+}

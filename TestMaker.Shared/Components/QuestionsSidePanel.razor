@@ -1,0 +1,80 @@
+﻿@using MudBlazor
+@using TestMaker.Data.Models
+@using TestMaker.Data.Services
+@implements IDisposable
+<div class="px-1 py-1 w-50">
+    <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="@Height">
+        <MudPaper Class="d-flex flex-row justify-content-evenly">
+            <div>
+                <MudText Typo="Typo.body1" Class="fw-bolder">Test question with one answer:
+                    <MudText Inline="true">@_testOneQuestionCount</MudText>
+                </MudText>
+            </div>
+            <div>
+                <MudText Typo="Typo.body1" Class="fw-bolder">Test question with multiple answer:
+                    <MudText Inline="true">@_testMultiQuestionCount</MudText>
+                </MudText>
+            </div>
+            <div>
+                <MudText Typo="Typo.body1" Class="fw-bolder">Open question:
+                    <MudText Inline="true">@_openQuestionCount</MudText>
+                </MudText>
+            </div>
+        </MudPaper>
+        <MudPaper>
+            @foreach (var question in ProjectService.GetQuestions(ProjectValue))
+            {
+                <div class="d-flex flex-row justify-content-between">
+                    <div class="px-1 py-1">
+                        <MudText>@question.QuestionText</MudText>
+                    </div>
+                    <div class="px-1 py-1 d-flex">
+                        <div>
+                            <MudButton Color="Color.Primary" OnClick="() => ViewQuestion(question.ID)">View
+                            </MudButton>
+                        </div>
+                        <div>
+                            <MudButton Color="Color.Warning" OnClick="() => EditQuestion(question.ID)">Edit
+                            </MudButton>
+                        </div>
+                        <div>
+                            <MudButton Color="Color.Error" OnClick="() => DeleteQuestion(question.ID)">Delete
+                            </MudButton>
+                        </div>
+                    </div>
+                </div>
+            }
+        </MudPaper>
+    </MudPaper>
+</div>
+
+@code
+{
+    [Inject] IProjectService ProjectService { get; set; } = null!;
+    [Parameter] public string Height { get; set; } = string.Empty;
+    private int _testOneQuestionCount;
+    private int _testMultiQuestionCount;
+    private int _openQuestionCount;
+    [Parameter] public Project ProjectValue { get; set; } = null!;
+    [Parameter] public Action<Guid> ViewQuestion { get; set; } = null!;
+    [Parameter] public Action<Guid> EditQuestion { get; set; } = null!;
+    [Parameter] public Func<Guid, Task> DeleteQuestion { get; set; } = null!;
+
+    protected override void OnInitialized()
+    {
+        ProjectService.StatsUpdate += UpdateQuestionCounts;
+        ProjectService.UpdateStatsOnLoad(ProjectValue);
+    }
+
+    private void UpdateQuestionCounts(QuestionCount count)
+    {
+        _testOneQuestionCount = count.TestOneQuestionCount;
+        _testMultiQuestionCount = count.TestMultipleQuestionCount;
+        _openQuestionCount = count.OpenQuestionCount;
+    }
+
+    public void Dispose()
+    {
+        ProjectService.StatsUpdate -= UpdateQuestionCounts;
+    }
+}
