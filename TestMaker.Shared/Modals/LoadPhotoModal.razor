@@ -11,13 +11,13 @@
     <DialogContent>
         @foreach (var question in Answers)
         {
-            <MudText>@question.Item1</MudText>
-            @if (question.Item3 != string.Empty)
+            <MudText>@question.QuestionText</MudText>
+            @if (question.PhotoData != string.Empty)
             {
-                <MudImage Src="@question.Item3"></MudImage>
+                <MudImage Src="@question.PhotoData"></MudImage>
             }
 
-            <MudButton OnClick="() => SendRequest(question.Item2)">Load file</MudButton>
+            <MudButton OnClick="() => SendRequest(question.TestAnswerId)">Load file</MudButton>
         }
     </DialogContent>
     <DialogActions>
@@ -32,7 +32,7 @@
     [Inject] ISnackbar Snackbar { get; set; }
     [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
     [Parameter] public IMessenger Messenger { get; set; }
-    [Parameter] public List<Tuple<string, Guid, string>> Answers { get; set; }
+    [Parameter] public List<LoadPhotoRecord> Answers { get; set; }
     [Parameter] public ProjectService ProjectService { get; set; }
     [Parameter] public Project Project { get; set; }
 
@@ -40,16 +40,16 @@
     {
         Messenger.Register<LoadPhotoToAnswerResponse>(this, (_, message) =>
         {
-            var tuple = Answers.FirstOrDefault(t => t.Item2 == message.AnswerId);
-            if (tuple is null)
+            var answer = Answers.FirstOrDefault(t => t.TestAnswerId == message.AnswerId);
+            if (answer is null)
             {
                 Snackbar.Add("Cannot find answer", Severity.Error);
                 return;
             }
 
-            var index = Answers.IndexOf(tuple);
-            Answers.Remove(tuple);
-            Answers.Insert(index, new Tuple<string, Guid, string>(tuple.Item1, message.AnswerId, message.PhotoBase64Data));
+            var index = Answers.IndexOf(answer);
+            Answers.Remove(answer);
+            Answers.Insert(index, new LoadPhotoRecord(answer.QuestionText, message.AnswerId, message.PhotoBase64Data));
             StateHasChanged();
         });
     }

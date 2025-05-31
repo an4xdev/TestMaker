@@ -122,7 +122,6 @@
 
     private const string PhotoAcceptExtensions = ".png, .jpg";
 
-    private IBrowserFile _photo = null!;
     private string _prevData = string.Empty;
 
     private List<Language> _countries = [];
@@ -135,7 +134,7 @@
         {
             // JSRuntime.InvokeVoidAsync("console.log", $"Loaded from markdown answer ID: {unused.Id}");
             ProjectValue = message.Project;
-            List<Tuple<string, Guid, string>> answersList = [];
+            List<LoadPhotoRecord> answersList = [];
             ProjectService.UpdateStatsOnLoad(ProjectValue);
             foreach (var question in ProjectValue.Questions)
             {
@@ -146,7 +145,7 @@
                     .Where(testAnswer => testAnswer.Answer.Type == FieldType.Photo &&
                                          !testAnswer.Answer.Value.Contains("data")
                     )
-                    .Select(ta => new Tuple<string, Guid, string>(testQuestion.QuestionText, ta.Id, string.Empty)
+                    .Select(ta => new LoadPhotoRecord(testQuestion.QuestionText, ta.Id, string.Empty)
                     ));
             }
 

@@ -1,9 +1,10 @@
-﻿using TestMaker.Data.Models;
+﻿using System.Text.RegularExpressions;
+using TestMaker.Data.Models;
 using TestMaker.Data.Services.ServiceModels;
 
 namespace TestMaker.Data.Services;
 
-public static class QuestionParser
+public static partial class QuestionParser
 {
     /// <summary>
     /// Get project from markdown file.<br />
@@ -139,7 +140,7 @@ public static class QuestionParser
                             Value = data[i].Contains("**")
                                 ? data[i].Split("- **")[1].Split("**")[0]
                                 : data[i].Split("- ")[1],
-                            Type = Regex.IsMatch(data[i], @"!\[.*?\]\(.*?\)") ? FieldType.Photo : FieldType.Text
+                            Type = MyRegex().IsMatch(data[i]) ? FieldType.Photo : FieldType.Text
                         }
                     };
                     if (data[i].Contains("**"))
@@ -207,4 +208,7 @@ public static class QuestionParser
 
         return Task.FromResult(new QuestionParseResponse());
     }
+
+    [GeneratedRegex(@"!\[.*?\]\(.*?\)")]
+    private static partial Regex MyRegex();
 }

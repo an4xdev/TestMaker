@@ -47,7 +47,7 @@ public class HtmlBuilderService
             "<h3 id=\"questionH\"></h3></div><div id=\"answerContainer\"><div>" +
             $"<h3 class=\"questionHPrefix\">{pageContent.Answer}</h3>" +
             "</div><div id=\"notAllContainer\">" +
-            $"<p id=\"notAllP\">{pageContent.NotAllAnswers}</p>"+
+            $"<p id=\"notAllP\">{pageContent.NotAllAnswers}</p>" +
             "</div><div id=\"checkAnswerContainer\" style=\"display: none;\"></div></div><div id=\"answer\"></div></div><script>");
         return this;
     }
@@ -59,12 +59,14 @@ public class HtmlBuilderService
     /// <returns>HtmlBuilderService</returns>
     public HtmlBuilderService AddScript(PageContent pageContent)
     {
-        _stringBuilder.Append($"const questionHeaderText=\"{pageContent.QuestionHeader}\";const notAllAnswersText=\"{pageContent.NotAllAnswers}\";const testMultiAllAnswersText=\"{pageContent.TestMultiAllAnswers}\";const checkAnswerText=\"{pageContent.CheckAnswers}\";const showAnswerText=\"{pageContent.ShowAnswer}\";");
+        _stringBuilder.Append(
+            $"const questionHeaderText=\"{pageContent.QuestionHeader}\";const notAllAnswersText=\"{pageContent.NotAllAnswers}\";const testMultiAllAnswersText=\"{pageContent.TestMultiAllAnswers}\";const checkAnswerText=\"{pageContent.CheckAnswers}\";const showAnswerText=\"{pageContent.ShowAnswer}\";");
         _stringBuilder.Append(
             "function toggleTheme(){const body=document.body;const themeIcon=document.getElementById(\"theme-icon\");if(body.getAttribute(\"data-theme\")===\"dark\"){body.removeAttribute(\"data-theme\");themeIcon.textContent=\"\ud83c\udf19\"}else{body.setAttribute(\"data-theme\",\"dark\");themeIcon.textContent=\"\u2600\ufe0f\"}}document.getElementById(\"theme-toggle\").addEventListener(\"click\",toggleTheme);toggleTheme();function getRandomInt(max){min=0;max=Math.floor(max);return Math.floor(Math.random()*(max-min+1))+min}");
         return this;
     }
 
+    // TODO: look at photos
     /// <summary>
     /// Generate script code for test questions with only one correct answer
     /// </summary>
@@ -76,6 +78,7 @@ public class HtmlBuilderService
         return this;
     }
 
+    // TODO: look at photos
     /// <summary>
     /// Generate script code for test questions with multiple correct answers
     /// </summary>
@@ -97,7 +100,6 @@ public class HtmlBuilderService
             "let nextOpen=-1;let randomOpen=0;let wasOpen=[];document.getElementById(\"nextO\").addEventListener(\"click\",function(){nextOpen+=1;if(nextOpen>openQuestions.length-1){nextOpen=0}showOpen(!0)});document.getElementById(\"randomO\").addEventListener(\"click\",function(){if(wasOpen.length>=openQuestions.length-2){wasOpen=[]}randomOpen=getRandomInt(openQuestions.length-1);while(wasOpen.includes(randomOpen)){randomOpen=getRandomInt(openQuestions.length-1)}wasOpen.push(randomOpen);showOpen(!1)});function showOpen(isNext){document.getElementById(\"questionHeader\").innerText=questionHeaderText+(isNext?nextOpen+1:randomOpen+1);document.getElementById(\"checkAnswerContainer\").style.display=\"none\";document.getElementById(\"notAllContainer\").style.display=\"none\";document.getElementById(\"checkAnswer\")?.remove();const question=openQuestions[isNext?nextOpen:randomOpen];const questionH=document.getElementById(\"questionH\");const answerElement=document.getElementById(\"answer\");questionH.innerHTML=\"\";answerElement.innerHTML=\"\";questionH.textContent=question.question;const details=document.createElement(\"details\");const summary=document.createElement(\"summary\");summary.textContent=showAnswerText;const p=document.createElement(\"p\");p.id=\"detOdp\";p.textContent=question.answer;details.appendChild(summary);details.appendChild(p);answerElement.appendChild(details);document.querySelector(\".question-container\").style.display=\"block\"}");
         return this;
     }
-
 
 
     /// <summary>
@@ -214,6 +216,7 @@ public class HtmlBuilderService
 
         _stringBuilder.Append("const openQuestions = [");
 
+        // TODO: look at open question new lines, replace them with <br> and probably edit script to editing html not text
         openQuestions.ForEach(q =>
         {
             _stringBuilder.Append($"{{ question: \"{q.QuestionText}\", answer: \"{q.Answer.Value}\"}},");
