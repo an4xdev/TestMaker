@@ -188,10 +188,6 @@ public partial class MainPage
             return;
         }
 
-        using var memoryStream = new MemoryStream();
-        await stream.CopyToAsync(memoryStream);
-        var imageBytes = memoryStream.ToArray();
-
         var extension = Path.GetExtension(result.FileName).TrimStart('.').ToLower();
 
         if (!_supportedPhotoExtensions.Contains(extension))
@@ -199,6 +195,10 @@ public partial class MainPage
             await Toast.Make($"This image type: {extension} isn't supported").Show();
             return;
         }
+
+        using var memoryStream = new MemoryStream();
+        await stream.CopyToAsync(memoryStream);
+        var imageBytes = memoryStream.ToArray();
 
         var data = $"data:image/{extension};base64,{Convert.ToBase64String(imageBytes)}";
 

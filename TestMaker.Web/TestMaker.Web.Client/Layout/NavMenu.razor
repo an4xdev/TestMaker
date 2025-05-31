@@ -1,5 +1,6 @@
-﻿@using System.Text
-@rendermode InteractiveAuto
+﻿@rendermode InteractiveAuto
+@using System.Text
+@implements IDisposable
 <MudMenu Label="File" Class="ms-3">
     <MudMenuItem OnClick="NewProjectClicked">New</MudMenuItem>
     <MudMenuItem OnClick="OpenProjectClicked">Open</MudMenuItem>
@@ -18,9 +19,9 @@
 
 @code 
 {
-    [Inject] IMessenger Messenger { get; set; }
-    [Inject] IDialogService DialogService { get; set; }
-    [Inject] IJSRuntime JsRuntime { get; set; }
+    [Inject] IMessenger Messenger { get; set; } = null!;
+    [Inject] IDialogService DialogService { get; set; } = null!;
+    [Inject] IJSRuntime JsRuntime { get; set; } = null!;
 
     protected override void OnInitialized()
     {
@@ -39,6 +40,15 @@
                 SaveProjectToFile(message.Project);
             }
             await JsRuntime.InvokeVoidAsync("window.close");
+        });
+        Messenger.Register<LoadPhotoToAnswerRequest>(this, (_, message) =>
+        {
+            var parameters = new DialogParameters<LoadPhotoFromMarkdownModal>
+            {
+                { x => x.Request, message }
+            };
+
+            DialogService.Show<LoadPhotoFromMarkdownModal>(null, parameters);
         });
     }
 
@@ -128,13 +138,18 @@
             
         var dataUrl = $"data:application/octet-stream;base64,{base64String}";
 
-        var par = new DialogParameters<SaveFileModal>
+        var parameters = new DialogParameters<SaveFileModal>
         {
             {x => x.Json, dataUrl},
             {x=>x.FileName, $"{project.Name}.tmps"},
             {x=> x.Content, "Get project file"}
         };
-        
-        DialogService.Show<SaveFileModal>(null, par);
+
+        DialogService.Show<SaveFileModal>(null, parameters);
+    }
+
+    public void Dispose()
+    {
+        Messenger.UnregisterAll(this);
     }
 }

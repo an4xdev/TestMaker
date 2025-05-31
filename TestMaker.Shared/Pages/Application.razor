@@ -212,6 +212,7 @@
         DialogService.Show<InfoModal>();
     }
 
+    #region Project
     private void ShowConfigurePageModal()
     {
         if (_countries.Count == 0)
@@ -302,6 +303,9 @@
         DialogService.Show<NewQuestionModal>(null, parameters);
     }
 
+    #endregion
+
+    #region Questions
     private void AddNewQuestion(int newQuestionType)
     {
         if (newQuestionType is < 0 or > 2)
@@ -453,6 +457,9 @@
         StateHasChanged();
     }
 
+    #endregion
+
+    #region Answers
     private async Task DeleteAnswer(Guid id)
     {
         if (!_editing || _selectedQuestion == null)
@@ -542,6 +549,8 @@
             question.CorrectAnswers.Add(value);
         }
     }
+
+    #endregion
 
     public void Dispose()
     {
