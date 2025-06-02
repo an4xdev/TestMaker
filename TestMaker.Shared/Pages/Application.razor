@@ -11,11 +11,12 @@
 @using FieldType = TestMaker.Data.Models.FieldType
 @implements IDisposable
 @* @inject IJSRuntime JSRuntime *@
-<MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4">
+@* _selectedQuestion on desktop: 80 / 84 *@
+<MudPaper Class="py-4 px-4 d-flex flex-row" Elevation="4" Style="@(IsWeb ? "height: 91vh" : "height: 99vh")">
     @if (ProjectValue.Name != string.Empty)
     {
         <div class="w-50">
-            <MudPaper Class="d-flex flex-column px-1 py-1">
+            <MudPaper Class="d-flex flex-column px-1 py-1" Style="height: 86.25vh">
                 <MudPaper Class="px-1 py-1" Elevation="3">
                     <MudText Typo="Typo.h3">
                         <MudText Color="Color.Primary" Typo="Typo.h2" Inline>Project:</MudText>@ProjectValue.Name
@@ -23,13 +24,12 @@
                 </MudPaper>
                 <MudPaper Class="px-1 py-1 d-flex flex-column my-1 justify-content-between h-100" Elevation="3">
                     <div class="px-1 py-1 overflow-scroll"
-                         style="@(_selectedQuestion != null ? "height:80vh;" : "height:84vh;")">
+                         style="@(_selectedQuestion != null ? IsWeb ? "height:74vh;" : "height:80.25vh;" : IsWeb ? "height:79vh;" : "height:85vh;")">
                         @if (_selectedQuestion != null)
                         {
                             <QuestionHeader
                                 Editing="_editing"
-                                SelectedQuestion="_selectedQuestion"
-                            />
+                                SelectedQuestion="_selectedQuestion"/>
 
                             @switch (_selectedQuestion)
                             {
@@ -41,8 +41,7 @@
                                         Editing="_editing"
                                         PhotoAcceptExtensions="@PhotoAcceptExtensions"
                                         Question="testOneQuestion"
-                                        ChangePhoto="ChangePhotoInTestAnswer"
-                                    />
+                                        ChangePhoto="ChangePhotoInTestAnswer"/>
 
                                     break;
                                 case TestMultiQuestion testMultiQuestion:
@@ -54,15 +53,13 @@
                                         Editing="_editing"
                                         PhotoAcceptExtensions="@PhotoAcceptExtensions"
                                         Question="testMultiQuestion"
-                                        ChangePhoto="ChangePhotoInTestAnswer"
-                                    />
+                                        ChangePhoto="ChangePhotoInTestAnswer"/>
 
                                     break;
                                 case OpenQuestion openQuestion:
                                     <OpenQuestionComponent
                                         Editing="_editing"
-                                        Question="openQuestion"
-                                    />
+                                        Question="openQuestion"/>
 
                                     break;
                                 default:
@@ -73,15 +70,13 @@
                             @if (_editing && _selectedQuestion is not OpenQuestion)
                             {
                                 <AddAnswerComponent
-                                    AddAnswer="AddAnswer"
-                                />
+                                    AddAnswer="AddAnswer"/>
                             }
                         }
                         else
                         {
                             <EmptyQuestion
-                                ShowNewQuestionModal="ShowNewQuestionModal"
-                            />
+                                ShowNewQuestionModal="ShowNewQuestionModal"/>
                         }
                     </div>
                 </MudPaper>
@@ -90,8 +85,7 @@
                     <BottomButtonsActions
                         CancelQuestion="CancelQuestion"
                         SaveQuestion="SaveQuestion"
-                        Editing="_editing"
-                    />
+                        Editing="_editing"/>
                 }
             </MudPaper>
         </div>
@@ -100,8 +94,7 @@
             DeleteQuestion="DeleteQuestion"
             EditQuestion="EditQuestion"
             ViewQuestion="ViewQuestion"
-            Height="@Height"
-        />
+            IsWeb="@IsWeb"/>
     }
     else
     {
@@ -114,7 +107,7 @@
     [Inject] ISnackbar Snackbar { get; set; } = null!;
     [Inject] IDialogService DialogService { get; set; } = null!;
     [Inject] IMessenger Messenger { get; set; } = null!;
-    [Parameter] public string Height { get; set; } = string.Empty;
+    [Parameter] public bool IsWeb { get; set; }
 
     private Project ProjectValue { get; set; } = new();
     private Question? _selectedQuestion;
@@ -212,6 +205,7 @@
     }
 
     #region Project
+
     private void ShowConfigurePageModal()
     {
         if (_countries.Count == 0)
@@ -305,6 +299,7 @@
     #endregion
 
     #region Questions
+
     private void AddNewQuestion(int newQuestionType)
     {
         if (newQuestionType is < 0 or > 2)
@@ -459,6 +454,7 @@
     #endregion
 
     #region Answers
+
     private async Task DeleteAnswer(Guid id)
     {
         if (!_editing || _selectedQuestion == null)

@@ -3,7 +3,7 @@
 @using TestMaker.Data.Services
 @implements IDisposable
 <div class="px-1 py-1 w-50">
-    <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="@Height">
+    <MudPaper Class="px-1 py-1 my-1 overflow-scroll" Elevation="3" Style="@(IsWeb ? "height:88vh" : "height:94vh")">
         <MudPaper Class="d-flex flex-row justify-content-evenly">
             <div>
                 <MudText Typo="Typo.body1" Class="fw-bolder">Test question with one answer:
@@ -51,7 +51,7 @@
 @code
 {
     [Inject] IProjectService ProjectService { get; set; } = null!;
-    [Parameter] public string Height { get; set; } = string.Empty;
+    [Parameter] public bool IsWeb { get; set; }
     private int _testOneQuestionCount;
     private int _testMultiQuestionCount;
     private int _openQuestionCount;
