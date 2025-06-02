@@ -3,13 +3,19 @@
 <MudText Typo="Typo.h6" Color="Color.Tertiary">Answer:</MudText>
 @if (!Editing)
 {
-    <MudText Class="pre-line">@Question.Answer.Value</MudText>
+    <MudText Class="custom-white-space">@Question.Answer.Value</MudText>
 }
 else
 {
     <MudTextField T="string" AutoGrow MaxLines="35"
                   @bind-Value="@Question.Answer.Value"/>
 }
+
+<style>
+    .custom-white-space {
+        white-space: pre-line;
+    }
+</style>
 
 @code
 {
