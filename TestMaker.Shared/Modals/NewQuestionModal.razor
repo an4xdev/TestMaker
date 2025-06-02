@@ -18,8 +18,8 @@
 
 @code
 {
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
-    [Parameter] public Action<int> AddNewQuestion { get; set; }
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public Action<int> AddNewQuestion { get; set; } = null!;
     public int NewQuestionType { get; set; }
 
     private void Submit()
@@ -27,5 +27,5 @@
         MudDialog.Close();
         AddNewQuestion(NewQuestionType);
     }
-    
+
 }

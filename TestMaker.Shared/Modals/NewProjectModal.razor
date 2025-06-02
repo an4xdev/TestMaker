@@ -16,8 +16,8 @@
 
 @code
 {
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
-    [Parameter] public Action<NewProjectEnum,string> SubmitNewProjectModal { get; set; }
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public Action<NewProjectEnum, string> SubmitNewProjectModal { get; set; } = null!;
     public string ProjectName { get; set; } = string.Empty;
 
     private void Submit(NewProjectEnum enumValue)

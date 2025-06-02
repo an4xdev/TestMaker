@@ -29,12 +29,12 @@
 
 @code
 {
-    [Inject] ISnackbar Snackbar { get; set; }
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
-    [Parameter] public IMessenger Messenger { get; set; }
-    [Parameter] public List<LoadPhotoRecord> Answers { get; set; }
-    [Parameter] public ProjectService ProjectService { get; set; }
-    [Parameter] public Project Project { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
+    [Parameter] public IMessenger Messenger { get; set; } = null!;
+    [Parameter] public List<LoadPhotoRecord> Answers { get; set; } = null!;
+    [Parameter] public ProjectService ProjectService { get; set; } = null!;
+    [Parameter] public Project Project { get; set; } = null!;
 
     protected override void OnInitialized()
     {

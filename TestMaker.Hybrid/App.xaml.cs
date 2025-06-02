@@ -1,9 +1,5 @@
-﻿using System;
-using CommunityToolkit.Maui.Storage;
+﻿using CommunityToolkit.Maui.Storage;
 using CommunityToolkit.Mvvm.Messaging;
-using Microsoft.Maui;
-using Microsoft.Maui.Controls;
-using TestMaker.Data.Messages;
 using TestMaker.Data.Services;
 
 namespace TestMaker.Hybrid
@@ -15,9 +11,9 @@ namespace TestMaker.Hybrid
             InitializeComponent();
             MainPage = new NavigationPage(new MainPage(saver, messenger, showNotification));
         }
-        
+
         // https://github.com/dotnet/maui/issues/11263#issuecomment-1384487707
-        protected override Window CreateWindow(IActivationState activationState)
+        protected override Window CreateWindow(IActivationState? activationState)
         {
             var window = base.CreateWindow(activationState);
             window.Title = $"Test Maker by Michał Żuk \u00a9 2024 - {DateTime.Now.Year}";

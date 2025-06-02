@@ -448,3 +448,4 @@ FodyWeavers.xsd
 /command.txt
 /TestMaker.Web/TestMaker.Web/.config/dotnet-tools.json
 TestMaker.Hybrid/.idea/.idea.TestMaker.Hybrid/.idea/AndroidProjectSystem.xml
+/my-cert

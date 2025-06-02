@@ -155,12 +155,12 @@
 
 @code
 {
-    [Inject] ISnackbar Snackbar { get; set; }
+    [Inject] ISnackbar Snackbar { get; set; } = null!;
 
-    [CascadingParameter] private MudDialogInstance MudDialog { get; set; }
+    [CascadingParameter] private MudDialogInstance MudDialog { get; set; } = null!;
 
-    [Parameter] public Action<GeneratePageClickedMessageResponse> SubmitGeneratePageModal { get; set; }
-    [Parameter] public List<Language> Countries { get; set; }
+    [Parameter] public Action<GeneratePageClickedMessageResponse> SubmitGeneratePageModal { get; set; } = null!;
+    [Parameter] public List<Language> Countries { get; set; } = null!;
 
     private string _languageCode = string.Empty;
     private PageContent _pageContent = new(Languages.None);
