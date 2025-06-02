@@ -104,7 +104,7 @@ public static partial class QuestionParser
                 var questionO = new OpenQuestion
                 {
                     ID = Guid.NewGuid(),
-                    QuestionText = data[0].Split("##")[1],
+                    QuestionText = data[0].Split("##")[1].TrimStart(),
                     Answer = new Field
                     {
                         Value = string.Join("\n", data[1..data.Count]),
@@ -126,7 +126,7 @@ public static partial class QuestionParser
                 var question = new TestOneQuestion
                 {
                     ID = Guid.NewGuid(),
-                    QuestionText = data[0].Split("##")[1]
+                    QuestionText = data[0].Split("##")[1].TrimStart()
                 };
 
                 question.Answers.Clear();
@@ -167,7 +167,7 @@ public static partial class QuestionParser
                 var question = new TestMultiQuestion
                 {
                     ID = Guid.NewGuid(),
-                    QuestionText = data[0].Split("##")[1],
+                    QuestionText = data[0].Split("##")[1].TrimStart()
                 };
 
                 question.Answers.Clear();
