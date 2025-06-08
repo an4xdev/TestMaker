@@ -142,28 +142,25 @@
                     ));
             }
 
-            if (answersList.Count == 0)
+            if (answersList.Count != 0)
             {
-                return;
+                var parametersSave = new DialogParameters<LoadPhotoModal>
+                {
+                    { x => x.Messenger, Messenger },
+                    { x => x.Answers, answersList },
+                    { x => x.Project, ProjectValue },
+                    { x => x.ProjectService, ProjectService }
+                };
+
+                DialogService.Show<LoadPhotoModal>(null, parametersSave, new DialogOptions
+                {
+                    CloseOnEscapeKey = false,
+                    BackdropClick = false,
+                    NoHeader = true,
+                    CloseButton = false,
+                    MaxWidth = MaxWidth.Large
+                });
             }
-
-            var parametersSave = new DialogParameters<LoadPhotoModal>
-            {
-                { x => x.Messenger, Messenger },
-                { x => x.Answers, answersList },
-                { x => x.Project, ProjectValue },
-                { x => x.ProjectService, ProjectService }
-            };
-
-            DialogService.Show<LoadPhotoModal>(null, parametersSave, new DialogOptions
-            {
-                CloseOnEscapeKey = false,
-                BackdropClick = false,
-                NoHeader = true,
-                CloseButton = false,
-                MaxWidth = MaxWidth.Large
-            });
-
             InvokeAsync(StateHasChanged);
         });
 

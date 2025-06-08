@@ -36,7 +36,7 @@ public static partial class QuestionParser
             {
                 if (!line.StartsWith("##"))
                 {
-                    project.Name = line.Split("#")[1];
+                    project.Name = line.Split("#")[1].Trim();
                 }
                 else
                 {
